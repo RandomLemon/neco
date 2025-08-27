@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import loadImageAsset from '@/util/loadimage'
 import Intro from './IntroView.vue'
 </script>
 
@@ -9,7 +8,7 @@ import Intro from './IntroView.vue'
       <div class="right-area">
         <div class="right-content">
           <div>
-            <img :src="loadImageAsset('nmo-logo-large.png')" alt="LOGO" style="height: 5rem" />
+            <img src="/nmo-logo-large.png" alt="LOGO" style="height: 5rem" />
           </div>
           <p>南京大学<span class="title-font">Minecraft</span>协会</p>
           <span

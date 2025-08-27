@@ -14,7 +14,7 @@
 
 ```json
 {
-    "slogan": "blabla"
+    "slogan": "string"
 }
 ```
 
@@ -23,6 +23,18 @@
 User group includes ["admin", "news_admin", "activity_admin"]. If empty, the user doesn't have permission to manage corresponding resources.
 
 Auth uses JWT Token.
+
+#### Status
+
+`GET /auth/status`
+
+- response
+
+```json
+{
+    "status": "alive" | "dead",
+}
+```
 
 #### Login
 

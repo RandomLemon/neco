@@ -1,0 +1,24 @@
+.Vue-Toastification__toast--default {
+  background: url('/blockbg/block-of-lapis-lazuli.png');
+  background-size: auto, 24px;
+}
+
+.Vue-Toastification__toast--success {
+  background: url('/blockbg/moss-block.png');
+  background-size: auto, 24px;
+}
+
+.Vue-Toastification__toast--info {
+  background: url('/blockbg/deepslate-tiles.png');
+  background-size: auto, 24px;
+}
+
+.Vue-Toastification__toast--warning {
+  background: linear-gradient(to bottom, rgba(16, 16, 16, 0.3)), url('/blockbg/honeycomb-block.png');
+  background-size: auto, 24px;
+}
+
+.Vue-Toastification__toast--error {
+  background: url('/blockbg/red-wool.png');
+  background-size: auto, 24px;
+}

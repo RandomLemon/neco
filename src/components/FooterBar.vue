@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
-import loadImageAsset from '@/util/loadimage'
 import QQIcon from './icons/QQIcon.vue'
 import BilibiliIcon from './icons/BilibiliIcon.vue'
 import GithubIcon from './icons/GithubIcon.vue'
@@ -18,9 +17,9 @@ onMounted(async () => {
   <div class="footer-area">
     <div class="footer-description">
       <img
-        :src="loadImageAsset('nmo-logo-large.png')"
+        src="/nmo-logo-large.png"
         alt="logo"
-        style="width: 5rem; user-select: none"
+        style="width: 5rem; user-select: none;"
       />
       <p style="user-select: none">南京大学 Minecraft 协会</p>
       <text style="margin-bottom: 0.5rem">{{ slogan }}</text>

@@ -1,10 +1,11 @@
 <script lang="ts" setup>
+import { Login } from '@/api/auth'
 import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
 import MinecraftInput from '@/components/utils/MinecraftInput.vue'
 import { onMounted, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
-const router = useRouter()
+const toast = useToast()
 
 const form = reactive({
   username: '',
@@ -12,7 +13,12 @@ const form = reactive({
 })
 
 const onLogin = async () => {
-  console.log(`登录 ${form.username} ${form.password}`)
+  const result = await Login(form.username, form.password)
+  if (result == null || result.error) {
+    toast.error(`登录失败：${result?.error || '未知错误'}`)
+  } else {
+    toast.success('登录成功！')
+  }
 }
 
 const bgCount = 62
@@ -66,10 +72,7 @@ onMounted(() => {
       <MinecraftInput class="login-input" v-model="form.username" placeholder="用户名" />
       <MinecraftInput class="login-input" v-model="form.password" placeholder="密码" />
       <div class="button-area">
-        <MinecraftButtonClassic class="login-btn" @click="router.replace('/auth/register')"
-          >去注册</MinecraftButtonClassic
-        >
-        <MinecraftButtonClassic class="login-btn" style="margin-left: 2rem" @click="onLogin"
+        <MinecraftButtonClassic class="login-btn" @click="onLogin"
           >登录</MinecraftButtonClassic
         >
       </div>

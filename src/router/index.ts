@@ -92,12 +92,6 @@ const router = createRouter({
       meta: { title: 'NMO | 登录' },
     },
     {
-      path: '/auth/register',
-      name: 'Register',
-      component: () => import('../views/Auth/RegisterView.vue'),
-      meta: { title: 'NMO | 注册' },
-    },
-    {
       path: '/auth/account',
       name: 'Account',
       component: () => import('../views/Auth/AccountView.vue'),
