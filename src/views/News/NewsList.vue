@@ -350,7 +350,7 @@ const optionFocus = ref(false)
 }
 
 .news-list-item {
-  align-items: flex-start!important;
+  align-items: flex-start !important;
   opacity: 0;
   animation: fade-in-down 0.5s ease-in-out forwards;
   animation-delay: var(--delay);

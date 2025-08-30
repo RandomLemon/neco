@@ -62,14 +62,22 @@ onMounted(async () => {
       >
 
       <div style="display: flex; flex-direction: column; margin-top: auto">
-        <MinecraftButtonClassic class="management-nav" @click="router.push('/')">回到主页</MinecraftButtonClassic>
-        <MinecraftButtonClassic class="management-nav" @click="onLogout">登出</MinecraftButtonClassic>
+        <MinecraftButtonClassic class="management-nav" @click="router.push('/')"
+          >回到主页</MinecraftButtonClassic
+        >
+        <MinecraftButtonClassic class="management-nav" @click="onLogout"
+          >登出</MinecraftButtonClassic
+        >
       </div>
     </div>
-    <MinecraftButton class="management-shrink-btn" :type="sidebarExpand ? '' : 'expand'" @click="sidebarExpand = !sidebarExpand">
+    <MinecraftButton
+      class="management-shrink-btn"
+      :type="sidebarExpand ? '' : 'expand'"
+      @click="sidebarExpand = !sidebarExpand"
+    >
       <text>▶</text>
     </MinecraftButton>
-    <div class="management-tab-container"  :type="sidebarExpand ? '' : 'expand'">
+    <div class="management-tab-container" :type="sidebarExpand ? '' : 'expand'">
       <RouterView />
     </div>
   </div>
@@ -94,7 +102,7 @@ onMounted(async () => {
   overflow: hidden;
 }
 
-.management-menu[type="shrink"] {
+.management-menu[type='shrink'] {
   padding-left: 0;
   padding-right: 0;
   width: 0;
@@ -132,12 +140,12 @@ onMounted(async () => {
   gap: 1rem;
 }
 
-.management-tab-container[type="expand"] {
+.management-tab-container[type='expand'] {
   width: 100vw;
 }
 
 .management-shrink-btn {
-  padding: 0!important;
+  padding: 0 !important;
   height: 4rem;
   width: 1.2rem;
   position: absolute;
@@ -146,7 +154,7 @@ onMounted(async () => {
   transition: left 0.3s ease-in-out;
 }
 
-.management-shrink-btn[type="expand"] {
+.management-shrink-btn[type='expand'] {
   left: 0;
 }
 
@@ -156,7 +164,7 @@ onMounted(async () => {
   transform: rotate(180deg) translateX(10%);
 }
 
-.management-shrink-btn[type="expand"] text {
+.management-shrink-btn[type='expand'] text {
   transform: none;
 }
 </style>
@@ -196,8 +204,8 @@ onMounted(async () => {
   background-color: #4a4a4a;
   border: 4px solid #222222;
   box-shadow:
-      inset -4px -4px 0px 0px #3a3a3a,
-      inset 4px 4px 0px 0px #6b6b6b;
+    inset -4px -4px 0px 0px #3a3a3a,
+    inset 4px 4px 0px 0px #6b6b6b;
 }
 
 .management-tab-form-title {

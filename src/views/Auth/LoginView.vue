@@ -72,9 +72,7 @@ onMounted(() => {
       <MinecraftInput class="login-input" v-model="form.username" placeholder="用户名" />
       <MinecraftInput class="login-input" v-model="form.password" placeholder="密码" />
       <div class="button-area">
-        <MinecraftButtonClassic class="login-btn" @click="onLogin"
-          >登录</MinecraftButtonClassic
-        >
+        <MinecraftButtonClassic class="login-btn" @click="onLogin">登录</MinecraftButtonClassic>
       </div>
     </div>
   </div>

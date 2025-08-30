@@ -4,23 +4,23 @@ import { useToast } from 'vue-toastification'
 const toast = useToast()
 
 export interface UserTag {
-  text: string,
-  color: string,
-  tagColor: string,
+  text: string
+  color: string
+  tagColor: string
 }
 
 export interface UserEntity {
-  username: string,
-  avatar: string,
-  group: Array<string>,
+  username: string
+  avatar: string
+  group: Array<string>
   department: Array<string>
   tags: Array<UserTag>
 }
 
-export type UserStatus = "alive" | "dead" | "unknown"
+export type UserStatus = 'alive' | 'dead' | 'unknown'
 
 export const LoginStatus = async (): Promise<string> => {
-  let result: UserStatus = "unknown"
+  let result: UserStatus = 'unknown'
   await api
     .get(`/auth/status`)
     .then((response) => {
@@ -39,12 +39,12 @@ export const LoginStatus = async (): Promise<string> => {
 
 export const CheckAuthorized = async () => {
   const status = await LoginStatus()
-  return !(localStorage.getItem('token') == '') && status == "alive"
+  return !(localStorage.getItem('token') == '') && status == 'alive'
 }
 
 export interface LoginEntity {
-  token?: string,
-  user?: UserEntity,
+  token?: string
+  user?: UserEntity
   error?: string
 }
 
@@ -122,7 +122,11 @@ export const DeleteUser = async (username: string): Promise<string | null> => {
   return result
 }
 
-export const UpdatePassword = async (username: string, selfPassword: string, password: string): Promise<string | null> => {
+export const UpdatePassword = async (
+  username: string,
+  selfPassword: string,
+  password: string,
+): Promise<string | null> => {
   let result: string | null = null
   await api
     .post(`/auth/user/${username}/password`, {
@@ -141,14 +145,19 @@ export const UpdatePassword = async (username: string, selfPassword: string, pas
   return result
 }
 
-export const UpdateUserInfo = async (username: string, group: Array<string>, department: Array<string>, tags: Array<UserTag>): Promise<string | null> => {
+export const UpdateUserInfo = async (
+  username: string,
+  group: Array<string>,
+  department: Array<string>,
+  tags: Array<UserTag>,
+): Promise<string | null> => {
   let result: string | null = null
   await api
     .patch(`/auth/user`, {
       username: username,
       group: group,
       department: department,
-      tags: tags
+      tags: tags,
     })
     .then((response) => {
       if (response.data.error) {

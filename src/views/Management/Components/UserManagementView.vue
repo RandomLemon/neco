@@ -1,5 +1,12 @@
 <script lang="ts" setup>
-import { GetAvatar, GetUserList, UpdateAvatar, UpdatePassword, UpdateUserInfo, type UserEntity } from '@/api/auth'
+import {
+  GetAvatar,
+  GetUserList,
+  UpdateAvatar,
+  UpdatePassword,
+  UpdateUserInfo,
+  type UserEntity,
+} from '@/api/auth'
 import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
 import MinecraftInput from '@/components/utils/MinecraftInput.vue'
 import { onMounted, ref, computed } from 'vue'
@@ -29,8 +36,7 @@ const triggerUploadBase64 = (): Promise<string> => {
 
     input.onchange = async () => {
       const image = input.files?.[0]
-      if (!image)
-        return reject(new Error('No image selected'))
+      if (!image) return reject(new Error('No image selected'))
 
       try {
         const base64str = await toBase64(image)
@@ -49,13 +55,14 @@ let username = localStorage.getItem('username') || 'KingcqKingcqKingcq'
 let userGroup = JSON.parse(localStorage.getItem('userGroup') || '["admin"]')
 let userDepartment = JSON.parse(localStorage.getItem('userDepartment') || '["START DASH"]')
 let userTags = JSON.parse(
-  localStorage.getItem('userTags') || `[
+  localStorage.getItem('userTags') ||
+    `[
     {
       "text": "管理员",
       "color": "#E6A23C",
       "tagColor": "rgba(230, 162, 60, 0.1)"
     }
-  ]`
+  ]`,
 )
 
 const updateLocalStorage = () => {
@@ -63,13 +70,14 @@ const updateLocalStorage = () => {
   userGroup = JSON.parse(localStorage.getItem('userGroup') || '["admin"]')
   userDepartment = JSON.parse(localStorage.getItem('userDepartment') || '["START DASH"]')
   userTags = JSON.parse(
-    localStorage.getItem('userTags') || `[
+    localStorage.getItem('userTags') ||
+      `[
       {
         "text": "管理员",
         "color": "#E6A23C",
         "tagColor": "rgba(230, 162, 60, 0.1)"
       }
-    ]`
+    ]`,
   )
 }
 
@@ -128,83 +136,93 @@ const onChangePassword = async () => {
   }
 }
 
-const onChangeAvatar = async () => {
-  try {
-    const base64str = await triggerUploadBase64()
-    const result = await UpdateAvatar(username, base64str)
-    if (result) {
-      toast.error('上传头像失败！')
-      return
-    }
-  } catch (e) {
-    toast.error(`上传文件失败：${e}！`)
-    return
-  }
-  const result = await GetAvatar(username)
-  if (!result) {
-    toast.warning('获取头像失败！')
-    return
-  }
-  avatar.value = result
-}
+// const onChangeAvatar = async () => {
+//   try {
+//     const base64str = await triggerUploadBase64()
+//     const result = await UpdateAvatar(username, base64str)
+//     if (result) {
+//       toast.error('上传头像失败！')
+//       return
+//     }
+//   } catch (e) {
+//     toast.error(`上传文件失败：${e}！`)
+//     return
+//   }
+//   const result = await GetAvatar(username)
+//   if (!result) {
+//     toast.warning('获取头像失败！')
+//     return
+//   }
+//   avatar.value = result
+// }
 
 const users = ref<Array<UserEntity> | null>([])
 const searchKeyword = ref('')
 
 const filteredUsers = computed(() => {
   if (!users.value) return []
-  return users.value.filter((user) => user.username.toLowerCase().includes(searchKeyword.value.toLowerCase()))
+  return users.value.filter((user) =>
+    user.username.toLowerCase().includes(searchKeyword.value.toLowerCase()),
+  )
 })
 
 onMounted(async () => {
-  if (userGroup.includes("admin")) {
-    users.value = await GetUserList() || [
+  if (userGroup.includes('admin')) {
+    users.value = (await GetUserList()) || [
       {
         username: 'Kingcq',
         group: ['admin'],
         department: ['START DASH'],
-        tags: [{
-          text: '管理员',
-          color: '#E6A23C',
-          tagColor: 'rgba(230, 162, 60, 0.1)'
-        }]
+        tags: [
+          {
+            text: '管理员',
+            color: '#E6A23C',
+            tagColor: 'rgba(230, 162, 60, 0.1)',
+          },
+        ],
       } as UserEntity,
       {
         username: 'StrideBeach',
         group: ['news_admin'],
         department: ['动画组'],
-        tags: [{
-          text: '碎碎',
-          color: '#409EFF',
-          tagColor: 'rgba(33, 61, 91, 0.2)'
-        }]
+        tags: [
+          {
+            text: '碎碎',
+            color: '#409EFF',
+            tagColor: 'rgba(33, 61, 91, 0.2)',
+          },
+        ],
       } as UserEntity,
       {
         username: 'AintCecily',
         group: ['activity_admin'],
         department: ['动画组'],
-        tags: [{
-          text: '壳壳',
-          color: '#F56C6C',
-          tagColor: 'rgba(88, 46, 46, 0.2)'
-        }]
+        tags: [
+          {
+            text: '壳壳',
+            color: '#F56C6C',
+            tagColor: 'rgba(88, 46, 46, 0.2)',
+          },
+        ],
       } as UserEntity,
       {
         username: 'AircraftCarrierX',
         group: ['activity_admin', 'news_admin'],
         department: ['START_DASH'],
-        tags: [{
-          text: '吉祥物',
-          color: '#FF00FF',
-          tagColor: 'rgba(186, 85, 211, 0.2)'
-        }]
+        tags: [
+          {
+            text: '吉祥物',
+            color: '#FF00FF',
+            tagColor: 'rgba(186, 85, 211, 0.2)',
+          },
+        ],
       } as UserEntity,
     ] // TODO: To be removed
     if (!users.value) {
       toast.warning('获取用户列表失败！')
     }
   }
-  avatar.value = await GetAvatar(username) || '/nmo-logo-large.png'
+  avatar.value = (await GetAvatar(username)) || '/nmo-logo-large.png'
   if (avatar.value.trim() === '') {
     avatar.value = '/nmo-logo-large.png'
   }
@@ -228,7 +246,7 @@ onMounted(async () => {
             :key="tag.text"
             :style="{
               color: tag.color,
-              backgroundColor: tag.tagColor
+              backgroundColor: tag.tagColor,
             }"
           >
             {{ tag.text }}
@@ -237,13 +255,20 @@ onMounted(async () => {
         <div class="user-info-span" v-if="userGroup.length > 0">
           <text class="user-info-label">权限：</text>
           <div class="user-info-group">
-            <text class="user-info-group-item" v-for="group in userGroup" :key="group">{{ group === 'admin' ? '超级管理' : (group === 'activity_admin' ? '活动管理' : '新闻管理') }}</text>
+            <text class="user-info-group-item" v-for="group in userGroup" :key="group">{{
+              group === 'admin' ? '超级管理' : group === 'activity_admin' ? '活动管理' : '新闻管理'
+            }}</text>
           </div>
         </div>
         <div class="user-info-span">
           <text class="user-info-label">部门：</text>
           <div class="user-info-group">
-            <text class="user-info-group-item" v-for="department in userDepartment" :key="department">{{ department }}</text>
+            <text
+              class="user-info-group-item"
+              v-for="department in userDepartment"
+              :key="department"
+              >{{ department }}</text
+            >
           </div>
         </div>
       </div>
@@ -256,38 +281,66 @@ onMounted(async () => {
       <MinecraftInput class="user-input-field" placeholder="输入用户名" v-model="usernameInput" />
     </div>
     <div class="form-btn-group">
-      <MinecraftButtonClassic class="user-input-button" @click="resetChangeUsername">重置</MinecraftButtonClassic>
-      <MinecraftButtonClassic class="user-input-button" @click="onChangeUsername">保存</MinecraftButtonClassic>
+      <MinecraftButtonClassic class="user-input-button" @click="resetChangeUsername"
+        >重置</MinecraftButtonClassic
+      >
+      <MinecraftButtonClassic class="user-input-button" @click="onChangeUsername"
+        >保存</MinecraftButtonClassic
+      >
     </div>
   </form>
   <form class="management-tab-form">
     <text class="management-tab-form-title">修改密码</text>
     <div class="user-input">
       <text class="user-input-label">旧密码</text>
-      <MinecraftInput class="user-input-field" placeholder="输入旧密码" type="password" v-model="oldPasswordInput" />
+      <MinecraftInput
+        class="user-input-field"
+        placeholder="输入旧密码"
+        type="password"
+        v-model="oldPasswordInput"
+      />
     </div>
     <div class="user-input">
       <text class="user-input-label">新密码</text>
-      <MinecraftInput class="user-input-field" placeholder="输入新密码" type="password" v-model="newPasswordInput" />
+      <MinecraftInput
+        class="user-input-field"
+        placeholder="输入新密码"
+        type="password"
+        v-model="newPasswordInput"
+      />
     </div>
     <div class="user-input">
       <text class="user-input-label">重复密码</text>
-      <MinecraftInput class="user-input-field" placeholder="输入重复密码" type="password" v-model="repeatPasswordInput" />
+      <MinecraftInput
+        class="user-input-field"
+        placeholder="输入重复密码"
+        type="password"
+        v-model="repeatPasswordInput"
+      />
     </div>
     <div class="form-btn-group">
-      <MinecraftButtonClassic class="user-input-button" @click="resetChangePassword">重置</MinecraftButtonClassic>
-      <MinecraftButtonClassic class="user-input-button" @click="onChangePassword">保存</MinecraftButtonClassic>
+      <MinecraftButtonClassic class="user-input-button" @click="resetChangePassword"
+        >重置</MinecraftButtonClassic
+      >
+      <MinecraftButtonClassic class="user-input-button" @click="onChangePassword"
+        >保存</MinecraftButtonClassic
+      >
     </div>
   </form>
   <form class="management-tab-form" v-if="userGroup.includes('admin')">
-    <div style="display: flex;">
+    <div style="display: flex">
       <text class="management-tab-form-title">账户管理</text>
       <text class="management-tab-form-subtitle">点击以编辑！</text>
     </div>
-    <MinecraftInput class="user-input-field" placeholder="查找用户" v-model="searchKeyword" style="margin-left: 2px;" />
+    <MinecraftInput
+      class="user-input-field"
+      placeholder="查找用户"
+      v-model="searchKeyword"
+      style="margin-left: 2px"
+    />
     <div class="user-card-container">
       <div class="user-card" v-for="user in filteredUsers" :key="user.username">
-        <img class="avatar-img" style="width: 4rem; height: 4rem;" :src="avatar" alt="用户头像" />
+        <img class="avatar-img" style="width: 4rem; height: 4rem" :src="avatar" alt="用户头像" />
         <div class="user-info">
           <div class="user-info-span">
             <text class="user-info-text">{{ user.username }}</text>
@@ -297,7 +350,7 @@ onMounted(async () => {
               :key="tag.text"
               :style="{
                 color: tag.color,
-                backgroundColor: tag.tagColor
+                backgroundColor: tag.tagColor,
               }"
             >
               {{ tag.text }}
@@ -306,13 +359,24 @@ onMounted(async () => {
           <div class="user-info-span" v-if="user.group.length > 0">
             <text class="user-info-label">权限：</text>
             <div class="user-info-group">
-              <text class="user-info-group-item" v-for="group in user.group" :key="group">{{ group === 'admin' ? '超级管理' : (group === 'activity_admin' ? '活动管理' : '新闻管理') }}</text>
+              <text class="user-info-group-item" v-for="group in user.group" :key="group">{{
+                group === 'admin'
+                  ? '超级管理'
+                  : group === 'activity_admin'
+                    ? '活动管理'
+                    : '新闻管理'
+              }}</text>
             </div>
           </div>
           <div class="user-info-span">
             <text class="user-info-label">部门：</text>
             <div class="user-info-group">
-              <text class="user-info-group-item" v-for="department in user.department" :key="department">{{ department }}</text>
+              <text
+                class="user-info-group-item"
+                v-for="department in user.department"
+                :key="department"
+                >{{ department }}</text
+              >
             </div>
           </div>
         </div>
@@ -342,14 +406,14 @@ onMounted(async () => {
 }
 
 .user-avatar::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  transition: all .2s ease-in-out;
+  transition: all 0.2s ease-in-out;
   background-color: transparent;
 }
 
@@ -363,7 +427,7 @@ onMounted(async () => {
   transform: translate(-50%, -50%);
   user-select: none;
   opacity: 0;
-  transition: all .2s ease-in-out;
+  transition: all 0.2s ease-in-out;
 }
 
 .user-avatar:hover::before {
@@ -439,9 +503,9 @@ onMounted(async () => {
   padding: 0.2rem;
 }
 
-.user-input-field[type="password"] {
+.user-input-field[type='password'] {
   height: 30px;
-  font-size: 0.6rem
+  font-size: 0.6rem;
 }
 
 .user-input-button {
@@ -467,7 +531,7 @@ onMounted(async () => {
   border: 2px solid #1a1a1a;
   box-shadow:
     inset -2px -2px 0 0 #1f1f1f,
-    inset  2px  2px 0 0 #454545;
+    inset 2px 2px 0 0 #454545;
   color: #e0e0e0;
 
   cursor: pointer;

@@ -16,11 +16,7 @@ onMounted(async () => {
 <template>
   <div class="footer-area">
     <div class="footer-description">
-      <img
-        src="/nmo-logo-large.png"
-        alt="logo"
-        style="width: 5rem; user-select: none;"
-      />
+      <img src="/nmo-logo-large.png" alt="logo" style="width: 5rem; user-select: none" />
       <p style="user-select: none">南京大学 Minecraft 协会</p>
       <text style="margin-bottom: 0.5rem">{{ slogan }}</text>
       <span id="copyright" style="user-select: none"> © 2025 - All rights reserved NMO </span>

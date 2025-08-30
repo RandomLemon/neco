@@ -18,7 +18,8 @@
 
 .Vue-Toastification__toast--warning {
   user-select: none;
-  background: linear-gradient(to bottom, rgba(16, 16, 16, 0.3)), url('/blockbg/honeycomb-block.png');
+  background:
+    linear-gradient(to bottom, rgba(16, 16, 16, 0.3)), url('/blockbg/honeycomb-block.png');
   background-size: auto, 24px;
 }
 
