@@ -19,7 +19,9 @@ const onConfirm = () => {
 watch(modelValue, (newValue) => {
   if (newValue) {
     visible.value = true
-    opacity.value = 1
+    setTimeout(() => {
+      opacity.value = 1
+    }, 100)
   } else {
     opacity.value = 0
     setTimeout(() => {
@@ -90,9 +92,15 @@ onMounted(() => {
 
   padding: 1rem;
   z-index: 1025;
-  min-width: 360px;
+  min-width: 720px;
 
   transition: all 0.3s ease-in-out;
+}
+
+@media screen and (max-width: 768px) {
+  .dialog {
+    min-width: 360px;
+  }
 }
 
 .dialog-footer {

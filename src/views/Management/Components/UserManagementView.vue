@@ -7,9 +7,11 @@ import {
   UpdateUserInfo,
   type UserEntity,
 } from '@/api/auth'
+import DeleteIcon from '@/components/icons/DeleteIcon.vue'
 import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
 import MinecraftDialog from '@/components/utils/MinecraftDialog.vue'
 import MinecraftInput from '@/components/utils/MinecraftInput.vue'
+import MinecraftSwitch from '@/components/utils/MinecraftSwitch.vue'
 import { onMounted, ref, computed } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -52,25 +54,123 @@ const triggerUploadBase64 = (): Promise<string> => {
 const toast = useToast()
 
 const avatar = ref('/nmo-logo-large.png')
-let username = localStorage.getItem('username') || 'KingcqKingcqKingcq'
-let userGroup = JSON.parse(localStorage.getItem('userGroup') || '["admin"]')
-let userDepartment = JSON.parse(localStorage.getItem('userDepartment') || '["START DASH"]')
-let userTags = JSON.parse(
-  localStorage.getItem('userTags') ||
-    `[
+const username = ref(localStorage.getItem('username') || 'Kingcq')
+const userGroup = ref(JSON.parse(localStorage.getItem('userGroup') || '["admin"]'))
+const userDepartment = ref(JSON.parse(localStorage.getItem('userDepartment') || '["START DASH"]'))
+const userTags = ref(
+  JSON.parse(
+    localStorage.getItem('userTags') ||
+      `[
     {
       "text": "管理员",
       "color": "#E6A23C",
       "tagColor": "rgba(230, 162, 60, 0.1)"
     }
   ]`,
+  ),
 )
 
+const editAvatar = ref('/nmo-logo-large.png')
+const editUsername = ref('Kingcq')
+const editAdminSwitch = ref(true)
+const editActivityAdminSwitch = ref(false)
+const editNewsAdminSwitch = ref(false)
+const editUserDepartments = ref(['START DASH'])
+const editUserTags = ref([
+  {
+    text: '管理员',
+    color: '#E6A23C',
+    tagColor: 'rgba(230, 162, 60, 0.1)',
+  },
+])
+const editInputDepartment = ref('')
+const editInputTagText = ref('')
+const editInputTagColor = ref('#E6A23C')
+const editInputTagBgColor = ref('rgba(230, 162, 60, 0.1)')
+
+const soundOn = () => {
+  const audio = new Audio(
+    'https://unpkg.com/minecraft-framework-css@1.1.5/css/assets/random.click.ogg',
+  )
+  audio.play()
+  audio.volume = 0.3
+}
+
+const saveEditUser = async () => {
+  const group = []
+  if (editAdminSwitch.value) group.push('admin')
+  if (editActivityAdminSwitch.value) group.push('activity_admin')
+  if (editNewsAdminSwitch.value) group.push('news_admin')
+
+  const result = await UpdateUserInfo(
+    editUsername.value,
+    group,
+    editUserDepartments.value,
+    editUserTags.value,
+  )
+  if (!result) {
+    toast.success('修改成功！')
+  } else {
+    toast.error(`修改失败！`)
+  }
+}
+
+const loadEditUser = async (user: UserEntity) => {
+  editUsername.value = user.username
+  editAdminSwitch.value = user.group.includes('admin')
+  editActivityAdminSwitch.value = user.group.includes('activity_admin')
+  editNewsAdminSwitch.value = user.group.includes('news_admin')
+  editUserDepartments.value = JSON.parse(JSON.stringify(user.department))
+  editUserTags.value = JSON.parse(JSON.stringify(user.tags))
+  editInputDepartment.value = ''
+  editInputTagText.value = ''
+  editInputTagColor.value = '#E6A23C'
+  editInputTagBgColor.value = 'rgba(230, 162, 60, 0.1)'
+
+  editUserDialogVisible.value = true
+}
+
+const editAppendDepartment = () => {
+  if (editInputDepartment.value.trim() === '') {
+    toast.warning('请输入部门！')
+    return
+  }
+  if (editUserDepartments.value.includes(editInputDepartment.value)) {
+    toast.warning('该部门已存在！')
+    return
+  }
+  editUserDepartments.value.push(editInputDepartment.value)
+  editInputDepartment.value = ''
+}
+
+const editDeleteDepartment = (index: number) => {
+  editUserDepartments.value.splice(index, 1)
+}
+
+const editAppendTag = () => {
+  if (editInputTagText.value.trim() === '') {
+    toast.warning('请输入标签！')
+    return
+  }
+  editUserTags.value.push({
+    text: editInputTagText.value,
+    color: editInputTagColor.value,
+    tagColor: editInputTagBgColor.value,
+  })
+  editInputTagText.value = ''
+  editInputTagColor.value = '#E6A23C'
+  editInputTagBgColor.value = 'rgba(230, 162, 60, 0.1)'
+}
+
+const editDeleteTag = (index: number) => {
+  editUserTags.value.splice(index, 1)
+}
+
 const updateLocalStorage = () => {
-  username = localStorage.getItem('username') || 'Kingcq'
-  userGroup = JSON.parse(localStorage.getItem('userGroup') || '["admin"]')
-  userDepartment = JSON.parse(localStorage.getItem('userDepartment') || '["START DASH"]')
-  userTags = JSON.parse(
+  username.value = localStorage.getItem('username') || 'Kingcq'
+  userGroup.value = JSON.parse(localStorage.getItem('userGroup') || '["admin"]')
+  userDepartment.value = JSON.parse(localStorage.getItem('userDepartment') || '["START DASH"]')
+  userTags.value = JSON.parse(
     localStorage.getItem('userTags') ||
       `[
       {
@@ -88,7 +188,7 @@ const newPasswordInput = ref('')
 const repeatPasswordInput = ref('')
 
 const resetChangeUsername = () => {
-  usernameInput.value = username
+  usernameInput.value = username.value
 }
 
 const resetChangePassword = () => {
@@ -102,7 +202,12 @@ const onChangeUsername = async () => {
     toast.error('用户名不能为空！')
     return
   }
-  const result = await UpdateUserInfo(usernameInput.value, userGroup, userDepartment, userTags)
+  const result = await UpdateUserInfo(
+    usernameInput.value,
+    userGroup.value,
+    userDepartment.value,
+    userTags.value,
+  )
   if (!result) {
     toast.success('修改成功！')
     updateLocalStorage()
@@ -128,7 +233,11 @@ const onChangePassword = async () => {
     toast.error('两次输入的密码不一致！')
     return
   }
-  const result = await UpdatePassword(username, oldPasswordInput.value, newPasswordInput.value)
+  const result = await UpdatePassword(
+    username.value,
+    oldPasswordInput.value,
+    newPasswordInput.value,
+  )
   if (!result) {
     toast.success('修改成功！')
     resetChangePassword()
@@ -140,7 +249,7 @@ const onChangePassword = async () => {
 const onChangeAvatar = async () => {
   try {
     const base64str = await triggerUploadBase64()
-    const result = await UpdateAvatar(username, base64str)
+    const result = await UpdateAvatar(username.value, base64str)
     if (result) {
       toast.error('上传头像失败！')
       return
@@ -149,15 +258,25 @@ const onChangeAvatar = async () => {
     toast.error(`上传文件失败：${e}！`)
     return
   }
-  const result = await GetAvatar(username)
+  const result = await GetAvatar(username.value)
   if (!result) {
     toast.warning('获取头像失败！')
     return
   }
   avatar.value = result
+  if (!users.value) {
+    return
+  }
+  for (let index = 0; index < users.value.length; index++) {
+    if (users.value[index].username === username.value) {
+      avatars.value[index] = result
+      break
+    }
+  }
 }
 
 const users = ref<Array<UserEntity> | null>([])
+const avatars = ref<Array<string>>([])
 const searchKeyword = ref('')
 
 const filteredUsers = computed(() => {
@@ -167,10 +286,10 @@ const filteredUsers = computed(() => {
   )
 })
 
-const editUserDialogVisible = ref(true)
+const editUserDialogVisible = ref(false)
 
 onMounted(async () => {
-  if (userGroup.includes('admin')) {
+  if (userGroup.value.includes('admin')) {
     users.value = (await GetUserList()) || [
       {
         username: 'Kingcq',
@@ -192,7 +311,7 @@ onMounted(async () => {
           {
             text: '碎碎',
             color: '#409EFF',
-            tagColor: 'rgba(33, 61, 91, 0.2)',
+            tagColor: 'rgba(33, 61, 91, 0.8)',
           },
         ],
       } as UserEntity,
@@ -204,7 +323,7 @@ onMounted(async () => {
           {
             text: '壳壳',
             color: '#F56C6C',
-            tagColor: 'rgba(88, 46, 46, 0.2)',
+            tagColor: 'rgba(88, 46, 46, 0.8)',
           },
         ],
       } as UserEntity,
@@ -221,11 +340,14 @@ onMounted(async () => {
         ],
       } as UserEntity,
     ] // TODO: To be removed
+    for (let i = 0; i < users.value.length; i++) {
+      avatars.value.push((await GetAvatar(users.value[i].username)) || '/nmo-logo-large.png')
+    }
     if (!users.value) {
       toast.warning('获取用户列表失败！')
     }
   }
-  avatar.value = (await GetAvatar(username)) || '/nmo-logo-large.png'
+  avatar.value = (await GetAvatar(username.value)) || '/nmo-logo-large.png'
   if (avatar.value.trim() === '') {
     avatar.value = '/nmo-logo-large.png'
   }
@@ -235,11 +357,14 @@ onMounted(async () => {
 <template>
   <div class="management-tab-title-container">
     <text class="management-tab-title">用户管理</text>
+    <text class="management-tab-subtitle">到底有多强？</text>
   </div>
   <form class="management-tab-form">
     <text class="management-tab-form-title">当前用户信息</text>
     <div class="user-info-container">
-      <img class="avatar-img" :src="avatar" alt="用户头像" />
+      <picture class="user-avatar" @click="onChangeAvatar">
+        <img class="avatar-img" :src="avatar" alt="用户头像" />
+      </picture>
       <div class="user-info">
         <div class="user-info-span">
           <text class="user-info-text">{{ username }}</text>
@@ -342,8 +467,21 @@ onMounted(async () => {
       style="margin-left: 2px"
     />
     <div class="user-card-container">
-      <div class="user-card" v-for="user in filteredUsers" :key="user.username">
-        <img class="avatar-img" style="width: 4rem; height: 4rem" :src="avatar" alt="用户头像" />
+      <div
+        class="user-card"
+        v-for="(user, index) in filteredUsers"
+        :key="user.username"
+        @click="
+          soundOn()
+          loadEditUser(user)
+        "
+      >
+        <img
+          class="avatar-img"
+          style="width: 4rem; height: 4rem"
+          :src="avatars[index]"
+          alt="用户头像"
+        />
         <div class="user-info">
           <div class="user-info-span">
             <text class="user-info-text">{{ user.username }}</text>
@@ -387,13 +525,123 @@ onMounted(async () => {
     </div>
   </form>
 
-  <MinecraftDialog v-model="editUserDialogVisible">
+  <MinecraftDialog v-model="editUserDialogVisible" @confirm="saveEditUser">
     <div class="change-user-info-container">
       <div class="change-user-info-item">
         <text class="change-user-info-title">头像</text>
-        <picture class="user-avatar" @click="onChangeAvatar">
-          <img class="avatar-img" style="width: 4rem; height: 4rem" :src="avatar" alt="用户头像" />
+        <picture
+          class="user-avatar"
+          style="width: 4rem; height: 4rem"
+          @click="onChangeAvatar"
+          v-if="editUsername === username"
+        >
+          <img
+            class="avatar-img"
+            style="width: 4rem; height: 4rem"
+            :src="editAvatar"
+            alt="用户头像"
+          />
         </picture>
+        <img
+          class="avatar-img"
+          v-else
+          style="width: 4rem; height: 4rem"
+          :src="editAvatar"
+          alt="用户头像"
+        />
+      </div>
+      <div class="change-user-info-item">
+        <text class="change-user-info-title">用户名</text>
+        <MinecraftInput class="user-input-field" placeholder="输入用户名" v-model="editUsername" />
+      </div>
+      <div class="change-user-info-item">
+        <text class="change-user-info-title">权限</text>
+        <div class="user-switch-item">
+          <MinecraftSwitch
+            class="user-input-switch"
+            v-model="editAdminSwitch"
+            @on="
+              editActivityAdminSwitch = false
+              editNewsAdminSwitch = false
+            "
+          />
+          <text class="user-switch-label">超级管理</text>
+        </div>
+        <div class="user-switch-item">
+          <MinecraftSwitch
+            class="user-input-switch"
+            v-model="editActivityAdminSwitch"
+            @on="editAdminSwitch = false"
+          />
+          <text class="user-switch-label">活动管理</text>
+        </div>
+        <div class="user-switch-item">
+          <MinecraftSwitch
+            class="user-input-switch"
+            v-model="editNewsAdminSwitch"
+            @on="editAdminSwitch = false"
+          />
+          <text class="user-switch-label">新闻管理</text>
+        </div>
+      </div>
+      <div class="change-user-info-item">
+        <text class="change-user-info-title">部门</text>
+        <MinecraftInput
+          class="user-input-field"
+          placeholder="回车以添加"
+          v-model="editInputDepartment"
+          @keyup.enter="editAppendDepartment"
+        />
+        <div class="departments-container">
+          <div class="department" v-for="(department, index) in editUserDepartments" :key="index">
+            <text class="department-text">{{ department }}</text>
+            <DeleteIcon class="department-delete-icon" @click="editDeleteDepartment(index)" />
+          </div>
+        </div>
+      </div>
+      <div class="change-user-info-item" style="grid-column: span 2">
+        <text class="change-user-info-title">标签</text>
+        <text class="user-input-with-label">
+          <text class="user-input-title">标签文字</text>
+          <MinecraftInput
+            class="user-input-box"
+            placeholder="回车以添加"
+            v-model="editInputTagText"
+            @keyup.enter="editAppendTag"
+          />
+        </text>
+        <text class="user-input-with-label">
+          <text class="user-input-title">文字颜色</text>
+          <MinecraftInput
+            class="user-input-box"
+            placeholder="标签文字颜色"
+            v-model="editInputTagColor"
+            @keyup.enter="editAppendTag"
+          />
+        </text>
+        <text class="user-input-with-label">
+          <text class="user-input-title">背景颜色</text>
+          <MinecraftInput
+            class="user-input-box"
+            placeholder="标签背景颜色"
+            v-model="editInputTagBgColor"
+            @keyup.enter="editAppendTag"
+          />
+        </text>
+        <div class="departments-container">
+          <div
+            class="department"
+            v-for="(tag, index) in editUserTags"
+            :key="index"
+            :style="{
+              color: tag.color,
+              backgroundColor: tag.tagColor,
+            }"
+          >
+            <text class="department-text">{{ tag.text }}</text>
+            <DeleteIcon class="department-delete-icon" @click="editDeleteTag(index)" />
+          </div>
+        </div>
       </div>
     </div>
   </MinecraftDialog>
@@ -408,8 +656,8 @@ onMounted(async () => {
 
 .user-avatar {
   margin-left: 1rem;
-  width: 4rem;
-  height: 4rem;
+  width: 6rem;
+  height: 6rem;
   overflow: hidden;
   border-radius: 50%;
   outline: 2px solid var(--minecraft-gray-light);
@@ -489,9 +737,14 @@ onMounted(async () => {
 .user-info-text {
   color: white;
   font-size: 1.2rem;
+  user-select: none;
 }
 
 .user-info-tag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   user-select: none;
   font-size: 0.8rem;
   padding: 2px 4px;
@@ -582,6 +835,7 @@ onMounted(async () => {
 .change-user-info-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(8rem, 1fr));
+  gap: 1rem;
 }
 
 .change-user-info-item {
@@ -594,5 +848,61 @@ onMounted(async () => {
   font-size: 1.2rem;
   color: white;
   user-select: none;
+}
+
+.user-switch-item {
+  display: flex;
+  align-items: center;
+}
+
+.user-input-switch {
+  scale: 0.8;
+}
+
+.departments-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.department {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  background-color: #333;
+  border-radius: 4px;
+}
+
+.department-text {
+  user-select: none;
+  font-size: 0.8rem;
+  text-wrap: nowrap;
+}
+
+.department-delete-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.5rem;
+  color: #f56c6c;
+  cursor: pointer;
+  user-select: none;
+}
+
+.user-input-with-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-input-title {
+  color: rgba(255, 255, 255, 0.8);
+  user-select: none;
+  text-wrap: nowrap;
+}
+
+.user-input-box {
+  width: 80%;
 }
 </style>

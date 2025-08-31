@@ -2,6 +2,7 @@
 const model = defineModel<boolean>({
   default: false,
 })
+const emits = defineEmits(['on', 'off'])
 
 const soundOn = () => {
   const audio = new Audio(
@@ -10,15 +11,19 @@ const soundOn = () => {
   audio.play()
   audio.volume = 0.3
 }
+
+const flick = () => {
+  if (model.value) {
+    emits('off')
+  } else {
+    emits('on')
+  }
+  model.value = !model.value
+}
 </script>
 
 <template>
-  <input
-    class="minecraft-switch"
-    type="checkbox"
-    :checked="model"
-    @click="((model = !model), soundOn())"
-  />
+  <input class="minecraft-switch" type="checkbox" :checked="model" @click="(flick(), soundOn())" />
 </template>
 
 <style lang="css" scoped>

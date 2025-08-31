@@ -40,6 +40,7 @@ const jumpto = (url: string) => {
   position: relative;
 
   box-shadow: 4px 4px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
 }
 
 .link-content {
@@ -50,7 +51,9 @@ const jumpto = (url: string) => {
   padding-right: 1rem;
 
   background-color: rgba(0, 0, 0, 0.3);
+  user-select: none;
 }
+
 .link-content p {
   font-size: 1.2rem;
   font-weight: bold;
