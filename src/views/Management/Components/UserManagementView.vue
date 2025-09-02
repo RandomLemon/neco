@@ -56,7 +56,6 @@ const toast = useToast()
 const avatar = ref('/nmo-logo-large.png')
 const username = ref(localStorage.getItem('username') || 'Kingcq')
 const userGroup = ref(JSON.parse(localStorage.getItem('userGroup') || '["admin"]'))
-const userDepartment = ref(JSON.parse(localStorage.getItem('userDepartment') || '["START DASH"]'))
 const userTags = ref(
   JSON.parse(
     localStorage.getItem('userTags') ||
@@ -75,7 +74,6 @@ const editUsername = ref('Kingcq')
 const editAdminSwitch = ref(true)
 const editActivityAdminSwitch = ref(false)
 const editNewsAdminSwitch = ref(false)
-const editUserDepartments = ref(['START DASH'])
 const editUserTags = ref([
   {
     text: '管理员',
@@ -83,7 +81,6 @@ const editUserTags = ref([
     tagColor: 'rgba(230, 162, 60, 0.1)',
   },
 ])
-const editInputDepartment = ref('')
 const editInputTagText = ref('')
 const editInputTagColor = ref('#E6A23C')
 const editInputTagBgColor = ref('rgba(230, 162, 60, 0.1)')
@@ -105,7 +102,6 @@ const saveEditUser = async () => {
   const result = await UpdateUserInfo(
     editUsername.value,
     group,
-    editUserDepartments.value,
     editUserTags.value,
   )
   if (!result) {
@@ -120,31 +116,12 @@ const loadEditUser = async (user: UserEntity) => {
   editAdminSwitch.value = user.group.includes('admin')
   editActivityAdminSwitch.value = user.group.includes('activity_admin')
   editNewsAdminSwitch.value = user.group.includes('news_admin')
-  editUserDepartments.value = JSON.parse(JSON.stringify(user.department))
   editUserTags.value = JSON.parse(JSON.stringify(user.tags))
-  editInputDepartment.value = ''
   editInputTagText.value = ''
   editInputTagColor.value = '#E6A23C'
   editInputTagBgColor.value = 'rgba(230, 162, 60, 0.1)'
 
   editUserDialogVisible.value = true
-}
-
-const editAppendDepartment = () => {
-  if (editInputDepartment.value.trim() === '') {
-    toast.warning('请输入部门！')
-    return
-  }
-  if (editUserDepartments.value.includes(editInputDepartment.value)) {
-    toast.warning('该部门已存在！')
-    return
-  }
-  editUserDepartments.value.push(editInputDepartment.value)
-  editInputDepartment.value = ''
-}
-
-const editDeleteDepartment = (index: number) => {
-  editUserDepartments.value.splice(index, 1)
 }
 
 const editAppendTag = () => {
@@ -169,7 +146,6 @@ const editDeleteTag = (index: number) => {
 const updateLocalStorage = () => {
   username.value = localStorage.getItem('username') || 'Kingcq'
   userGroup.value = JSON.parse(localStorage.getItem('userGroup') || '["admin"]')
-  userDepartment.value = JSON.parse(localStorage.getItem('userDepartment') || '["START DASH"]')
   userTags.value = JSON.parse(
     localStorage.getItem('userTags') ||
       `[
@@ -205,7 +181,6 @@ const onChangeUsername = async () => {
   const result = await UpdateUserInfo(
     usernameInput.value,
     userGroup.value,
-    userDepartment.value,
     userTags.value,
   )
   if (!result) {
@@ -294,7 +269,6 @@ onMounted(async () => {
       {
         username: 'Kingcq',
         group: ['admin'],
-        department: ['START DASH'],
         tags: [
           {
             text: '管理员',
@@ -306,7 +280,6 @@ onMounted(async () => {
       {
         username: 'StrideBeach',
         group: ['news_admin'],
-        department: ['动画组'],
         tags: [
           {
             text: '碎碎',
@@ -318,7 +291,6 @@ onMounted(async () => {
       {
         username: 'AintCecily',
         group: ['activity_admin'],
-        department: ['动画组'],
         tags: [
           {
             text: '壳壳',
@@ -330,7 +302,6 @@ onMounted(async () => {
       {
         username: 'AircraftCarrierX',
         group: ['activity_admin', 'news_admin'],
-        department: ['START_DASH'],
         tags: [
           {
             text: '吉祥物',
@@ -386,17 +357,6 @@ onMounted(async () => {
             <text class="user-info-group-item" v-for="group in userGroup" :key="group">{{
               group === 'admin' ? '超级管理' : group === 'activity_admin' ? '活动管理' : '新闻管理'
             }}</text>
-          </div>
-        </div>
-        <div class="user-info-span">
-          <text class="user-info-label">部门：</text>
-          <div class="user-info-group">
-            <text
-              class="user-info-group-item"
-              v-for="department in userDepartment"
-              :key="department"
-              >{{ department }}</text
-            >
           </div>
         </div>
       </div>
@@ -472,7 +432,7 @@ onMounted(async () => {
         v-for="(user, index) in filteredUsers"
         :key="user.username"
         @click="
-          soundOn()
+          soundOn(),
           loadEditUser(user)
         "
       >
@@ -507,17 +467,6 @@ onMounted(async () => {
                     ? '活动管理'
                     : '新闻管理'
               }}</text>
-            </div>
-          </div>
-          <div class="user-info-span">
-            <text class="user-info-label">部门：</text>
-            <div class="user-info-group">
-              <text
-                class="user-info-group-item"
-                v-for="department in user.department"
-                :key="department"
-                >{{ department }}</text
-              >
             </div>
           </div>
         </div>
@@ -561,7 +510,7 @@ onMounted(async () => {
             class="user-input-switch"
             v-model="editAdminSwitch"
             @on="
-              editActivityAdminSwitch = false
+              editActivityAdminSwitch = false,
               editNewsAdminSwitch = false
             "
           />
@@ -582,21 +531,6 @@ onMounted(async () => {
             @on="editAdminSwitch = false"
           />
           <text class="user-switch-label">新闻管理</text>
-        </div>
-      </div>
-      <div class="change-user-info-item">
-        <text class="change-user-info-title">部门</text>
-        <MinecraftInput
-          class="user-input-field"
-          placeholder="回车以添加"
-          v-model="editInputDepartment"
-          @keyup.enter="editAppendDepartment"
-        />
-        <div class="departments-container">
-          <div class="department" v-for="(department, index) in editUserDepartments" :key="index">
-            <text class="department-text">{{ department }}</text>
-            <DeleteIcon class="department-delete-icon" @click="editDeleteDepartment(index)" />
-          </div>
         </div>
       </div>
       <div class="change-user-info-item" style="grid-column: span 2">
@@ -628,9 +562,9 @@ onMounted(async () => {
             @keyup.enter="editAppendTag"
           />
         </text>
-        <div class="departments-container">
+        <div class="tags-container">
           <div
-            class="department"
+            class="tag"
             v-for="(tag, index) in editUserTags"
             :key="index"
             :style="{
@@ -638,8 +572,8 @@ onMounted(async () => {
               backgroundColor: tag.tagColor,
             }"
           >
-            <text class="department-text">{{ tag.text }}</text>
-            <DeleteIcon class="department-delete-icon" @click="editDeleteTag(index)" />
+            <text class="tag-text">{{ tag.text }}</text>
+            <DeleteIcon class="tag-delete-icon" @click="editDeleteTag(index)" />
           </div>
         </div>
       </div>
@@ -859,14 +793,14 @@ onMounted(async () => {
   scale: 0.8;
 }
 
-.departments-container {
+.tags-container {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 
-.department {
+.tag {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -875,13 +809,13 @@ onMounted(async () => {
   border-radius: 4px;
 }
 
-.department-text {
+.tag-text {
   user-select: none;
   font-size: 0.8rem;
   text-wrap: nowrap;
 }
 
-.department-delete-icon {
+.tag-delete-icon {
   width: 1rem;
   height: 1rem;
   margin-left: 0.5rem;

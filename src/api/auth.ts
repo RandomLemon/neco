@@ -13,7 +13,6 @@ export interface UserEntity {
   username: string
   avatar: string
   group: Array<string>
-  department: Array<string>
   tags: Array<UserTag>
 }
 
@@ -59,7 +58,6 @@ export const Login = async (username: string, password: string): Promise<LoginEn
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('username', response.data.user?.username)
       localStorage.setItem('userGroup', JSON.stringify(response.data.user?.group || []))
-      localStorage.setItem('userDepartment', JSON.stringify(response.data.user?.department || []))
       localStorage.setItem('userTags', JSON.stringify(response.data.user?.tags || []))
       result = response.data as LoginEntity
     })
@@ -148,7 +146,6 @@ export const UpdatePassword = async (
 export const UpdateUserInfo = async (
   username: string,
   group: Array<string>,
-  department: Array<string>,
   tags: Array<UserTag>,
 ): Promise<string | null> => {
   let result: string | null = null
@@ -156,7 +153,6 @@ export const UpdateUserInfo = async (
     .patch(`/auth/user`, {
       username: username,
       group: group,
-      department: department,
       tags: tags,
     })
     .then((response) => {
@@ -172,7 +168,6 @@ export const UpdateUserInfo = async (
     if (userInfo) {
       localStorage.setItem('username', userInfo.username)
       localStorage.setItem('userGroup', JSON.stringify(userInfo.group))
-      localStorage.setItem('userDepartment', JSON.stringify(userInfo.department))
       localStorage.setItem('userTags', JSON.stringify(userInfo.tags))
     } else {
       toast.error(`获取用户信息失败！`)
