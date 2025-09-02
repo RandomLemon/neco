@@ -3,7 +3,13 @@ import { onMounted, ref, watch } from 'vue'
 import MinecraftButtonClassic from './MinecraftButtonClassic.vue'
 
 const modelValue = defineModel<boolean>({ default: false })
-const emit = defineEmits(['confirm'])
+const emits = defineEmits(['confirm'])
+const props = defineProps({
+  title: {
+    type: String,
+    default: '',
+  },
+})
 const visible = ref(false)
 const opacity = ref(0)
 
@@ -13,7 +19,7 @@ const closeDialog = () => {
 
 const onConfirm = () => {
   closeDialog()
-  emit('confirm')
+  emits('confirm')
 }
 
 watch(modelValue, (newValue) => {
@@ -48,6 +54,7 @@ onMounted(() => {
     @click.self="closeDialog"
   >
     <div class="dialog mc-border" @click.stop>
+      <text class="dialog-title" v-if="props.title.trim() !== ''">{{ props.title }}</text>
       <slot></slot>
       <slot name="footer">
         <div class="dialog-footer">
@@ -89,6 +96,8 @@ onMounted(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
 
   padding: 1rem;
   z-index: 1025;
@@ -103,12 +112,21 @@ onMounted(() => {
   }
 }
 
+.dialog-title {
+  font-size: 1.5rem;
+  color: white;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--minecraft-gray-light);
+  user-select: none;
+}
+
 .dialog-footer {
   display: flex;
   justify-content: flex-end;
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid white;
+  border-top: 1px solid var(--minecraft-gray-light);
 }
 
 .dialog-footer-btn {

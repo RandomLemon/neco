@@ -17,7 +17,7 @@ const newsTotal = ref<number>(0)
 const news = ref<NewsEntity[]>([])
 const page = ref<number>(1)
 const maxPage = computed(() => {
-  return Math.ceil(newsTotal.value / 12)
+  return Math.ceil(newsTotal.value / 20)
 })
 const pageInput = ref('1')
 const newsLoading = ref(false)
@@ -410,6 +410,12 @@ const optionFocus = ref(false)
   width: 3rem;
   font-size: 1rem;
   text-align: center;
+}
+
+@media screen and (max-width: 2560px) {
+  .news-list-container {
+    grid-template-columns: repeat(5, minmax(17.5rem, 21.75rem));
+  }
 }
 
 @media screen and (max-width: 1920px) {

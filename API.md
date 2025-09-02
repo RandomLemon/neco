@@ -20,7 +20,7 @@
 
 ### Auth
 
-User group includes ["admin", "news_admin", "activity_admin"]. If empty, the user doesn"t have permission to manage corresponding resources.
+User group includes ["admin", "news_admin"]. If empty, the user doesn"t have permission to manage corresponding resources.
 
 Auth uses JWT Token.
 
@@ -398,7 +398,7 @@ Remove session.
 {
     "target": "information" | "magazine" | "notice",
     "page": "number",
-    "pageSize": 12, // 只是提醒你是 12，请求时不附带该字段！
+    "pageSize": 20, // 只是提醒你是 20，请求时不附带该字段！
 }
 ```
 

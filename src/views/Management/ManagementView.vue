@@ -54,9 +54,6 @@ onMounted(async () => {
       <MinecraftButtonClassic class="management-nav" @click="router.replace('/management/server')"
         >服务器信息</MinecraftButtonClassic
       >
-      <MinecraftButtonClassic class="management-nav" @click="router.replace('/management/activity')"
-        >活动管理</MinecraftButtonClassic
-      >
       <MinecraftButtonClassic class="management-nav" @click="router.replace('/management/news')"
         >新闻管理</MinecraftButtonClassic
       >

@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import {
+  CreateUser,
+  DeleteUser,
   GetAvatar,
   GetUserList,
   UpdateAvatar,
@@ -72,7 +74,6 @@ const userTags = ref(
 const editAvatar = ref('/nmo-logo-large.png')
 const editUsername = ref('Kingcq')
 const editAdminSwitch = ref(true)
-const editActivityAdminSwitch = ref(false)
 const editNewsAdminSwitch = ref(false)
 const editUserTags = ref([
   {
@@ -96,14 +97,9 @@ const soundOn = () => {
 const saveEditUser = async () => {
   const group = []
   if (editAdminSwitch.value) group.push('admin')
-  if (editActivityAdminSwitch.value) group.push('activity_admin')
   if (editNewsAdminSwitch.value) group.push('news_admin')
 
-  const result = await UpdateUserInfo(
-    editUsername.value,
-    group,
-    editUserTags.value,
-  )
+  const result = await UpdateUserInfo(editUsername.value, group, editUserTags.value)
   if (!result) {
     toast.success('修改成功！')
   } else {
@@ -114,7 +110,6 @@ const saveEditUser = async () => {
 const loadEditUser = async (user: UserEntity) => {
   editUsername.value = user.username
   editAdminSwitch.value = user.group.includes('admin')
-  editActivityAdminSwitch.value = user.group.includes('activity_admin')
   editNewsAdminSwitch.value = user.group.includes('news_admin')
   editUserTags.value = JSON.parse(JSON.stringify(user.tags))
   editInputTagText.value = ''
@@ -178,16 +173,12 @@ const onChangeUsername = async () => {
     toast.error('用户名不能为空！')
     return
   }
-  const result = await UpdateUserInfo(
-    usernameInput.value,
-    userGroup.value,
-    userTags.value,
-  )
+  const result = await UpdateUserInfo(usernameInput.value, userGroup.value, userTags.value)
   if (!result) {
     toast.success('修改成功！')
     updateLocalStorage()
   } else {
-    toast.error(`修改失败：${result}！`)
+    toast.error(`修改失败！`)
   }
 }
 
@@ -217,23 +208,30 @@ const onChangePassword = async () => {
     toast.success('修改成功！')
     resetChangePassword()
   } else {
-    toast.error(`修改失败：${result}！`)
+    toast.error(`修改失败！`)
   }
 }
 
-const onChangeAvatar = async () => {
-  try {
-    const base64str = await triggerUploadBase64()
-    const result = await UpdateAvatar(username.value, base64str)
-    if (result) {
-      toast.error('上传头像失败！')
-      return
-    }
-  } catch (e) {
-    toast.error(`上传文件失败：${e}！`)
+const avatarSrc = ref('')
+const avatarOptionsVisible = ref(false)
+
+const onChangeAvatar = () => {
+  avatarSrc.value = ''
+  avatarOptionsVisible.value = true
+}
+
+const onSaveAvatar = async (src: string) => {
+  if (src.trim() === '') {
+    toast.warning('图片地址不可为空！')
     return
   }
-  const result = await GetAvatar(username.value)
+  avatarOptionsVisible.value = false
+  let result = await UpdateAvatar(username.value, src)
+  if (result) {
+    toast.error('上传头像失败！')
+    return
+  }
+  result = await GetAvatar(username.value)
   if (!result) {
     toast.warning('获取头像失败！')
     return
@@ -250,6 +248,16 @@ const onChangeAvatar = async () => {
   }
 }
 
+const onSelectAvatar = async () => {
+  try {
+    const base64str = await triggerUploadBase64()
+    await onSaveAvatar(base64str)
+  } catch (e) {
+    toast.error(`上传文件失败：${e}！`)
+    return
+  }
+}
+
 const users = ref<Array<UserEntity> | null>([])
 const avatars = ref<Array<string>>([])
 const searchKeyword = ref('')
@@ -262,6 +270,51 @@ const filteredUsers = computed(() => {
 })
 
 const editUserDialogVisible = ref(false)
+const createUserDialogVisible = ref(false)
+const createUserUsername = ref('')
+const createUserPassword = ref('')
+
+const onCreateUser = () => {
+  createUserUsername.value = ''
+  createUserPassword.value = ''
+  createUserDialogVisible.value = true
+}
+
+const onSaveCreateUser = async () => {
+  if (createUserUsername.value.trim() === '') {
+    toast.warning('用户名不能为空！')
+    return
+  }
+  if (createUserPassword.value.trim() === '') {
+    toast.warning('密码不能为空！')
+    return
+  }
+  const result = await CreateUser(createUserUsername.value, createUserPassword.value)
+  if (!result) {
+    toast.success('创建用户成功！')
+    createUserDialogVisible.value = false
+  } else {
+    toast.error(`创建用户失败！`)
+  }
+}
+
+const deleteUserDialogVisible = ref(false)
+let deleteUsername = ''
+
+const onDeleteUser = async (username: string) => {
+  deleteUserDialogVisible.value = true
+  deleteUsername = username
+}
+
+const onConfirmDeleteUser = async () => {
+  const result = await DeleteUser(deleteUsername)
+  if (!result) {
+    toast.success('删除用户成功！')
+    users.value = users.value?.filter((user) => user.username !== deleteUsername) || null
+  } else {
+    toast.error(`删除用户失败！`)
+  }
+}
 
 onMounted(async () => {
   if (userGroup.value.includes('admin')) {
@@ -290,7 +343,7 @@ onMounted(async () => {
       } as UserEntity,
       {
         username: 'AintCecily',
-        group: ['activity_admin'],
+        group: ['news_admin'],
         tags: [
           {
             text: '壳壳',
@@ -301,7 +354,7 @@ onMounted(async () => {
       } as UserEntity,
       {
         username: 'AircraftCarrierX',
-        group: ['activity_admin', 'news_admin'],
+        group: ['news_admin'],
         tags: [
           {
             text: '吉祥物',
@@ -355,7 +408,7 @@ onMounted(async () => {
           <text class="user-info-label">权限：</text>
           <div class="user-info-group">
             <text class="user-info-group-item" v-for="group in userGroup" :key="group">{{
-              group === 'admin' ? '超级管理' : group === 'activity_admin' ? '活动管理' : '新闻管理'
+              group === 'admin' ? '超级管理' : '新闻管理'
             }}</text>
           </div>
         </div>
@@ -420,22 +473,25 @@ onMounted(async () => {
       <text class="management-tab-form-title">账户管理</text>
       <text class="management-tab-form-subtitle">点击以编辑！</text>
     </div>
-    <MinecraftInput
-      class="user-input-field"
-      placeholder="查找用户"
-      v-model="searchKeyword"
-      style="margin-left: 2px"
-    />
+    <div style="display: flex; width: min-content; gap: 1rem">
+      <MinecraftInput
+        class="user-input-field"
+        placeholder="查找用户"
+        v-model="searchKeyword"
+        style="margin-left: 2px"
+      />
+      <MinecraftButtonClassic style="width: 6rem" @click="onCreateUser"
+        >创建用户</MinecraftButtonClassic
+      >
+    </div>
     <div class="user-card-container">
       <div
         class="user-card"
         v-for="(user, index) in filteredUsers"
         :key="user.username"
-        @click="
-          soundOn(),
-          loadEditUser(user)
-        "
+        @click="(soundOn(), loadEditUser(user))"
       >
+        <DeleteIcon class="delete-user" @click.stop="onDeleteUser(user.username)" />
         <img
           class="avatar-img"
           style="width: 4rem; height: 4rem"
@@ -461,11 +517,7 @@ onMounted(async () => {
             <text class="user-info-label">权限：</text>
             <div class="user-info-group">
               <text class="user-info-group-item" v-for="group in user.group" :key="group">{{
-                group === 'admin'
-                  ? '超级管理'
-                  : group === 'activity_admin'
-                    ? '活动管理'
-                    : '新闻管理'
+                group === 'admin' ? '超级管理' : '新闻管理'
               }}</text>
             </div>
           </div>
@@ -474,7 +526,7 @@ onMounted(async () => {
     </div>
   </form>
 
-  <MinecraftDialog v-model="editUserDialogVisible" @confirm="saveEditUser">
+  <MinecraftDialog title="修改用户信息" v-model="editUserDialogVisible" @confirm="saveEditUser">
     <div class="change-user-info-container">
       <div class="change-user-info-item">
         <text class="change-user-info-title">头像</text>
@@ -501,7 +553,13 @@ onMounted(async () => {
       </div>
       <div class="change-user-info-item">
         <text class="change-user-info-title">用户名</text>
-        <MinecraftInput class="user-input-field" placeholder="输入用户名" v-model="editUsername" />
+        <div>
+          <MinecraftInput
+            class="user-input-field"
+            placeholder="输入用户名"
+            v-model="editUsername"
+          />
+        </div>
       </div>
       <div class="change-user-info-item">
         <text class="change-user-info-title">权限</text>
@@ -509,20 +567,9 @@ onMounted(async () => {
           <MinecraftSwitch
             class="user-input-switch"
             v-model="editAdminSwitch"
-            @on="
-              editActivityAdminSwitch = false,
-              editNewsAdminSwitch = false
-            "
+            @on="editNewsAdminSwitch = false"
           />
           <text class="user-switch-label">超级管理</text>
-        </div>
-        <div class="user-switch-item">
-          <MinecraftSwitch
-            class="user-input-switch"
-            v-model="editActivityAdminSwitch"
-            @on="editAdminSwitch = false"
-          />
-          <text class="user-switch-label">活动管理</text>
         </div>
         <div class="user-switch-item">
           <MinecraftSwitch
@@ -577,6 +624,67 @@ onMounted(async () => {
           </div>
         </div>
       </div>
+    </div>
+  </MinecraftDialog>
+  <MinecraftDialog title="修改头像" v-model="avatarOptionsVisible">
+    <div class="avatar-options-container">
+      <text class="avatar-options-label">头像地址</text>
+      <div class="avatar-options-input-container">
+        <MinecraftInput
+          class="avatar-options-input"
+          v-model="avatarSrc"
+          placeholder="填入图片链接"
+        />
+        <MinecraftButtonClassic class="avatar-options-button" @click="onSaveAvatar(avatarSrc)"
+          >保存</MinecraftButtonClassic
+        >
+      </div>
+    </div>
+    <div class="avatar-options-container">
+      <text class="avatar-options-label">直接上传</text>
+      <MinecraftButtonClassic
+        class="avatar-options-button"
+        style="width: 10rem"
+        @click="onSelectAvatar"
+        >↑点击上传</MinecraftButtonClassic
+      >
+    </div>
+    <template v-slot:footer>
+      <span></span>
+    </template>
+  </MinecraftDialog>
+  <MinecraftDialog title="创建用户" v-model="createUserDialogVisible" @confirm="onSaveCreateUser">
+    <div class="create-user-container">
+      <div class="create-user-container">
+        <text class="create-user-info-title">用户名</text>
+        <MinecraftInput
+          class="create-user-input"
+          placeholder="输入用户名"
+          v-model="createUserUsername"
+          @keyup.enter="onSaveCreateUser"
+        />
+      </div>
+      <div class="create-user-container">
+        <text class="create-user-info-title">密码</text>
+        <MinecraftInput
+          class="create-user-input"
+          placeholder="输入密码"
+          v-model="createUserPassword"
+          @keyup.enter="onSaveCreateUser"
+        />
+      </div>
+    </div>
+  </MinecraftDialog>
+  <MinecraftDialog
+    title="删除用户"
+    v-model="deleteUserDialogVisible"
+    @confirm="onConfirmDeleteUser"
+  >
+    <div class="delete-user-container">
+      <text class="delete-user-info-text"
+        >确定要删除用户 <strong style="color: #e6a23c">{{ deleteUsername }}</strong> 吗？</text
+      >
+      <text class="delete-user-info-text" style="color: #f56c6c">它将永远消失！（真的很久！）</text>
     </div>
   </MinecraftDialog>
 </template>
@@ -702,7 +810,9 @@ onMounted(async () => {
 .user-input-field {
   max-width: 10rem;
   font-size: 1rem;
-  padding: 0.2rem;
+  padding: 0.5rem;
+  margin: auto;
+  margin-left: 0;
 }
 
 .user-input-field[type='password'] {
@@ -726,6 +836,7 @@ onMounted(async () => {
 }
 
 .user-card {
+  position: relative;
   display: flex;
   padding: 1rem;
 
@@ -838,5 +949,74 @@ onMounted(async () => {
 
 .user-input-box {
   width: 80%;
+}
+
+.avatar-options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.avatar-options-label {
+  font-size: 1.2rem;
+  user-select: none;
+}
+
+.avatar-options-input-container {
+  display: flex;
+  gap: 1rem;
+}
+
+.avatar-options-input {
+  font-size: 1rem;
+  padding: 0.5rem;
+  width: 100%;
+  margin: auto;
+}
+
+.avatar-options-button {
+  width: 6rem;
+  font-size: 1.2rem;
+}
+
+.create-user-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.create-user-info-title {
+  font-size: 1.2rem;
+  color: white;
+  user-select: none;
+}
+
+.create-user-input {
+  font-size: 1rem;
+  padding: 0.5rem;
+  width: 100%;
+  margin: auto;
+}
+
+.delete-user {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+
+  width: 1.5rem;
+  height: 1.5rem;
+  color: rgb(247, 137, 137);
+}
+
+.delete-user-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.delete-user-info-text {
+  font-size: 1.2rem;
+  user-select: none;
 }
 </style>

@@ -72,12 +72,6 @@ const router = createRouter({
           meta: { title: 'NMO | 服务器管理' },
         },
         {
-          path: '/management/activity',
-          name: 'activity management',
-          component: () => import('../views/Management/Components/ActivityManagementView.vue'),
-          meta: { title: 'NMO | 活动管理' },
-        },
-        {
           path: '/management/news',
           name: 'news management',
           component: () => import('../views/Management/Components/NewsManagementView.vue'),

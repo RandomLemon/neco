@@ -3,7 +3,7 @@
 <template>
   <div class="management-tab-title-container">
     <text class="management-tab-title">新闻管理</text>
-    <text class="management-tab-subtitle">你根本就不强</text>
+    <text class="management-tab-subtitle">为什么我 这么弱？</text>
   </div>
 </template>
 
