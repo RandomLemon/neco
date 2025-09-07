@@ -1,12 +1,12 @@
-import { useToast } from "vue-toastification"
-import { api } from "./api"
-import type { UserEntity } from "./auth"
+import { useToast } from 'vue-toastification'
+import { api } from './api'
+import type { UserEntity } from './auth'
 
 const toast = useToast()
 
 export interface NewsEntity {
   id?: string
-  pin: boolean,
+  pin: boolean
   title: string
   brief: string
   date: string
@@ -14,7 +14,7 @@ export interface NewsEntity {
   image: string
 }
 
-export type NewsSegmentType = 'markdown' | 'pdf_file' | 'image'
+export type NewsSegmentType = 'markdown' | 'pdf_file'
 
 export interface NewsSegment {
   type: NewsSegmentType
@@ -28,7 +28,7 @@ export interface NewsDetail {
   category: string
 }
 
-export type NewsTarget = 'information' | 'magazine' | 'notice' | 'activity'
+export type NewsTarget = 'information' | 'magazine' | 'notice' | 'activity' | 'document'
 
 export const GetNewsTotal = async (target: NewsTarget): Promise<number> => {
   let result = 0
@@ -41,7 +41,11 @@ export const GetNewsTotal = async (target: NewsTarget): Promise<number> => {
   return result
 }
 
-export const GetNews = async (target: NewsTarget, page: number, pageSize: number): Promise<Array<NewsEntity>> => {
+export const GetNews = async (
+  target: NewsTarget,
+  page: number,
+  pageSize: number,
+): Promise<Array<NewsEntity>> => {
   let result: Array<NewsEntity> = []
   await api
     .post('/news/list', {
@@ -109,7 +113,7 @@ export const GetNewsBrief = async (): Promise<Array<NewsEntity>> => {
       target: 'activity',
       page: 1,
       page_size: 1,
-      pin: true
+      pin: true,
     })
     .then((res) => {
       result[0] = res.data.list[0] as NewsEntity
@@ -122,7 +126,7 @@ export const GetNewsBrief = async (): Promise<Array<NewsEntity>> => {
       target: 'information',
       page: 1,
       page_size: 1,
-      pin: true
+      pin: true,
     })
     .then((res) => {
       result[1] = res.data.list[0] as NewsEntity
@@ -135,7 +139,7 @@ export const GetNewsBrief = async (): Promise<Array<NewsEntity>> => {
       target: 'magazine',
       page: 1,
       page_size: 1,
-      pin: true
+      pin: true,
     })
     .then((res) => {
       result[2] = res.data.list[0] as NewsEntity
@@ -148,7 +152,7 @@ export const GetNewsBrief = async (): Promise<Array<NewsEntity>> => {
       target: 'notice',
       page: 1,
       page_size: 1,
-      pin: true
+      pin: true,
     })
     .then((res) => {
       result[3] = res.data.list[0] as NewsEntity
@@ -157,7 +161,7 @@ export const GetNewsBrief = async (): Promise<Array<NewsEntity>> => {
       success = false
     })
   if (!success) {
-    toast.warning("请求置顶新闻失败！")
+    toast.warning('请求置顶新闻失败！')
   }
   return result
 }
@@ -167,8 +171,8 @@ export const UploadFile = async (id: string, file: File): Promise<string | null>
   await api
     .post(`/news/upload/${id}`, file, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     })
     .then((res) => {
       if (res.data.url) {
@@ -183,7 +187,7 @@ export const DeleteFile = async (id: string, url: string): Promise<string | null
   let result = null
   await api
     .post(`/news/delete/${id}`, {
-      url: url
+      url: url,
     })
     .then((res) => {
       if (res.data.error) {
@@ -196,13 +200,18 @@ export const DeleteFile = async (id: string, url: string): Promise<string | null
   return result
 }
 
-export const UpdateNews = async (id: string, category: NewsTarget, entity: NewsEntity, content: NewsSegment[]): Promise<string | null> => {
+export const UpdateNews = async (
+  id: string,
+  category: NewsTarget,
+  entity: NewsEntity,
+  content: NewsSegment[],
+): Promise<string | null> => {
   let result = null
   await api
     .patch(`/news/${id}`, {
       category: category,
       entity: entity,
-      content: content
+      content: content,
     })
     .then((response) => {
       if (response.data.error) {

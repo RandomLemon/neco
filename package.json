@@ -13,6 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@vuepic/vue-datepicker": "^11.0.2",
     "axios": "^1.11.0",
     "md-editor-v3": "^5.8.3",
     "vue": "^3.5.18",

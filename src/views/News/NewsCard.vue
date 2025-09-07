@@ -8,9 +8,7 @@ const router = useRouter()
 const emit = defineEmits(['jump'])
 
 const newTab = (url: string) => {
-  const audio = new Audio(
-    '/button.click.ogg',
-  )
+  const audio = new Audio('/button.click.ogg')
   audio.play()
   audio.volume = 0.3
   const target = router.resolve(url)

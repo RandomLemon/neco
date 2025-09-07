@@ -192,8 +192,7 @@
   margin-top: 1.5rem;
   max-width: 100%;
   border: 4px solid;
-  border-image: url('/UI/imagelesshoverbg.png')
-    1;
+  border-image: url('/UI/imagelesshoverbg.png') 1;
 }
 .minecraft-theme a {
   color: var(--minecraft-green-light);
@@ -279,8 +278,7 @@
     0 4px 0 0 #3e2723;
   border-radius: 2px;
   border: 3px solid;
-  border-image: url('/UI/dialogue-image.png')
-    2;
+  border-image: url('/UI/dialogue-image.png') 2;
   margin: 22px 0;
   padding: 1rem 1rem 1rem 3.5rem;
   position: relative;

@@ -375,7 +375,7 @@ Remove session.
 
 `GET /news/total/:target`
 
-target: "information" | "magazine" | "notice" | "activity",
+target: "information" | "magazine" | "notice" | "activity" | "document",
 
 - response
 
@@ -393,7 +393,7 @@ target: "information" | "magazine" | "notice" | "activity",
 
 ```json
 {
-    "target": "information" | "magazine" | "notice" | "activity",
+    "target": "information" | "magazine" | "notice" | "activity" | "document",
     "page": "int",
     "page_size": "int",
     "pin": "boolean", // whether to show pinned news
@@ -438,13 +438,13 @@ target: "information" | "magazine" | "notice" | "activity",
     },
     "content": [
         {
-            "type": "markdown" | "pdf_file" | "image",
+            "type": "markdown" | "pdf_file",
             "content": "string", // markdown content or file url
         },
         ...
     ],
     "author": "string:username",
-    "category": "information" | "magazine" | "notice" | "activity",
+    "category": "information" | "magazine" | "notice" | "activity" | "document",
 }
 ```
 
@@ -466,12 +466,12 @@ target: "information" | "magazine" | "notice" | "activity",
     },
     "content": [
         {
-            "type": "markdown" | "pdf_file" | "image",
+            "type": "markdown" | "pdf_file",
             "content": "string", // markdown content or file url
         },
         ...
     ],
-    "category": "information" | "magazine" | "notice" | "activity",
+    "category": "information" | "magazine" | "notice" | "activity" | "document",
 }
 ```
 

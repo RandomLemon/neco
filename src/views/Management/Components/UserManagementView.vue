@@ -87,9 +87,7 @@ const editInputTagColor = ref('#E6A23C')
 const editInputTagBgColor = ref('rgba(230, 162, 60, 0.1)')
 
 const soundOn = () => {
-  const audio = new Audio(
-    '/button.click.ogg',
-  )
+  const audio = new Audio('/button.click.ogg')
   audio.play()
   audio.volume = 0.3
 }

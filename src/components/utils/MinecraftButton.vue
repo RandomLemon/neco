@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 const soundOn = () => {
-  const audio = new Audio(
-    '/button.click.ogg',
-  )
+  const audio = new Audio('/button.click.ogg')
   audio.play()
   audio.volume = 0.3
 }
@@ -25,8 +23,7 @@ const soundOn = () => {
   outline: 2px solid #000;
   border: 2px solid;
   background-color: #c6c6c6;
-  border-image: url('/UI/button_normal.png')
-    1;
+  border-image: url('/UI/button_normal.png') 1;
   cursor: pointer;
 }
 
@@ -39,15 +36,13 @@ const soundOn = () => {
 
 .minecraft-button:active {
   background-color: #8b8b8b;
-  border-image: url('/UI/button_pressed_hover.png')
-    1;
+  border-image: url('/UI/button_pressed_hover.png') 1;
 }
 
 .minecraft-button:active:hover {
   color: #fff;
   outline: 2px solid #fff;
   background-color: #43a01c;
-  border-image: url('/UI/button_pressed.png')
-    1;
+  border-image: url('/UI/button_pressed.png') 1;
 }
 </style>

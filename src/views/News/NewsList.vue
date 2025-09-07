@@ -9,7 +9,7 @@ import MinecraftInput from '@/components/utils/MinecraftInput.vue'
 const emit = defineEmits(['need-scroll', 'card-click'])
 
 const model = defineModel({
-  type: Object as () => NewsTarget,
+  type: String as () => NewsTarget,
   default: 'information',
 })
 

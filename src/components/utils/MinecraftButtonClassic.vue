@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 const soundOn = () => {
-  const audio = new Audio(
-    '/button.click.ogg',
-  )
+  const audio = new Audio('/button.click.ogg')
   audio.play()
   audio.volume = 0.3
 }
@@ -21,12 +19,20 @@ const soundOn = () => {
   height: 3rem;
   width: 100%;
   cursor: pointer;
-  overflow: hidden;
   white-space: nowrap;
   user-select: none;
   background: #999 url('/background/bgbtn.png') center/cover;
   image-rendering: pixelated;
   border: 2px solid #000;
+}
+
+.minecraft-button-classic[activated='true'] .title {
+  background-color: rgba(100, 100, 255, 0.45);
+  text-shadow: 2px 2px #202013cc;
+  color: #ffffa0;
+  box-shadow:
+    inset -2px -4px #0004,
+    inset 2px 2px #fff5;
 }
 
 .minecraft-button-classic:hover .title {

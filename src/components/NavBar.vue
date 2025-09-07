@@ -3,9 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const soundOn = () => {
-  const audio = new Audio(
-    '/button.click.ogg',
-  )
+  const audio = new Audio('/button.click.ogg')
   audio.play()
   audio.volume = 0.3
 }

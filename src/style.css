@@ -27,7 +27,7 @@
 
 * {
   box-sizing: border-box;
-  font-family: 'Ark Latin', 'Cubic 11', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Ark Latin', 'Cubic 11', system-ui, Avenir, Helvetica, Arial, sans-serif !important;
 }
 
 .title-font {
@@ -83,6 +83,5 @@
   color: #fff;
   background-color: color-mix(in srgb, white, black 75%);
   border: 8px solid;
-  border-image: url('/UI/dialog_background_hollow_4.png')
-    8;
+  border-image: url('/UI/dialog_background_hollow_4.png') 8;
 }
