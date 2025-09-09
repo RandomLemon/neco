@@ -305,6 +305,10 @@ const onDeleteUser = async (username: string) => {
 }
 
 const onConfirmDeleteUser = async () => {
+  if (deleteUsername === username.value) {
+    toast.info('冷知识：你不能杀死你自己！')
+    return
+  }
   const result = await DeleteUser(deleteUsername)
   if (!result) {
     toast.success('删除用户成功！')

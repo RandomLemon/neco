@@ -164,7 +164,7 @@ const toast = useToast()
 
 const viewType = ref<NewsTarget>('information')
 
-const userGroup = ref(JSON.parse(localStorage.getItem('userGroup') || '["admin"]'))
+const userGroup = ref(JSON.parse(localStorage.getItem('userGroup') || '[]'))
 
 const scrollTo = (id: string) => {
   setTimeout(() => {
@@ -183,7 +183,7 @@ const scrollToNews = () => {
   scrollTo('news-list-manage')
 }
 
-const status = ref<'add' | 'edit' | 'none'>('edit')
+const status = ref<'add' | 'edit' | 'none'>('none')
 
 const onNewsClick = async (id: string) => {
   if (userGroup.value.includes('admin') || userGroup.value.includes('news_admin')) {
@@ -414,7 +414,7 @@ const commitNews = async () => {
 <template>
   <div class="management-tab-title-container">
     <text class="management-tab-title">文章管理</text>
-    <text class="management-tab-subtitle">为什么我 这么弱？</text>
+    <text class="management-tab-subtitle">{{ userGroup.value.includes('admin') || userGroup.value.includes('news_admin') ? '点击文章以编辑！' : '为什么我 这么弱？' }}</text>
   </div>
   <NewsList
     v-model="viewType"
@@ -422,7 +422,11 @@ const commitNews = async () => {
     @need-scroll="scrollToNews"
     @card-click="onNewsClick"
   />
-  <MinecraftButtonClassic class="new-button" @click="onAddNews">新建文章</MinecraftButtonClassic>
+  <MinecraftButtonClassic
+    class="new-button"
+    @click="onAddNews"
+    v-if="userGroup.includes('admin') || userGroup.includes('news_admin')"
+  >新建文章</MinecraftButtonClassic>
   <form
     id="edit-news"
     style="margin-bottom: 100vh"
