@@ -414,7 +414,11 @@ const commitNews = async () => {
 <template>
   <div class="management-tab-title-container">
     <text class="management-tab-title">文章管理</text>
-    <text class="management-tab-subtitle">{{ userGroup.value.includes('admin') || userGroup.value.includes('news_admin') ? '点击文章以编辑！' : '为什么我 这么弱？' }}</text>
+    <text class="management-tab-subtitle">{{
+      userGroup.includes('admin') || userGroup.includes('news_admin')
+        ? '点击文章以编辑！'
+        : '为什么我 这么弱？'
+    }}</text>
   </div>
   <NewsList
     v-model="viewType"
@@ -426,7 +430,8 @@ const commitNews = async () => {
     class="new-button"
     @click="onAddNews"
     v-if="userGroup.includes('admin') || userGroup.includes('news_admin')"
-  >新建文章</MinecraftButtonClassic>
+    >新建文章</MinecraftButtonClassic
+  >
   <form
     id="edit-news"
     style="margin-bottom: 100vh"

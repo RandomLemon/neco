@@ -72,8 +72,19 @@ onMounted(() => {
     <div class="login-panel mc-border">
       <img class="login-logo" src="/nmo-logo-large.png" />
       <span class="login-title">登录 NMO Ecosystem</span>
-      <MinecraftInput class="login-input" v-model="form.username" placeholder="用户名" @keyup.enter="onLogin" />
-      <MinecraftInput class="login-input" v-model="form.password" type="password" placeholder="密码" @keyup.enter="onLogin" />
+      <MinecraftInput
+        class="login-input"
+        v-model="form.username"
+        placeholder="用户名"
+        @keyup.enter="onLogin"
+      />
+      <MinecraftInput
+        class="login-input"
+        v-model="form.password"
+        type="password"
+        placeholder="密码"
+        @keyup.enter="onLogin"
+      />
       <div class="button-area">
         <MinecraftButtonClassic class="login-btn" @click="onLogin">登录</MinecraftButtonClassic>
       </div>

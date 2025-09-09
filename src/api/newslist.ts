@@ -169,13 +169,17 @@ export const GetNewsBrief = async (): Promise<Array<NewsEntity>> => {
 export const UploadFile = async (id: string, file: File): Promise<string | null> => {
   let result: string | null = null
   await api
-    .post(`/news/upload/${id}`, {
-      file: file
-    }, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+    .post(
+      `/news/upload/${id}`,
+      {
+        file: file,
       },
-    })
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      },
+    )
     .then((res) => {
       if (res.data.url) {
         result = res.data.url

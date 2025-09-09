@@ -21,6 +21,7 @@ const model = defineModel<string>({
 }
 
 .minecraft-input:disabled {
+  color: #aaa;
   background-color: #424242;
 }
 </style>
