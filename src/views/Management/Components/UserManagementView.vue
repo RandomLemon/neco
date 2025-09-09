@@ -361,7 +361,7 @@ onMounted(async () => {
           <text class="user-info-label">权限：</text>
           <div class="user-info-group">
             <text class="user-info-group-item" v-for="group in userGroup" :key="group">{{
-              group === 'admin' ? '超级管理' : '新闻管理'
+              group === 'admin' ? '超级管理' : '文章管理'
             }}</text>
           </div>
         </div>
@@ -470,7 +470,7 @@ onMounted(async () => {
             <text class="user-info-label">权限：</text>
             <div class="user-info-group">
               <text class="user-info-group-item" v-for="group in user.group" :key="group">{{
-                group === 'admin' ? '超级管理' : '新闻管理'
+                group === 'admin' ? '超级管理' : '文章管理'
               }}</text>
             </div>
           </div>
@@ -530,7 +530,7 @@ onMounted(async () => {
             v-model="editNewsAdminSwitch"
             @on="editAdminSwitch = false"
           />
-          <text class="user-switch-label">新闻管理</text>
+          <text class="user-switch-label">文章管理</text>
         </div>
       </div>
       <div class="change-user-info-item" style="grid-column: span 2">

@@ -255,11 +255,16 @@ const onSelectImage = async () => {
 
 const onAddNews = async () => {
   status.value = 'add'
-  newsId.value = (await CreateNews()) || ''
+  newsId.value = localStorage.getItem('newsId') || ''
   if (newsId.value.trim() === '') {
-    toast.error('创建文章失败！')
-    status.value = 'none'
-    return
+    newsId.value = (await CreateNews()) || ''
+    if (newsId.value.trim() === '') {
+      toast.error('创建文章失败！')
+      status.value = 'none'
+      return
+    } else {
+      localStorage.setItem('newsId', newsId.value)
+    }
   }
   newsTitle.value = ''
   newsBrief.value = ''
@@ -399,6 +404,9 @@ const commitNews = async () => {
     toast.error('上传文章失败！')
   } else {
     toast.success('上传文章成功！')
+    if (newsId.value === localStorage.getItem('newsId')) {
+      localStorage.removeItem('newsId')
+    }
   }
 }
 </script>

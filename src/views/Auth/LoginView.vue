@@ -3,8 +3,10 @@ import { Login } from '@/api/auth'
 import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
 import MinecraftInput from '@/components/utils/MinecraftInput.vue'
 import { onMounted, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
+const router = useRouter()
 const toast = useToast()
 
 const form = reactive({
@@ -14,10 +16,11 @@ const form = reactive({
 
 const onLogin = async () => {
   const result = await Login(form.username, form.password)
-  if (result == null || result.error) {
+  if (result == null || result?.error) {
     toast.error(`登录失败：${result?.error || '未知错误'}`)
   } else {
     toast.success('登录成功！')
+    router.replace('/management/user')
   }
 }
 
@@ -69,8 +72,8 @@ onMounted(() => {
     <div class="login-panel mc-border">
       <img class="login-logo" src="/nmo-logo-large.png" />
       <span class="login-title">登录 NMO Ecosystem</span>
-      <MinecraftInput class="login-input" v-model="form.username" placeholder="用户名" />
-      <MinecraftInput class="login-input" v-model="form.password" placeholder="密码" />
+      <MinecraftInput class="login-input" v-model="form.username" placeholder="用户名" @keyup.enter="onLogin" />
+      <MinecraftInput class="login-input" v-model="form.password" type="password" placeholder="密码" @keyup.enter="onLogin" />
       <div class="button-area">
         <MinecraftButtonClassic class="login-btn" @click="onLogin">登录</MinecraftButtonClassic>
       </div>

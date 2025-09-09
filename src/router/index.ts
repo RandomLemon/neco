@@ -75,7 +75,7 @@ const router = createRouter({
           path: '/management/news',
           name: 'news management',
           component: () => import('../views/Management/Components/NewsManagementView.vue'),
-          meta: { title: 'NMO | 新闻管理' },
+          meta: { title: 'NMO | 文章管理' },
         },
       ],
     },

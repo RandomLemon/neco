@@ -195,7 +195,9 @@ export const DeleteFile = async (id: string, url: string): Promise<string | null
       }
     })
     .catch((e) => {
-      result = e
+      if (e.response.data.error) {
+        result = e.response.data.error
+      }
     })
   return result
 }
@@ -219,7 +221,9 @@ export const UpdateNews = async (
       }
     })
     .catch((e) => {
-      result = e
+      if (e.response.data.error) {
+        result = e.response.data.error
+      }
     })
   return result
 }
@@ -247,7 +251,9 @@ export const DeleteNews = async (id: string): Promise<string | null> => {
       }
     })
     .catch((e) => {
-      result = e
+      if (e.response.data.error) {
+        result = e.response.data.error
+      }
     })
   return result
 }

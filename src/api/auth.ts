@@ -28,7 +28,6 @@ export const LoginStatus = async (): Promise<string> => {
         localStorage.removeItem('token')
         localStorage.removeItem('username')
         localStorage.removeItem('userGroup')
-        localStorage.removeItem('userDepartment')
         localStorage.removeItem('userTags')
       }
     })
@@ -55,16 +54,18 @@ export const Login = async (username: string, password: string): Promise<LoginEn
       password: password,
     })
     .then((response) => {
-      if (response.data.error) {
-        return
-      }
+      console.log(response.data)
       localStorage.setItem('token', response.data.token)
       localStorage.setItem('username', response.data.user?.username)
       localStorage.setItem('userGroup', JSON.stringify(response.data.user?.group || []))
       localStorage.setItem('userTags', JSON.stringify(response.data.user?.tags || []))
       result = response.data as LoginEntity
     })
-    .catch(() => {})
+    .catch((err) => {
+      if (err.response.data.error) {
+        result = err.response.data as LoginEntity
+      }
+    })
   return result
 }
 
@@ -81,7 +82,9 @@ export const CreateUser = async (username: string, password: string): Promise<st
       }
     })
     .catch((e) => {
-      result = e
+      if (e.response.data.error) {
+        result = e.response.data.error
+      }
     })
   return result
 }
@@ -118,7 +121,9 @@ export const DeleteUser = async (username: string): Promise<string | null> => {
       }
     })
     .catch((e) => {
-      result = e
+      if (e.response.data.error) {
+        result = e.response.data.error
+      }
     })
   return result
 }
@@ -141,7 +146,9 @@ export const UpdatePassword = async (
       }
     })
     .catch((e) => {
-      result = e
+      if (e.response.data.error) {
+        result = e.response.data.error
+      }
     })
   return result
 }
@@ -164,7 +171,9 @@ export const UpdateUserInfo = async (
       }
     })
     .catch((e) => {
-      result = e
+      if (e.response.data.error) {
+        result = e.response.data.error
+      }
     })
   if (localStorage.getItem('username') == username) {
     const userInfo = await GetUserInfo(username)
@@ -189,7 +198,9 @@ export const Logout = async (): Promise<string | null> => {
       }
     })
     .catch((e) => {
-      result = e
+      if (e.response.data.error) {
+        result = e.response.data.error
+      }
     })
   return result
 }
@@ -218,7 +229,9 @@ export const UpdateAvatar = async (username: string, avatar: string): Promise<st
       }
     })
     .catch((e) => {
-      result = e
+      if (e.response.data.error) {
+        result = e.response.data.error
+      }
     })
   return result
 }

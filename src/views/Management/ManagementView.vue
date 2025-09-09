@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Logout } from '@/api/auth'
+import { CheckAuthorized, Logout } from '@/api/auth'
 import MinecraftButton from '@/components/utils/MinecraftButton.vue'
 import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
 import { onMounted, ref } from 'vue'
@@ -14,8 +14,10 @@ const onLogout = async () => {
   const result = await Logout()
   if (!result) {
     toast.success('登出成功！')
-    router.replace('/auth/login')
+  } else {
+    toast.warning('您并未登录！')
   }
+  router.replace('/auth/login')
 }
 
 const onResize = () => {
@@ -32,11 +34,11 @@ onMounted(async () => {
   }
   window.addEventListener('resize', onResize)
 
-  // const result = await CheckAuthorized()
-  // if (!result) {
-  //   toast.warning('您尚未登录！')
-  //   router.replace('/auth/login')
-  // }
+  const result = await CheckAuthorized()
+  if (!result) {
+    toast.warning('您尚未登录！')
+    router.replace('/auth/login')
+  }
 })
 </script>
 
