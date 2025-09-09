@@ -107,8 +107,8 @@ const saveEditUser = async () => {
 
 const loadEditUser = async (user: UserEntity) => {
   editUsername.value = user.username
-  editAdminSwitch.value = user.group.includes('admin')
-  editNewsAdminSwitch.value = user.group.includes('news_admin')
+  editAdminSwitch.value = (user.group || []).includes('admin')
+  editNewsAdminSwitch.value = (user.group || []).includes('news_admin')
   editUserTags.value = JSON.parse(JSON.stringify(user.tags))
   editInputTagText.value = ''
   editInputTagColor.value = '#E6A23C'
@@ -470,7 +470,7 @@ onMounted(async () => {
               {{ tag.text }}
             </div>
           </div>
-          <div class="user-info-span" v-if="user.group.length > 0">
+          <div class="user-info-span" v-if="(user.group || []).length > 0">
             <text class="user-info-label">权限：</text>
             <div class="user-info-group">
               <text class="user-info-group-item" v-for="group in user.group" :key="group">{{

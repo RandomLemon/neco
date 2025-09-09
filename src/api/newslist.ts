@@ -1,5 +1,5 @@
 import { useToast } from 'vue-toastification'
-import { api } from './api'
+import { api, BASE_URL } from './api'
 import type { UserEntity } from './auth'
 
 const toast = useToast()
@@ -182,7 +182,7 @@ export const UploadFile = async (id: string, file: File): Promise<string | null>
     )
     .then((res) => {
       if (res.data.url) {
-        result = res.data.url
+        result = BASE_URL + res.data.url
       }
     })
     .catch(() => {})
@@ -193,7 +193,7 @@ export const DeleteFile = async (id: string, url: string): Promise<string | null
   let result = null
   await api
     .post(`/news/delete/${id}`, {
-      url: url,
+      url: url.replace(BASE_URL, ''),
     })
     .then((res) => {
       if (res.data.error) {

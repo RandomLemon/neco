@@ -246,6 +246,7 @@ const onSelectImage = async () => {
       const result = await UploadFile(newsId.value, file)
       if (result) {
         toast.success('上传封面成功！')
+        newsImage.value = result
       } else {
         toast.error(`上传封面失败：${result}！`)
       }

@@ -12,7 +12,7 @@ export interface UserTag {
 export interface UserEntity {
   username: string
   avatar?: string
-  group: Array<string>
+  group: Array<string> | null
   tags: Array<UserTag>
 }
 

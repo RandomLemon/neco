@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+export const BASE_URL = '/necore'
+
 export const api = axios.create({
-  baseURL: '/necore',
+  baseURL: BASE_URL,
   timeout: 10000,
 })
 

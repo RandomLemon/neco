@@ -14,3 +14,8 @@
   src: url('./Minecraft-Tenv2.woff2') format('woff2');
   unicode-range: U+0020-007E;
 }
+
+@font-face {
+  font-family: 'Minecraft_AE';
+  src: url('./Minecraft_AE.ttf') format('truetype');
+}
