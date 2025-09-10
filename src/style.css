@@ -27,12 +27,12 @@
 
 * {
   box-sizing: border-box;
-  font-family: 'Minecraft_AE', 'Ark Latin', 'Cubic 11', system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+  font-family: 'Ark Latin', 'Minecraft_AE', 'Cubic 11', system-ui, Avenir, Helvetica, Arial, sans-serif !important;
 }
 
 .title-font {
   font-family:
-    'Minecraft-Tenv2', 'Cubic 11', system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+    'Minecraft-Tenv2', 'Ark Latin', 'Minecraft_AE', 'Cubic 11', system-ui, Avenir, Helvetica, Arial, sans-serif !important;
   margin: 0 4px;
 }
 

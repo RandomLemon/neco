@@ -6,7 +6,7 @@
 @font-face {
   font-family: 'Ark Latin';
   src: url('./ark-pixel-latin.woff2') format('woff2');
-  unicode-range: U+0020-007E;
+  unicode-range: U+0020-00FF;
 }
 
 @font-face {
