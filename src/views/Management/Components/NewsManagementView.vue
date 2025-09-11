@@ -427,7 +427,10 @@ const commitNews = async () => {
   }
 }
 
-const onUploadImg = async (files: Array<File>, callback: (urls: string[] | { url: string; alt: string; title: string }[]) => void) => {
+const onUploadImg = async (
+  files: Array<File>,
+  callback: (urls: string[] | { url: string; alt: string; title: string }[]) => void,
+) => {
   const res = await Promise.all(
     files.map(async (file) => {
       const result = await UploadFile(newsId.value, file)
@@ -455,7 +458,7 @@ const onUploadImg = async (files: Array<File>, callback: (urls: string[] | { url
     }}</text>
   </div>
   <NewsList
-    style="margin: 0; width: 100%;"
+    style="margin: 0; width: 100%"
     v-model="viewType"
     id="news-list-manage"
     @need-scroll="scrollToNews"

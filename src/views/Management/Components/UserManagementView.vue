@@ -325,13 +325,13 @@ onMounted(async () => {
   if (userGroup.value.includes('admin')) {
     users.value = (await GetUserList()) || []
     for (let i = 0; i < users.value.length; i++) {
-      avatars.value.push(await GetAvatar(users.value[i].username) || '/nmo-logo-large.png')
+      avatars.value.push((await GetAvatar(users.value[i].username)) || '/nmo-logo-large.png')
     }
     if (!users.value) {
       toast.warning('获取用户列表失败！')
     }
   }
-  avatar.value = await GetAvatar(username.value) || '/nmo-logo-large.png'
+  avatar.value = (await GetAvatar(username.value)) || '/nmo-logo-large.png'
   if (avatar.value.trim() === '') {
     avatar.value = '/nmo-logo-large.png'
   }

@@ -60,7 +60,7 @@ onMounted(async () => {
               <div class="news-detail-author-text">{{ newsDetail?.author.username }}</div>
               <div
                 class="news-detail-author-name-container"
-                v-if="(newsDetail?.author.tags.length || 0) > 0"
+                v-if="(newsDetail?.author.tags || []).length > 0"
               >
                 <div
                   class="news-detail-author-tag"
