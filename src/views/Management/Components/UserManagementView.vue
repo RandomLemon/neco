@@ -112,7 +112,7 @@ const loadEditUser = async (user: UserEntity) => {
   editUsername.value = user.username
   editAdminSwitch.value = (user.group || []).includes('admin')
   editNewsAdminSwitch.value = (user.group || []).includes('news_admin')
-  editUserTags.value = JSON.parse(JSON.stringify(user.tags))
+  editUserTags.value = JSON.parse(JSON.stringify(user.tags || null))
   editInputTagText.value = ''
   editInputTagColor.value = '#E6A23C'
   editInputTagBgColor.value = 'rgba(230, 162, 60, 0.1)'
