@@ -135,7 +135,7 @@ export const UpdatePassword = async (
 ): Promise<string | null> => {
   let result: string | null = null
   await api
-    .post(`/auth/user/${username}/password`, {
+    .post(`/auth/password`, {
       id: username,
       self_password: selfPassword,
       new_password: password,
