@@ -1,6 +1,6 @@
 import { useToast } from 'vue-toastification'
 import { api, BASE_URL } from './api'
-import type { UserEntity } from './auth'
+import { GetAvatar, GetUserInfo, type UserEntity } from './auth'
 
 const toast = useToast()
 
@@ -65,16 +65,20 @@ export const GetNewsDetail = async (id: string): Promise<NewsDetail | null> => {
   let result: NewsDetail | null = null
   await api
     .get(`/news/detail/${id}`)
-    .then((res) => {
+    .then(async (res) => {
+      const authorResult = await GetUserInfo(res.data.author)
+      const avatarResult = await GetAvatar(res.data.author)
+      if (!authorResult || !avatarResult) {
+        return
+      }
       result = {
         entity: res.data.entity as NewsEntity,
         content: res.data.content as NewsSegment[],
         author: {
-          id: res.data.author.id,
-          username: res.data.author.username,
-          group: res.data.author.group || [],
-          avatar: res.data.author.avatar,
-          tags: res.data.author.tags || [],
+          username: authorResult.username,
+          group: authorResult.group || [],
+          avatar: avatarResult,
+          tags: authorResult.tags || [],
         },
         category: res.data.category,
       } as NewsDetail
