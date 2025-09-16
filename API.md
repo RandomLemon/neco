@@ -279,53 +279,13 @@ Remove session.
 }
 ```
 
-### Intro
-
-#### Get Intro List
-
-- request
-
-`GET /intro/list`
-
-- response
-
-```json
-[
-    {
-        "title": "string",
-        "description": "string",
-        "image": "string"
-    },
-    ...
-]
-```
-
-#### Get Detailed Intro List
-
-- request
-
-`GET /intro/detail`
-
-- response
-
-```json
-[
-    {
-        "title": "string",
-        "description": "string",
-        "image": "string"
-    },
-    ...
-]
-```
-
 ### About Link
 
 #### Get Link List
 
 - request
 
-`GET /link/list`
+`GET /link`
 
 - response
 
@@ -339,6 +299,78 @@ Remove session.
     },
     ...
 ]
+```
+
+#### Add Link
+
+- auth
+
+Admin
+
+- request
+
+`POST /link`
+
+```json
+{
+    "name": "string",
+    "image": "string",
+    "url": "string",
+    "description": "string"
+}
+```
+
+- response
+
+```json
+{
+    "error": "string" // if error
+}
+```
+
+#### Update Link
+
+- auth
+
+Admin
+
+- request
+
+`PATCH /link`
+
+```json
+{
+    "name": "string",
+    "image": "string",
+    "url": "string",
+    "description": "string"
+}
+```
+
+- response
+
+```json
+{
+    "error": "string" // if error
+}
+```
+
+#### Delete Link
+
+- auth
+
+Admin
+
+- request
+
+`DELETE /link/:id`
+
+- response
+
+```json
+{
+    "error": "string" // if error
+}
 ```
 
 ### Server
