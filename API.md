@@ -439,6 +439,8 @@ Admin or server_admin
 
 #### Update Server
 
+Doesn't support updating name section! Please Delete and Create a new one.
+
 - auth
 
 Admin or server_admin
