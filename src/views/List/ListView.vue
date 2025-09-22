@@ -2,41 +2,76 @@
 // TODO: server list
 import { onMounted, ref } from 'vue'
 import { getServerList, type ServerEntity } from '../../api/serverlist'
+import useClipboard from 'vue-clipboard3'
 import ListItem from './ListItem.vue'
+import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
+const { toClipboard } = useClipboard()
 
 const serverList = ref<ServerEntity[]>([])
+const focusIndex = ref(-1)
 
-onMounted(() => {
-  getServerList().then((res) => {
-    serverList.value.splice(0, serverList.value.length, ...res)
-  })
+const onClick = (index: number) => {
+  focusIndex.value = index
+}
+
+const copy = async (text: string) => {
+  try {
+    await toClipboard(text)
+    toast.success('服务器链接已复制！')
+  } catch {
+    toast.error('链接复制失败！')
+  }
+}
+
+const refresh = async () => {
+  const res = await getServerList()
+  serverList.value.splice(0, serverList.value.length, ...res)
+}
+
+onMounted(async () => {
+  await refresh()
 })
 </script>
 
 <template>
   <div class="list-area">
-    <ListItem
-      class="list-item"
-      v-for="server in serverList"
-      :style="{
-        '--delay': serverList.indexOf(server) * 0.2 + 's',
-      }"
-      :key="server.name"
-      :server="server"
-    />
+    <div class="list-item-container">
+      <ListItem
+        class="list-item"
+        v-for="server, index in serverList"
+        :style="{
+          '--delay': serverList.indexOf(server) * 0.2 + 's',
+        }"
+        :key="server.name"
+        :server="server"
+        @click="onClick(index)"
+        :type="focusIndex === index ? 'focus' : ''"
+      />
+    </div>
+    <div class="server-options">
+      <MinecraftButtonClassic
+        class="server-option"
+        @click="refresh"
+      >刷新</MinecraftButtonClassic>
+      <MinecraftButtonClassic
+        class="server-option"
+        @click="focusIndex !== -1 ? copy(serverList[focusIndex].serverUrl) : toast.warning('未选择服务器！')"
+      >加入服务器</MinecraftButtonClassic>
+    </div>
   </div>
 </template>
 
 <style lang="css" scoped>
 .list-area {
-  height: 100%;
+  min-height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   padding-top: 5rem;
-  padding-bottom: 5rem;
   box-sizing: border-box;
   background-image: url('/background/list-background.png');
   background-position: center;
@@ -45,19 +80,44 @@ onMounted(() => {
   position: relative;
 }
 
-.list-area::after {
-  content: '';
+.list-item-container {
+  flex: 3;
+  width: 100%;
+  border-top: 1px solid #eeeeee;
+  border-bottom: 1px solid #eeeeee;
+  padding: 8px 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  overflow-y: auto;
+}
+
+.list-area::before {
   position: absolute;
-  bottom: 0;
+  content: '';
+  top: 0;
   left: 0;
-  right: 0;
-  height: 5rem;
-  background: linear-gradient(to bottom, transparent 0%, var(--background-color) 100%);
+  height: 100%;
+  width: 100%;
+  backdrop-filter: blur(2px);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .list-item {
   opacity: 0;
   animation: fade-in-right 0.5s ease-in-out forwards;
   animation-delay: var(--delay);
+}
+
+.server-options {
+  flex: 2;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  z-index: 1;
+}
+
+.server-option {
+  width: 12rem;
 }
 </style>

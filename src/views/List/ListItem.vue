@@ -1,5 +1,19 @@
 <script lang="ts" setup>
+import useClipboard from 'vue-clipboard3'
+import { useToast } from 'vue-toastification'
 import { type ServerEntity } from '../../api/serverlist'
+
+const toast = useToast()
+const { toClipboard } = useClipboard()
+
+const copy = async (text: string) => {
+  try {
+    await toClipboard(text)
+    toast.success('服务器链接已复制！')
+  } catch {
+    toast.error('链接复制失败！')
+  }
+}
 
 const props = defineProps({
   server: {
@@ -10,16 +24,17 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="item-border">
+  <div class="item-border" @dblclick="copy(props.server.serverUrl)">
     <img
       :src="props.server.icon"
       alt="icon"
       width="64"
       height="64"
       style="border: 1px solid grey"
+      @click="copy(props.server.serverUrl)"
     />
     <div class="item-info">
-      <span style="font-weight: bolder">{{ props.server.name }}</span>
+      <span style="color: white; font-size: 1.1rem;">{{ props.server.name }}</span>
       <span>{{ props.server.description }}</span>
     </div>
     <div class="item-status">
@@ -37,17 +52,47 @@ const props = defineProps({
 
 <style lang="css" scoped>
 .item-border {
-  width: 60%;
-  border: 2px solid gray;
-  padding: 4px;
+  width: 100%;
+  max-width: 768px;
+  padding: 2px 4px;
   display: flex;
   flex-direction: row;
-  margin: 1rem auto;
+  margin: 0 auto;
   min-width: 20rem;
-  background-color: rgba(0, 0, 0, 0.5);
   background-size: 100% auto;
-  box-shadow: 4px 4px rgba(0, 0, 0, 0.7);
   animation: fade-in-right 1s ease-in-out forwards;
+  border: 2px solid transparent;
+}
+
+.item-border[type="focus"] {
+  background-color: black;
+  border: 2px solid white;
+}
+
+.item-border img {
+  position: relative;
+}
+
+.item-border:hover img::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('/UI/Arrow_Right.png') no-repeat center;
+  background-size: 22px 34px;
+  image-rendering: pixelated;
+}
+
+.item-border:hover img::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(128, 128, 128, 0.7);
 }
 
 .item-info {
@@ -56,6 +101,10 @@ const props = defineProps({
   justify-content: center;
   align-items: left;
   margin-left: 1rem;
+}
+
+.item-info span {
+  user-select: none;
 }
 
 .item-status {

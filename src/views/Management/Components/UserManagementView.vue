@@ -17,6 +17,19 @@ import MinecraftSwitch from '@/components/utils/MinecraftSwitch.vue'
 import { onMounted, ref, computed } from 'vue'
 import { useToast } from 'vue-toastification'
 
+const adminToText = (admin: string): string => {
+  switch (admin) {
+    case 'admin':
+      return '超级管理'
+    case 'news_admin':
+      return '文章管理'
+    case 'server_admin':
+      return '服务器管理'
+    default:
+      return ''
+  }
+}
+
 const toBase64 = async (image: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     if (image.size > 5 * 1024 * 1024) {
@@ -369,7 +382,7 @@ onMounted(async () => {
           <text class="user-info-label">权限：</text>
           <div class="user-info-group">
             <text class="user-info-group-item" v-for="group in userGroup" :key="group">{{
-              group === 'admin' ? '超级管理' : '文章管理'
+              adminToText(group)
             }}</text>
           </div>
         </div>
@@ -478,7 +491,7 @@ onMounted(async () => {
             <text class="user-info-label">权限：</text>
             <div class="user-info-group">
               <text class="user-info-group-item" v-for="group in user.group" :key="group">{{
-                group === 'admin' ? '超级管理' : '文章管理'
+                adminToText(group)
               }}</text>
             </div>
           </div>

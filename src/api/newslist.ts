@@ -28,7 +28,7 @@ export interface NewsDetail {
   category: string
 }
 
-export type NewsTarget = 'information' | 'magazine' | 'notice' | 'activity' | 'document'
+export type NewsTarget = 'information' | 'magazine' | 'notice' | 'activity' | 'document' | 'hidden_document'
 
 export const GetNewsTotal = async (target: NewsTarget): Promise<number> => {
   let result = 0
