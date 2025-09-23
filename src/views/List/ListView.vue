@@ -49,14 +49,14 @@ const refresh = async () => {
   for (let i = 0; i < serverList.value.length; i++) {
     if (serverList.value[i].realtime) {
       if (!serverList.value[i].online) {
-        hasNotOnline = true
-        notOnlineServerIndexs.push(i)
-        serverPing.value.push(`/UI/server/Server_Pinging_${pingFrame}.png`)
+        serverPing.value.push(`/UI/server/Server_Unreachable.png`)
       } else {
         serverPing.value.push(`/UI/server/Server_Ping_${randomInt(1, 5)}.png`)
       }
     } else {
-      serverPing.value.push(`/UI/server/Server_Unreachable.png`)
+      hasNotOnline = true
+      notOnlineServerIndexs.push(i)
+      serverPing.value.push(`/UI/server/Server_Pinging_${pingFrame}.png`)
     }
   }
   if (hasNotOnline) {

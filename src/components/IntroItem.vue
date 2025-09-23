@@ -97,6 +97,7 @@ const props = defineProps({
 }
 
 .intro-image {
+  max-width: 100vw;
   max-height: 20rem;
   box-shadow: 4px 4px rgba(0, 0, 0, 0.7);
 }

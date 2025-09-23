@@ -1,5 +1,3 @@
-import { api } from './api'
-
 export interface LinkEntity {
   name: string
   image: string
@@ -8,63 +6,26 @@ export interface LinkEntity {
 }
 
 export const GetLinkList = async (): Promise<LinkEntity[]> => {
-  let result: LinkEntity[] = []
-  await api
-    .get('/link')
-    .then((res) => {
-      result = res.data as LinkEntity[]
-    })
-    .catch(() => {})
-  return result
-}
-
-export const AddLink = async (link: LinkEntity): Promise<string | null> => {
-  let result: string | null = null
-  await api
-    .post('/link', link)
-    .then((res) => {
-      if (res.data.error) {
-        result = res.data.error as string
-      }
-    })
-    .catch((err) => {
-      if (err.response && err.response.data.error) {
-        result = err.response.data.error as string
-      }
-    })
-  return result
-}
-
-export const UpdateLink = async (link: LinkEntity): Promise<string | null> => {
-  let result: string | null = null
-  await api
-    .patch('/link', link)
-    .then((res) => {
-      if (res.data.error) {
-        result = res.data.error as string
-      }
-    })
-    .catch((err) => {
-      if (err.response && err.response.data.error) {
-        result = err.response.data.error as string
-      }
-    })
-  return result
-}
-
-export const DeleteLink = async (name: string): Promise<string | null> => {
-  let result: string | null = null
-  await api
-    .delete(`/link/${name}`)
-    .then((res) => {
-      if (res.data.error) {
-        result = res.data.error as string
-      }
-    })
-    .catch((err) => {
-      if (err.response && err.response.data.error) {
-        result = err.response.data.error as string
-      }
-    })
-  return result
+  return new Promise((resolve) => {
+    resolve([
+      {
+        name: 'NMO皮肤站',
+        image: '',
+        url: 'https://skin.nmo.net.cn/',
+        description: 'TBD',
+      },
+      {
+        name: 'NMO文档站',
+        image: '',
+        url: 'https://wiki.nmo.net.cn/',
+        description: 'TBD',
+      },
+      {
+        name: 'bilibili',
+        image: '',
+        url: 'https://space.bilibili.com/646892894',
+        description: 'TBD',
+      },
+    ])
+  })
 }

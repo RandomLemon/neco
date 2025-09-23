@@ -13,6 +13,13 @@ const model = defineModel({
   default: 'information',
 })
 
+const props = defineProps({
+  allowActivity: {
+    type: Boolean,
+    default: false,
+  },
+})
+
 const newsTotal = ref<number>(0)
 const news = ref<NewsEntity[]>([])
 const page = ref<number>(1)
@@ -109,6 +116,14 @@ const optionFocus = ref(false)
               @click="model = 'notice'"
             >
               最新公告
+            </button>
+            <button
+              :stat="model === 'activity' ? 'active' : 'inactive'"
+              class="news-title-option"
+              @click="model = 'activity'"
+              v-if="props.allowActivity"
+            >
+              最新活动
             </button>
           </div>
         </button>

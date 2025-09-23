@@ -75,6 +75,7 @@ const onSelectIcon = async () => {
     toast.error(`上传文件失败：${e}！`)
     return
   }
+  iconOptionsVisible.value = false
 }
 
 const onEditIcon = () => {
@@ -171,14 +172,14 @@ const refresh = async () => {
   for (let i = 0; i < serverList.value.length; i++) {
     if (serverList.value[i].realtime) {
       if (!serverList.value[i].online) {
-        hasNotOnline = true
-        notOnlineServerIndexs.push(i)
-        serverPing.value.push(`/UI/server/Server_Pinging_${pingFrame}.png`)
+        serverPing.value.push(`/UI/server/Server_Unreachable.png`)
       } else {
         serverPing.value.push(`/UI/server/Server_Ping_${randomInt(1, 5)}.png`)
       }
     } else {
-      serverPing.value.push(`/UI/server/Server_Unreachable.png`)
+      hasNotOnline = true
+      notOnlineServerIndexs.push(i)
+      serverPing.value.push(`/UI/server/Server_Pinging_${pingFrame}.png`)
     }
   }
   if (hasNotOnline) {
@@ -257,7 +258,7 @@ onMounted(async () => {
       />
     </div>
     <div class="server-input-item">
-      <text class="server-input-label">文章封面</text>
+      <text class="server-input-label">服务器图标</text>
       <div class="upload-button" v-if="server.icon.trim() === ''" @click="onEditIcon">
         <PlusIcon />
       </div>
@@ -274,7 +275,7 @@ onMounted(async () => {
       <MinecraftSwitch v-model="server.realtime" />
     </div>
     <div class="server-input-item" v-if="server.realtime">
-      <text class="server-input-label">是否需要同步服务器信息</text>
+      <text class="server-input-label">服务器地址</text>
       <MinecraftInput
         class="server-input"
         v-model="server.serverUrl"
@@ -287,12 +288,10 @@ onMounted(async () => {
     <div class="icon-options-container">
       <text class="icon-options-label">图片地址</text>
       <div class="icon-options-input-container">
-        <MinecraftInput
-          class="icon-options-input"
-          v-model="server.icon"
-          placeholder="填入图片链接"
-        />
-        <MinecraftButtonClassic class="icon-options-button" @click="server.icon = editIcon"
+        <MinecraftInput class="icon-options-input" v-model="editIcon" placeholder="填入图片链接" />
+        <MinecraftButtonClassic
+          class="icon-options-button"
+          @click="((server.icon = editIcon), (iconOptionsVisible = false))"
           >保存</MinecraftButtonClassic
         >
       </div>
@@ -300,7 +299,7 @@ onMounted(async () => {
     <div class="icon-options-container">
       <text class="icon-options-label">直接上传</text>
       <MinecraftButtonClassic class="icon-options-button" style="width: 10rem" @click="onSelectIcon"
-        >↑ 点击上传</MinecraftButtonClassic
+        ><span style="font-size: 2rem">↑</span> 点击上传</MinecraftButtonClassic
       >
     </div>
     <template v-slot:footer>
