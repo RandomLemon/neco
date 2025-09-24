@@ -7,7 +7,7 @@ export const GetSlogan = async (): Promise<string> => {
     .then((res) => {
       result = res.data.slogan
     })
-    .catch((_) => {
+    .catch(() => {
       result = '哎呀！与后端失去联系了'
     })
   return result

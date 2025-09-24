@@ -45,6 +45,12 @@ const router = createRouter({
           component: () => import('../views/About/AboutView.vue'),
           meta: { title: 'NMO | 关于' },
         },
+        {
+          path: '/documents',
+          name: 'documents',
+          component: () => import('../views/Documents/DocumentsView.vue'),
+          meta: { title: 'NMO | 文档' },
+        },
       ],
     },
     {
