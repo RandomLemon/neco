@@ -1,27 +1,27 @@
-import { api, BASE_URL } from "./api"
-import type { NewsSegment } from "./newslist"
+import { api, BASE_URL } from './api'
+import type { NewsSegment } from './newslist'
 
 export interface DocumentBrief {
-  id: string,
-  title: string,
+  id: string
+  title: string
 }
 
 export interface DocumentEntity {
-  id: string,
-  title: string,
-  description: string,
-  category: string,
-  tab: string,
-  priority: number,
-  content: NewsSegment,
+  id: string
+  title: string
+  description: string
+  category: string
+  tab: string
+  priority: number
+  content: NewsSegment
 
   // response only
-  contributors?: string[], // usernames
-  createTime?: string, // yyyy-MM-dd
-  updateTime?: string, // yyyy-MM-dd
+  contributors?: string[] // usernames
+  createTime?: string // yyyy-MM-dd
+  updateTime?: string // yyyy-MM-dd
 
   // request only
-  contributor?: string, // username
+  contributor?: string // username
 }
 
 export const NewDocumentCategory = async (category: string): Promise<string | null> => {
@@ -34,7 +34,8 @@ export const NewDocumentCategory = async (category: string): Promise<string | nu
       if (res.data.error) {
         result = res.data.error
       }
-    }).catch((e) => {
+    })
+    .catch((e) => {
       if (e.response.data.error) {
         result = e.response.data.error
       }
@@ -83,7 +84,8 @@ export const NewDocumentTab = async (category: string, tab: string): Promise<str
       if (res.data.error) {
         result = res.data.error
       }
-    }).catch((e) => {
+    })
+    .catch((e) => {
       if (e.response.data.error) {
         result = e.response.data.error
       }
@@ -164,23 +166,25 @@ export const RequireDocumentId = async (): Promise<string | null> => {
 
 export const UploadDocumentFile = async (id: string, file: File): Promise<string | null> => {
   let result: string | null = null
-    await api
-      .post(`/document/upload/${id}`, {
-          file: file,
+  await api
+    .post(
+      `/document/upload/${id}`,
+      {
+        file: file,
+      },
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
         },
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        },
-      )
-      .then((res) => {
-        if (res.data.url) {
-          result = BASE_URL + res.data.url
-        }
-      })
-      .catch(() => {})
-    return result
+      },
+    )
+    .then((res) => {
+      if (res.data.url) {
+        result = BASE_URL + res.data.url
+      }
+    })
+    .catch(() => {})
+  return result
 }
 
 export const DeleteDocumentFile = async (id: string, url: string): Promise<string | null> => {
