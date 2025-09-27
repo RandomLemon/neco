@@ -577,4 +577,273 @@ with multipart/form-data file upload
 }
 ```
 
-### TODO
+### Document
+
+#### Create Document Category
+
+sorry but i have no choice, parsing category field in url is too dangerous
+
+- request
+
+`POST /document/category`
+
+```json
+{
+    "category": "string",
+}
+```
+
+- response
+
+```json
+{
+    "error": "string" // if error
+}
+```
+
+#### Delete Document Category
+
+- request
+
+`PATCH /document/category`
+
+```json
+{
+    "category": "string",
+}
+```
+
+- response
+
+```json
+{
+    "error": "string" // if error
+}
+```
+
+#### Get All Categories
+
+- request
+
+`GET /document/categories`
+
+- response
+
+```json
+{
+    "categories": "string[]"
+}
+```
+
+#### Create Document Tab
+
+- request
+
+`POST /document/tab`
+
+```json
+{
+    "category": "string",
+    "tab": "string",
+}
+```
+
+- response
+
+```json
+{
+    "error": "string" // if error
+}
+```
+
+#### Delete Document Tab
+
+- request
+
+`PATCH /document/tab`
+
+```json
+{
+    "category": "string",
+    "tab": "string",
+}
+```
+
+- response
+
+```json
+{
+    "error": "string" // if error
+}
+```
+
+#### Get All Tabs
+
+- request
+
+`POST /document/tabs`
+
+```json
+{
+    "category": "string",
+}
+```
+
+- response
+
+```json
+{
+    "tabs": "string[]"
+}
+```
+
+#### Get Document List
+
+- request
+
+`POST /document/list`
+
+```json
+{
+    "category": "string",
+    "tab": "string",
+}
+```
+
+- response
+
+```json
+{
+    "documents": [
+        {
+            "id": "string",
+            "title": "string",
+        },
+        ...
+    ]
+}
+```
+
+#### Get Document Detail
+
+- request
+
+`GET /document/:id`
+
+- response
+
+```json
+{
+    "id": "string",
+    "title": "string",
+    "description": "string",
+    "category": "string",
+    "tab": "string",
+    "contributors": "string[]",
+    "priority": "number",
+    "content": [
+        {
+            "type": "markdown" | "pdf_file",
+            "content": "string", // markdown content or file url
+        }
+    ],
+    "createTime": "string", // yyyy-MM-dd
+    "updateTime": "string", // yyyy-MM-dd
+}
+```
+
+#### Require Document Id
+
+- request
+
+`POST /document/id`
+
+- response
+
+```json
+{
+    "id": "string", // undefined if error
+}
+```
+
+#### Upload Document File
+
+- request
+
+`POST /document/upload/:id`
+
+with multipart/form-data file upload
+
+- response
+
+```json
+{
+    "url": "string" // will be combined with backend url base, should be undefined if error
+}
+```
+
+#### Remove Document File
+
+- request
+
+`POST /document/delete/:id`
+
+```json
+{
+    "url": "string" // backend url base should be removed
+}
+```
+
+- response
+
+```json
+{
+    "error": "string" // if error
+}
+```
+
+#### Update Document
+
+- request
+
+`PATCH /document/:id`
+
+```json
+{
+    "id": "string",
+    "title": "string",
+    "description": "string",
+    "category": "string",
+    "tab": "string",
+    "priority": "number",
+    "content": [
+        {
+            "type": "markdown" | "pdf_file",
+            "content": "string", // markdown content or file url
+        }
+    ],
+    "contributor": "string",
+}
+```
+
+- response
+
+```json
+{
+    "error": "string" // if error
+}
+```
+
+#### Delete Document
+
+- request
+
+`DELETE /document/:id`
+
+- response
+
+```json
+{
+    "error": "string" // if error
+}
+```

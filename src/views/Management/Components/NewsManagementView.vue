@@ -242,7 +242,6 @@ const preview = ref(false)
 const coverUploadVisible = ref(false)
 
 const onCoverUpload = async () => {
-  newsImage.value = ''
   coverUploadVisible.value = true
 }
 
@@ -531,8 +530,8 @@ const onUploadImg = async (
       <div class="upload-button" v-if="newsImage.trim() === ''" @click="onCoverUpload">
         <PlusIcon />
       </div>
-      <picture class="news-image-picture" v-else>
-        <img class="news-image" @click="onCoverUpload" :src="newsImage" alt="news-image" />
+      <picture class="news-image-picture" @click="onCoverUpload" v-else>
+        <img class="news-image" :src="newsImage" alt="news-image" />
       </picture>
     </div>
     <div class="news-input-item">

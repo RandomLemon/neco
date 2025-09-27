@@ -222,8 +222,9 @@ onMounted(async () => {
 
 .management-tab-form-title {
   color: white;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   user-select: none;
+  font-weight: bold;
 }
 
 .management-tab-form-subtitle {

@@ -26,7 +26,7 @@ const copy = async (text: string) => {
     await toClipboard(text)
     toast.success('服务器链接已复制！')
   } catch {
-    toast.error('链接复制失败！')
+    toast.warning('该服务器暂无链接！')
   }
 }
 

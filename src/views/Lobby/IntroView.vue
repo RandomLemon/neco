@@ -5,9 +5,8 @@ import IntroItem from '@/components/IntroItem.vue'
 
 const intros = ref<IntroEntity[]>([])
 
-onMounted(async () => {
-  const result = await GetIntroList()
-  intros.value.splice(0, intros.value.length, ...result)
+onMounted(() => {
+  intros.value = GetIntroList()
 })
 </script>
 

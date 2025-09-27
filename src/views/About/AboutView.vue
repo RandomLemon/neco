@@ -7,13 +7,9 @@ import IntroItem from '@/components/IntroItem.vue'
 
 const linkList = ref<LinkEntity[]>([])
 const intros = ref<IntroEntity[]>([])
-onMounted(async () => {
-  GetLinkList().then((res) => {
-    linkList.value.splice(0, linkList.value.length, ...res)
-  })
-  GetDetailedIntroList().then((res) => {
-    intros.value.splice(0, intros.value.length, ...res)
-  })
+onMounted(() => {
+  linkList.value = GetLinkList()
+  intros.value = GetDetailedIntroList()
 })
 </script>
 

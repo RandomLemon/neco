@@ -262,8 +262,8 @@ onMounted(async () => {
       <div class="upload-button" v-if="server.icon.trim() === ''" @click="onEditIcon">
         <PlusIcon />
       </div>
-      <picture class="server-image-picture" v-else>
-        <img class="server-image" @click="onEditIcon" :src="server.icon" alt="news-image" />
+      <picture class="server-image-picture" @click="onEditIcon" v-else>
+        <img class="server-image" :src="server.icon" alt="news-image" />
       </picture>
     </div>
     <div class="server-input-item">

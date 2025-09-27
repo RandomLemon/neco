@@ -25,6 +25,8 @@ const adminToText = (admin: string): string => {
       return '文章管理'
     case 'server_admin':
       return '服务器管理'
+    case 'document_admin':
+      return '文档管理'
     default:
       return ''
   }
@@ -89,8 +91,12 @@ const userTags = ref(
 
 const editAvatar = ref('/nmo-logo-large.png')
 const editUsername = ref('Undefined')
+
 const editAdminSwitch = ref(true)
 const editNewsAdminSwitch = ref(false)
+const editServerAdminSwitch = ref(false)
+const editDocumentAdminSwitch = ref(false)
+
 const editUserTags = ref([
   {
     text: '管理员',
@@ -541,7 +547,7 @@ onMounted(async () => {
           <MinecraftSwitch
             class="user-input-switch"
             v-model="editAdminSwitch"
-            @on="editNewsAdminSwitch = false"
+            @on="editNewsAdminSwitch = editServerAdminSwitch = editDocumentAdminSwitch = false"
           />
           <text class="user-switch-label">超级管理</text>
         </div>
@@ -552,6 +558,22 @@ onMounted(async () => {
             @on="editAdminSwitch = false"
           />
           <text class="user-switch-label">文章管理</text>
+        </div>
+        <div class="user-switch-item">
+          <MinecraftSwitch
+            class="user-input-switch"
+            v-model="editServerAdminSwitch"
+            @on="editAdminSwitch = false"
+          />
+          <text class="user-switch-label">服务器管理</text>
+        </div>
+        <div class="user-switch-item">
+          <MinecraftSwitch
+            class="user-input-switch"
+            v-model="editDocumentAdminSwitch"
+            @on="editAdminSwitch = false"
+          />
+          <text class="user-switch-label">服务器管理</text>
         </div>
       </div>
       <div class="change-user-info-item" style="grid-column: span 2">
