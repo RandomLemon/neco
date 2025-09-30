@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import MinecraftInput from '@/components/utils/MinecraftInput.vue'
 import MinecraftTextarea from '@/components/utils/MinecraftTextarea.vue'
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useToast } from 'vue-toastification'
 import '@vuepic/vue-datepicker/dist/main.css'
 import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
@@ -18,9 +18,14 @@ import MinecraftDialog from '@/components/utils/MinecraftDialog.vue'
 import MinecraftSwitch from '@/components/utils/MinecraftSwitch.vue'
 import {
   DeleteDocumentFile,
+  GetAllCategories,
+  GetAllTabs,
+  GetDocument,
+  GetDocuments,
   RequireDocumentId,
   UpdateDocument,
   UploadDocumentFile,
+  type DocumentBrief,
   type DocumentEntity,
 } from '@/api/documents'
 import type { NewsSegment } from '@/api/newslist'
@@ -189,7 +194,7 @@ const documentImgFiles = ref<Array<string>>([])
 
 const preview = ref(false)
 
-const onAdddocument = async () => {
+const onAddDocument = async () => {
   status.value = 'add'
   documentContent.id = localStorage.getItem('documentId') || ''
   if (documentContent.id.trim() === '') {
@@ -338,6 +343,44 @@ const onUploadImg = async (
   )
   callback(res)
 }
+
+const allCategories = ref<Array<string>>([])
+const categoryActive = ref(-1)
+const allTabs = ref<Array<string>>([])
+const tabActive = ref(-1)
+const documentBriefs = ref<Array<DocumentBrief>>([])
+const documentActive = ref(-1)
+
+const openDocument = async (index: number) => {
+  documentActive.value = index
+  const document = await GetDocument(documentBriefs.value[index].id)
+  if (document) {
+    status.value = 'edit'
+    Object.assign(documentContent, document)
+    loadContent(document.content)
+  }
+}
+
+const onTabChange = async (index: number) => {
+  tabActive.value = index
+  documentBriefs.value = await GetDocuments(
+    allCategories.value[categoryActive.value],
+    allTabs.value[index],
+  )
+}
+
+const onCategoryChange = async (index: number) => {
+  categoryActive.value = index
+  allTabs.value = await GetAllTabs(allCategories.value[index])
+  tabActive.value = 0
+  await onTabChange(0)
+}
+
+onMounted(async () => {
+  allCategories.value = await GetAllCategories()
+  categoryActive.value = -1
+  tabActive.value = -1
+})
 </script>
 
 <template>
@@ -347,14 +390,49 @@ const onUploadImg = async (
   </div>
   <MinecraftButtonClassic
     class="new-button"
-    @click="onAdddocument"
+    @click="onAddDocument"
     v-if="userGroup.includes('admin') || userGroup.includes('document_admin')"
     >新建文档</MinecraftButtonClassic
   >
   <form class="management-tab-form">
     <div class="management-tab-form-item">
       <text class="management-tab-form-title">全部文档</text>
-      <text class="management-tab-form-subtitle"> 点击文档以编辑！ </text>
+      <text class="management-tab-form-subtitle">点击文档以编辑！</text>
+    </div>
+    <div class="document-list-container">
+      <div class="document-list mc-border">
+        <div
+          class="document-list-item"
+          v-for="category, index in allCategories"
+          :key="index"
+          :active="index === categoryActive ? 'true' : 'false'"
+          @click="onCategoryChange(index)"
+        >
+        {{ category }}
+        </div>
+      </div>
+      <div class="document-list mc-border">
+        <div
+          class="document-list-item"
+          v-for="tab, index in allTabs"
+          :key="index"
+          :active="index === tabActive ? 'true' : 'false'"
+          @click="onTabChange(index)"
+        >
+        {{ tab }}
+        </div>
+      </div>
+      <div class="document-list mc-border">
+        <div
+          class="document-list-item"
+          v-for="documentBrief, index in documentBriefs"
+          :key="index"
+          :active="index === documentActive ? 'true' : 'false'"
+          @click="openDocument(index)"
+        >
+        {{ documentBrief.title }}
+        </div>
+      </div>
     </div>
   </form>
   <form
@@ -645,6 +723,18 @@ const onUploadImg = async (
 
 .document-image-picture:hover::after {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+.document-list-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.document-list {
+  max-width: 100%;
+  min-width: 256px;
+  flex: 1;
 }
 </style>
 
