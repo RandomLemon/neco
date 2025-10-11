@@ -22,6 +22,8 @@ import {
   GetAllTabs,
   GetDocument,
   GetDocuments,
+  NewDocumentCategory,
+  NewDocumentTab,
   RequireDocumentId,
   UpdateDocument,
   UploadDocumentFile,
@@ -363,6 +365,7 @@ const openDocument = async (index: number) => {
 
 const onTabChange = async (index: number) => {
   tabActive.value = index
+  documentContent.tab = allTabs.value[index]
   documentBriefs.value = await GetDocuments(
     allCategories.value[categoryActive.value],
     allTabs.value[index],
@@ -371,9 +374,37 @@ const onTabChange = async (index: number) => {
 
 const onCategoryChange = async (index: number) => {
   categoryActive.value = index
+  documentContent.category = allCategories.value[index]
   allTabs.value = await GetAllTabs(allCategories.value[index])
   tabActive.value = 0
   await onTabChange(0)
+}
+
+const addCategory = ref('')
+const addTab = ref('')
+
+const onAddCategory = async () => {
+  const result = await NewDocumentCategory(addCategory.value)
+  if (result) {
+    toast.error('新增分类失败！')
+  } else {
+    allCategories.value.push(addCategory.value)
+    addCategory.value = ''
+  }
+}
+
+const onAddTab = async () => {
+  if (categoryActive.value === -1) {
+    toast.warning('请先选择分类！')
+    return
+  }
+  const result = await NewDocumentTab(allCategories.value[categoryActive.value], addTab.value)
+  if (result) {
+    toast.error('新增标签失败！')
+  } else {
+    allTabs.value.push(addTab.value)
+    addTab.value = ''
+  }
 }
 
 onMounted(async () => {
@@ -388,16 +419,10 @@ onMounted(async () => {
     <text class="management-tab-title">文档管理</text>
     <text class="management-tab-subtitle">你根本就不强</text>
   </div>
-  <MinecraftButtonClassic
-    class="new-button"
-    @click="onAddDocument"
-    v-if="userGroup.includes('admin') || userGroup.includes('document_admin')"
-    >新建文档</MinecraftButtonClassic
-  >
   <form class="management-tab-form">
     <div class="management-tab-form-item">
       <text class="management-tab-form-title">全部文档</text>
-      <text class="management-tab-form-subtitle">点击文档以编辑！</text>
+      <text class="management-tab-form-subtitle">{{ (userGroup.includes('admin') || userGroup.includes('document_admin')) ? '点击文档以编辑！' : '点击文档以预览！' }}</text>
     </div>
     <div class="document-list-container">
       <div class="document-list mc-border">
@@ -408,7 +433,19 @@ onMounted(async () => {
           :active="index === categoryActive ? 'true' : 'false'"
           @click="onCategoryChange(index)"
         >
-        {{ category }}
+          {{ category }}
+        </div>
+        <div class="document-list-input-item">
+          <MinecraftInput
+            class="document-list-input"
+            v-model="addCategory"
+            @keyup.enter="onAddCategory"
+          />
+          <MinecraftButtonClassic
+            class="document-list-add"
+            v-if="userGroup.includes('admin') || userGroup.includes('document_admin')"
+            @click="onAddCategory"
+          >新增分类</MinecraftButtonClassic>
         </div>
       </div>
       <div class="document-list mc-border">
@@ -419,7 +456,19 @@ onMounted(async () => {
           :active="index === tabActive ? 'true' : 'false'"
           @click="onTabChange(index)"
         >
-        {{ tab }}
+          {{ tab }}
+        </div>
+        <div class="document-list-input-item">
+          <MinecraftInput
+            class="document-list-input"
+            v-model="addTab"
+            @keyup.enter="onAddTab"
+          />
+          <MinecraftButtonClassic
+            class="document-list-add"
+            v-if="userGroup.includes('admin') || userGroup.includes('document_admin')"
+            @click="onAddTab"
+          >新增分类</MinecraftButtonClassic>
         </div>
       </div>
       <div class="document-list mc-border">
@@ -430,7 +479,15 @@ onMounted(async () => {
           :active="index === documentActive ? 'true' : 'false'"
           @click="openDocument(index)"
         >
-        {{ documentBrief.title }}
+          {{ documentBrief.title }}
+        </div>
+        <div class="document-list-input-item">
+          <MinecraftButtonClassic
+            class="document-list-add"
+            @click="onAddDocument"
+            v-if="userGroup.includes('admin') || userGroup.includes('document_admin')"
+            >新建文档</MinecraftButtonClassic
+          >
         </div>
       </div>
     </div>
@@ -603,10 +660,6 @@ onMounted(async () => {
   width: 100%;
 }
 
-.new-button {
-  font-size: 1.5rem;
-}
-
 .document-markdown-edit {
   display: flex;
   flex-direction: column;
@@ -734,7 +787,43 @@ onMounted(async () => {
 .document-list {
   max-width: 100%;
   min-width: 256px;
+  min-height: 24rem;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.document-list-input-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin-top: auto;
+  gap: 4px;
+}
+
+.document-list-add {
+  font-size: 1.2rem;
+}
+
+.document-list-input {
+  width: calc(100% - 4px);
+}
+
+.document-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  user-select: none;
+  height: 2.5rem;
+  font-size: 1.2rem;
+}
+
+.document-list-item[active="true"] {
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid white;
 }
 </style>
 
