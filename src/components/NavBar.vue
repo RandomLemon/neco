@@ -21,6 +21,7 @@ const navItems = ref<NavItem[]>([
   { name: '活动', url: '/activity' },
   { name: '新闻', url: '/news' },
   { name: '关于', url: '/about' },
+  { name: '文档', url: '/documents' },
 ])
 const activeIndex = ref<number>(0)
 const setIndex = (index: number) => {

@@ -212,6 +212,8 @@ const onAddDocument = async () => {
       localStorage.setItem('documentId', documentContent.id)
     }
   }
+  documentContent.title = ''
+  documentContent.description = ''
   documentText.value = ''
   documentPdfFiles.value = []
   documentImgFiles.value = []
@@ -420,6 +422,10 @@ const addCategory = ref('')
 const addTab = ref('')
 
 const onAddCategory = async () => {
+  if (addCategory.value.trim() === '') {
+    toast.warning('请输入分类名称！')
+    return
+  }
   const result = await NewDocumentCategory(addCategory.value)
   if (result) {
     toast.error('新增分类失败！')
@@ -430,6 +436,10 @@ const onAddCategory = async () => {
 }
 
 const onAddTab = async () => {
+  if (addTab.value.trim() === '') {
+    toast.warning('请输入标签名称！')
+    return
+  }
   if (categoryActive.value === -1) {
     toast.warning('请先选择分类！')
     return
@@ -514,7 +524,7 @@ onMounted(async () => {
             class="document-list-add"
             v-if="userGroup.includes('admin') || userGroup.includes('document_admin')"
             @click="onAddTab"
-          >新增分类</MinecraftButtonClassic>
+          >新增页签</MinecraftButtonClassic>
         </div>
       </div>
       <div class="document-list mc-border">
