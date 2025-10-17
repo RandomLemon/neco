@@ -75,6 +75,7 @@ onMounted(async () => {
   transform: translateX(-50%);
   min-width: max-content;
   gap: 0.5rem;
+  user-select: none;
 }
 
 .nav-bar {
