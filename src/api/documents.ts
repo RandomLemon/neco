@@ -242,7 +242,10 @@ export const UpdateDocument = async (document: DocumentEntity): Promise<string |
   return result
 }
 
-export const GetLatestDocuments = async (pageSize: number, page: number): Promise<DocumentBrief[]> => {
+export const GetLatestDocuments = async (
+  pageSize: number,
+  page: number,
+): Promise<DocumentBrief[]> => {
   let result: DocumentBrief[] = []
   await api
     .post('/document/latest', {
@@ -256,7 +259,11 @@ export const GetLatestDocuments = async (pageSize: number, page: number): Promis
   return result
 }
 
-export const SearchDocuments = async (keyword: string, pageSize: number, page: number): Promise<DocumentBrief[]> => {
+export const SearchDocuments = async (
+  keyword: string,
+  pageSize: number,
+  page: number,
+): Promise<DocumentBrief[]> => {
   let result: DocumentBrief[] = []
   await api
     .post(`/document${localStorage.getItem('token') == '' ? '' : '/private'}/search`, {

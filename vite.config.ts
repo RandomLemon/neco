@@ -22,6 +22,11 @@ export default defineConfig({
         changeOrigin: true,
         // rewrite: (path) => path.replace(/^\/necore/, '')
       }
-    }
+    },
+    allowedHosts: [
+      "test.nmo.net.cn",
+      "www.nmo.net.cn",
+      "nmo.net.cn",
+    ]
   }
 })

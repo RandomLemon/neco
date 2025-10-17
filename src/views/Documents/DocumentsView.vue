@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { GetAllCategories, GetAllTabs, GetDocument, GetDocuments, type DocumentBrief, type DocumentEntity } from '@/api/documents'
+import {
+  GetAllCategories,
+  GetAllTabs,
+  GetDocument,
+  GetDocuments,
+  type DocumentBrief,
+  type DocumentEntity,
+} from '@/api/documents'
 import type { NewsSegment } from '@/api/newslist'
 import CalendarIcon from '@/components/icons/CalendarIcon.vue'
 import ListIcon from '@/components/icons/ListIcon.vue'
@@ -57,7 +64,7 @@ const documentContent = reactive<DocumentEntity>({
   contributors: [],
   createTime: '',
   updateTime: '',
-});
+})
 
 const openDocument = async (id: string) => {
   activeId.value = id
@@ -112,13 +119,13 @@ onMounted(async () => {
 
 <template>
   <div class="documents-view">
-    <div class="documents-nav-container" :type="menuExpand ? '' : 'shrink'" @click="menuExpand = false">
+    <div
+      class="documents-nav-container"
+      :type="menuExpand ? '' : 'shrink'"
+      @click="menuExpand = false"
+    >
       <nav class="documents-nav" :type="menuExpand ? '' : 'shrink'" @click.stop>
-        <div
-          class="category-list"
-          v-for="(category, index) in articles"
-          :key="index"
-        >
+        <div class="category-list" v-for="(category, index) in articles" :key="index">
           <MinecraftButtonClassic
             class="category-button"
             @click="category.isOpen = !category.isOpen"
@@ -131,10 +138,7 @@ onMounted(async () => {
             :key="tabIndex"
           >
             <div class="tab-v-if" v-if="category.isOpen">
-              <MinecraftButtonClassic
-                class="tab-button"
-                @click="tab.isOpen = !tab.isOpen"
-              >
+              <MinecraftButtonClassic class="tab-button" @click="tab.isOpen = !tab.isOpen">
                 {{ tab.tab }}
               </MinecraftButtonClassic>
             </div>
@@ -145,34 +149,21 @@ onMounted(async () => {
                 :key="docIndex"
                 :activated="activeId === document.id ? 'true' : 'false'"
                 @click="openDocument(document.id)"
-              >{{ document.title }}</MinecraftButtonClassic>
+                >{{ document.title }}</MinecraftButtonClassic
+              >
             </div>
           </div>
         </div>
       </nav>
     </div>
     <aside class="documents-aside mc-border" :type="sidebarExpand ? '' : 'shrink'">
-      <div
-        class="category-list"
-        v-for="(category, index) in articles"
-        :key="index"
-      >
-        <MinecraftButtonClassic
-          class="category-button"
-          @click="category.isOpen = !category.isOpen"
-        >
+      <div class="category-list" v-for="(category, index) in articles" :key="index">
+        <MinecraftButtonClassic class="category-button" @click="category.isOpen = !category.isOpen">
           {{ category.category }}
         </MinecraftButtonClassic>
-        <div
-          class="tab-container"
-          v-for="(tab, tabIndex) in articles[index].tabs"
-          :key="tabIndex"
-        >
+        <div class="tab-container" v-for="(tab, tabIndex) in articles[index].tabs" :key="tabIndex">
           <div class="tab-v-if" v-if="category.isOpen">
-            <MinecraftButtonClassic
-              class="tab-button"
-              @click="tab.isOpen = !tab.isOpen"
-            >
+            <MinecraftButtonClassic class="tab-button" @click="tab.isOpen = !tab.isOpen">
               {{ tab.tab }}
             </MinecraftButtonClassic>
           </div>
@@ -183,7 +174,8 @@ onMounted(async () => {
               :key="docIndex"
               :activated="activeId === document.id ? 'true' : 'false'"
               @click="openDocument(document.id)"
-            >{{ document.title }}</MinecraftButtonClassic>
+              >{{ document.title }}</MinecraftButtonClassic
+            >
           </div>
         </div>
       </div>
@@ -192,15 +184,26 @@ onMounted(async () => {
       <div class="document-main-title">{{ documentContent.title }}</div>
       <div class="document-main-subtitle" v-if="documentContent.title.trim() !== ''">
         <UserIcon class="document-icon" />
-        <div
-          v-for="(contributor, index) in documentContent.contributors"
-          :key="contributor"
-        >{{ contributor + (index === (documentContent.contributors || []).length - 1 ? '' : ', ') }}</div>
+        <div v-for="(contributor, index) in documentContent.contributors" :key="contributor">
+          {{
+            contributor + (index === (documentContent.contributors || []).length - 1 ? '' : ', ')
+          }}
+        </div>
         <CalendarIcon class="document-icon" />
-        <div>{{ (documentContent.updateTime || '').trim() === '' ? (new Date()).toLocaleDateString().replace('/', '-').replace('/', '-')  : documentContent.updateTime }}</div>
+        <div>
+          {{
+            (documentContent.updateTime || '').trim() === ''
+              ? new Date().toLocaleDateString().replace('/', '-').replace('/', '-')
+              : documentContent.updateTime
+          }}
+        </div>
       </div>
       <div class="document-main-item-list">
-        <div class="document-main-item" v-for="(item, index) in documentContent.content" :key="index">
+        <div
+          class="document-main-item"
+          v-for="(item, index) in documentContent.content"
+          :key="index"
+        >
           <MdPreview
             v-if="item.type === 'markdown'"
             theme="dark"
@@ -376,7 +379,7 @@ onMounted(async () => {
   z-index: 512;
 }
 
-.documents-nav-container[type="shrink"] {
+.documents-nav-container[type='shrink'] {
   width: 0;
 }
 
@@ -395,7 +398,7 @@ onMounted(async () => {
   overflow: hidden;
 }
 
-.documents-nav[type="shrink"] {
+.documents-nav[type='shrink'] {
   width: 0;
   padding: 0;
   border: none;

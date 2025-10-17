@@ -367,7 +367,7 @@ const openDocument = async (index: number) => {
     Object.assign(documentContent, document)
     loadContent(document.content)
     if (!(userGroup.value.includes('admin') || userGroup.value.includes('document_admin'))) {
-      preview.value = true;
+      preview.value = true
     }
   } else {
     toast.error('获取文档失败！')
@@ -392,7 +392,10 @@ const onCategoryChange = async (index: number) => {
 }
 
 const onTabDelete = async (index: number) => {
-  const result = await DeleteDocumentTab(allCategories.value[categoryActive.value], allTabs.value[index])
+  const result = await DeleteDocumentTab(
+    allCategories.value[categoryActive.value],
+    allTabs.value[index],
+  )
   if (result) {
     toast.error('删除标签失败！')
   } else {
@@ -468,13 +471,17 @@ onMounted(async () => {
   <form class="management-tab-form">
     <div class="management-tab-form-item">
       <text class="management-tab-form-title">全部文档</text>
-      <text class="management-tab-form-subtitle">{{ (userGroup.includes('admin') || userGroup.includes('document_admin')) ? '点击文档以编辑！' : '点击文档以预览！' }}</text>
+      <text class="management-tab-form-subtitle">{{
+        userGroup.includes('admin') || userGroup.includes('document_admin')
+          ? '点击文档以编辑！'
+          : '点击文档以预览！'
+      }}</text>
     </div>
     <div class="document-list-container">
       <div class="document-list mc-border">
         <div
           class="document-list-item"
-          v-for="category, index in allCategories"
+          v-for="(category, index) in allCategories"
           :key="index"
           :active="index === categoryActive ? 'true' : 'false'"
           @click="onCategoryChange(index)"
@@ -482,9 +489,7 @@ onMounted(async () => {
           <text class="document-list-text">
             {{ category }}
           </text>
-          <text class="document-list-delete-icon" @click="onCategoryDelete(index)">
-            X
-          </text>
+          <text class="document-list-delete-icon" @click="onCategoryDelete(index)"> X </text>
         </div>
         <div class="document-list-input-item">
           <MinecraftInput
@@ -496,13 +501,14 @@ onMounted(async () => {
             class="document-list-add"
             v-if="userGroup.includes('admin') || userGroup.includes('document_admin')"
             @click="onAddCategory"
-          >新增分类</MinecraftButtonClassic>
+            >新增分类</MinecraftButtonClassic
+          >
         </div>
       </div>
       <div class="document-list mc-border">
         <div
           class="document-list-item"
-          v-for="tab, index in allTabs"
+          v-for="(tab, index) in allTabs"
           :key="index"
           :active="index === tabActive ? 'true' : 'false'"
           @click="onTabChange(index)"
@@ -510,27 +516,22 @@ onMounted(async () => {
           <text class="document-list-text">
             {{ tab }}
           </text>
-          <text class="document-list-delete-icon" @click="onTabDelete(index)">
-            X
-          </text>
+          <text class="document-list-delete-icon" @click="onTabDelete(index)"> X </text>
         </div>
         <div class="document-list-input-item">
-          <MinecraftInput
-            class="document-list-input"
-            v-model="addTab"
-            @keyup.enter="onAddTab"
-          />
+          <MinecraftInput class="document-list-input" v-model="addTab" @keyup.enter="onAddTab" />
           <MinecraftButtonClassic
             class="document-list-add"
             v-if="userGroup.includes('admin') || userGroup.includes('document_admin')"
             @click="onAddTab"
-          >新增页签</MinecraftButtonClassic>
+            >新增页签</MinecraftButtonClassic
+          >
         </div>
       </div>
       <div class="document-list mc-border">
         <div
           class="document-list-item"
-          v-for="documentBrief, index in documentBriefs"
+          v-for="(documentBrief, index) in documentBriefs"
           :key="index"
           :active="index === documentActive ? 'true' : 'false'"
           @click="openDocument(index)"
@@ -538,9 +539,7 @@ onMounted(async () => {
           <text class="document-list-text">
             {{ documentBrief.title }}
           </text>
-          <text class="document-list-delete-icon" @click="onDeleteDocument(index)">
-            X
-          </text>
+          <text class="document-list-delete-icon" @click="onDeleteDocument(index)"> X </text>
         </div>
         <div class="document-list-input-item">
           <MinecraftButtonClassic
@@ -894,17 +893,17 @@ onMounted(async () => {
   font-size: 1.5rem;
   width: 2rem;
   cursor: pointer;
-  transition: all .2s ease-in-out;
+  transition: all 0.2s ease-in-out;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .document-list-delete-icon:hover {
-  color: #F56C6C;
+  color: #f56c6c;
 }
 
-.document-list-item[active="true"] {
+.document-list-item[active='true'] {
   background: rgba(0, 0, 0, 0.7);
   border: 2px solid white;
 }
