@@ -35,6 +35,7 @@ import {
 } from '@/api/documents'
 import type { NewsSegment } from '@/api/newslist'
 import LoadNews from '@/components/icons/LoadNews.vue'
+import PdfViewer from '@/components/PdfViewer.vue'
 
 const editorToolbars = ref<ToolbarNames[]>([
   'bold',
@@ -141,29 +142,42 @@ const checkContent = async () => {
 }
 
 const toContent = () => {
-  let curText = documentText.value
+  const curText = documentText.value
   const result: NewsSegment[] = []
-  for (const key of documentPdfFiles.value) {
-    while (documentText.value.includes(key)) {
-      const textSegment = curText.split(key)[0]
-      curText = curText.split(key).slice(1).join(key)
-      result.push({
-        type: 'markdown',
-        content: textSegment,
-      })
-      result.push({
-        type: 'pdf_file',
-        content: key,
-      })
+
+  if (documentPdfFiles.value.length === 0) {
+    if (curText.trim() !== '') {
+      result.push({ type: 'markdown', content: curText });
     }
+    documentContent.content = result;
+    return;
   }
-  if (curText.trim() !== '') {
-    result.push({
-      type: 'markdown',
-      content: curText,
-    })
+
+  const pdfKeysEscaped = documentPdfFiles.value.map(key =>
+    formatPdf(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  );
+
+  const regex = new RegExp(`(${pdfKeysEscaped.join('|')})`, 'g');
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(curText)) !== null) {
+    const textSegment = curText.substring(lastIndex, match.index);
+    if (textSegment.length > 0) {
+      result.push({ type: 'markdown', content: textSegment });
+    }
+
+    result.push({ type: 'pdf_file', content: match[0] });
+
+    lastIndex = regex.lastIndex;
   }
-  documentContent.content = result
+
+  const remainingText = curText.substring(lastIndex);
+  if (remainingText.trim() !== '') {
+    result.push({ type: 'markdown', content: remainingText });
+  }
+
+  documentContent.content = result;
 }
 
 const toast = useToast()
@@ -659,11 +673,11 @@ onMounted(async () => {
                 @click="scrollTo(`pdf-renderer-${index}`)"
                 >↓ 最佳阅读位置</MinecraftButton
               >
-              <iframe
+              <PdfViewer
                 :id="`pdf-renderer-${index}`"
                 v-if="item.type === 'pdf_file'"
                 class="pdf-renderer mc-border"
-                :src="`/pdfjs/web/viewer.html?file=${encodeURIComponent(item.content)}`"
+                :pdf-url="item.content"
               />
             </div>
           </div>

@@ -16,6 +16,7 @@
     "@vuepic/vue-datepicker": "^11.0.2",
     "axios": "^1.11.0",
     "md-editor-v3": "^5.8.3",
+    "pdfjs-dist": "^5.4.296",
     "vue": "^3.5.18",
     "vue-clipboard3": "^2.0.0",
     "vue-router": "^4.5.1",

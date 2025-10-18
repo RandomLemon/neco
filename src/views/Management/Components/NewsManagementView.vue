@@ -30,6 +30,7 @@ import MinecraftDialog from '@/components/utils/MinecraftDialog.vue'
 import LoadNews from '@/components/icons/LoadNews.vue'
 import MinecraftSwitch from '@/components/utils/MinecraftSwitch.vue'
 import PlusIcon from '@/components/icons/PlusIcon.vue'
+import PdfViewer from '@/components/PdfViewer.vue'
 
 const editorToolbars = ref<ToolbarNames[]>([
   'bold',
@@ -150,29 +151,42 @@ const checkContent = async () => {
 }
 
 const toContent = () => {
-  let curText = newsText.value
+  const curText = newsText.value
   const result: NewsSegment[] = []
-  for (const key of newsPdfFiles.value) {
-    while (newsText.value.includes(key)) {
-      const textSegment = curText.split(key)[0]
-      curText = curText.split(key).slice(1).join(key)
-      result.push({
-        type: 'markdown',
-        content: textSegment,
-      })
-      result.push({
-        type: 'pdf_file',
-        content: key,
-      })
+
+  if (newsPdfFiles.value.length === 0) {
+    if (curText.trim() !== '') {
+      result.push({ type: 'markdown', content: curText });
     }
+    newsContent.value = result;
+    return;
   }
-  if (curText.trim() !== '') {
-    result.push({
-      type: 'markdown',
-      content: curText,
-    })
+
+  const pdfKeysEscaped = newsPdfFiles.value.map(key =>
+    formatPdf(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  );
+
+  const regex = new RegExp(`(${pdfKeysEscaped.join('|')})`, 'g');
+  let lastIndex = 0;
+  let match;
+
+  while ((match = regex.exec(curText)) !== null) {
+    const textSegment = curText.substring(lastIndex, match.index);
+    if (textSegment.length > 0) {
+      result.push({ type: 'markdown', content: textSegment });
+    }
+
+    result.push({ type: 'pdf_file', content: match[0] });
+
+    lastIndex = regex.lastIndex;
   }
-  newsContent.value = result
+
+  const remainingText = curText.substring(lastIndex);
+  if (remainingText.trim() !== '') {
+    result.push({ type: 'markdown', content: remainingText });
+  }
+
+  newsContent.value = result;
 }
 
 const router = useRouter()
@@ -606,11 +620,11 @@ const onUploadImg = async (
                 @click="scrollTo(`pdf-renderer-${index}`)"
                 >↓ 最佳阅读位置</MinecraftButton
               >
-              <iframe
+              <PdfViewer
                 :id="`pdf-renderer-${index}`"
                 v-if="item.type === 'pdf_file'"
                 class="pdf-renderer mc-border"
-                :src="`/pdfjs/web/viewer.html?file=${encodeURIComponent(item.content)}`"
+                :pdf-url="item.content"
               />
             </div>
           </div>
