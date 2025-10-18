@@ -99,7 +99,7 @@ export const GetDetailedIntroList = (): IntroEntity[] => {
     {
       title: `外联部`,
       description: `NMO社团的“外交官”，负责与其他高校Minecraft社团的交流合作，举办各类线上线下活动。欢迎志同道合的你加入我们，一起为Minecraft圈的发展做出贡献！`,
-      image: import.meta.env.BASE_URL + 'background/main-background.jpg',
+      image: import.meta.env.BASE_URL + 'resources/groups/外联部.jpg',
     },
   ]
 }
