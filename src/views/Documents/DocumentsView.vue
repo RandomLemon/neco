@@ -242,6 +242,7 @@ onMounted(async () => {
   width: 100%;
   padding-top: 5rem;
   min-height: 100vh;
+  margin-bottom: 1rem;
 
   display: flex;
   flex-direction: row;

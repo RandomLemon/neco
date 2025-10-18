@@ -39,6 +39,9 @@ const jumpto = (url: string) => {
   flex-direction: column;
   position: relative;
 
+  background-position: center;
+  background-size: cover;
+
   box-shadow: 4px 4px rgba(0, 0, 0, 0.5);
   cursor: pointer;
 }
@@ -50,7 +53,7 @@ const jumpto = (url: string) => {
   padding-left: 1rem;
   padding-right: 1rem;
 
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.7);
   user-select: none;
 }
 

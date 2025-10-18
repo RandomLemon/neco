@@ -77,7 +77,7 @@ onMounted(async () => {
             </div>
             <div
               class="news-detail-author-info-item"
-              v-if="newsDetail?.entity.endDate === undefined"
+              v-if="newsDetail?.entity.endDate === undefined || newsDetail.entity.endDate === newsDetail.entity.date"
             >
               <div class="news-detail-author-title">发布日期</div>
               <div class="news-detail-author-text">{{ newsDetail?.entity.date }}</div>
