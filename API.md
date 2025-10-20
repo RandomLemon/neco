@@ -713,6 +713,10 @@ with multipart/form-data file upload
 
 ```json
 {
+    "parentId": "string", // Should be "root" if there is no parent
+    "id": "string",
+    "isFolder": "boolean",
+    "private": "boolean",
     "name": "string",
     "contributors": "string[]", // invalid if isFolder is true
     "content": [{
