@@ -727,6 +727,30 @@ with multipart/form-data file upload
 }
 ```
 
+#### Get Document Detail Private
+
+- request
+
+`GET /documents/private/:id`
+
+- response
+
+```json
+{
+    "parentId": "string", // Should be "root" if there is no parent
+    "id": "string",
+    "isFolder": "boolean",
+    "private": "boolean",
+    "name": "string",
+    "contributors": "string[]", // invalid if isFolder is true
+    "content": [{
+        "type": "markdown" | "pdf_file",
+        "content": "string", // markdown content or file url
+    }, ...], // invalid if isFolder is true
+    "updateTime": "string" // format: yyyy-MM-dd, invalid if isFolder is true
+}
+```
+
 #### Get Document Tree Layer
 
 `GET /documents/layer/:parentId` // parentId should be "root" if there is no parent
