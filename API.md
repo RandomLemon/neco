@@ -299,15 +299,36 @@ Remove session.
             "icon": "string",
             "description": "string",
             "onlineMapUrl": "string",
-            // If realtime is true, the following fields will be valid.
             "realtime": "boolean", 
-            "online": "boolean",
-            "playerCount": "number",
-            "capacity": "number",
             "serverUrl": "string",
         },
         ...
     ]
+}
+```
+
+#### Get Server Status
+
+- request
+
+`POST server/status`
+
+```json
+{
+    "serverUrl": "string",
+}
+```
+
+- response
+
+```json
+{
+    "online": "boolean",
+    // If online is true, the following fields should be available
+    "playerCount": "number",
+    "capacity": "number",
+    "latency": "number",
+    "version": "string",
 }
 ```
 

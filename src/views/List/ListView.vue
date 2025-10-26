@@ -6,10 +6,6 @@ import ListItem from './ListItem.vue'
 import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
 import { useToast } from 'vue-toastification'
 
-const randomInt = (l: number, r: number): number => {
-  return Math.round(Math.random() * (r - l)) + l
-}
-
 const toast = useToast()
 const { toClipboard } = useClipboard()
 
@@ -33,12 +29,10 @@ const copy = async (text: string) => {
 let direction = 1
 let pingFrame = 1
 let pingTimer: NodeJS.Timeout | undefined = undefined
-let notOnlineServerIndexs: number[] = []
 
 const refresh = async () => {
   serverList.value = await GetServerList()
   serverPing.value = []
-  notOnlineServerIndexs = []
   if (pingTimer) {
     clearInterval(pingTimer)
     pingTimer = undefined
@@ -47,23 +41,40 @@ const refresh = async () => {
   }
   let hasNotOnline = false
   for (let i = 0; i < serverList.value.length; i++) {
-    if (serverList.value[i].realtime) {
-      if (!serverList.value[i].online) {
-        serverPing.value.push(`/UI/server/Server_Unreachable.png`)
-      } else {
-        serverPing.value.push(`/UI/server/Server_Ping_${randomInt(1, 5)}.png`)
-      }
+    if (!serverList.value[i].realtime) {
+      serverPing.value.push(`/UI/server/Server_Unreachable.png`)
     } else {
       hasNotOnline = true
-      notOnlineServerIndexs.push(i)
       serverPing.value.push(`/UI/server/Server_Pinging_${pingFrame}.png`)
     }
   }
   if (hasNotOnline) {
     pingTimer = setInterval(() => {
-      for (let i = 0; i < notOnlineServerIndexs.length; i++) {
-        const index = notOnlineServerIndexs[i]
-        serverPing.value[index] = `/UI/server/Server_Pinging_${pingFrame}.png`
+      for (let i = 0; i < serverList.value.length; i++) {
+        if (serverPing.value[i].startsWith('/UI/server/Server_Pinging_')) {
+          if (serverList.value[i].status !== undefined) {
+            if (serverList.value[i].status?.online) {
+              const latency = serverList.value[i].status?.latency || 25565
+              if (!serverList.value[i].status?.latency) {
+                serverPing.value[i] = `/UI/server/Server_Unreachable.png`
+              } else if (latency <= 150) {
+                serverPing.value[i] = `/UI/server/Server_Ping_5.png`
+              } else if (latency <= 300) {
+                serverPing.value[i] = `/UI/server/Server_Ping_4.png`
+              } else if (latency <= 450) {
+                serverPing.value[i] = `/UI/server/Server_Ping_3.png`
+              } else if (latency <= 600) {
+                serverPing.value[i] = `/UI/server/Server_Ping_2.png`
+              } else {
+                serverPing.value[i] = `/UI/server/Server_Ping_1.png`
+              }
+            } else {
+              serverPing.value[i] = `/UI/server/Server_Unreachable.png`
+            }
+          } else {
+            serverPing.value[i] = `/UI/server/Server_Pinging_${pingFrame}.png`
+          }
+        }
       }
       if (pingFrame > 4) {
         direction = -1

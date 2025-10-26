@@ -9,10 +9,6 @@ import MinecraftInput from '@/components/utils/MinecraftInput.vue'
 import PlusIcon from '@/components/icons/PlusIcon.vue'
 import MinecraftSwitch from '@/components/utils/MinecraftSwitch.vue'
 
-const randomInt = (l: number, r: number): number => {
-  return Math.round(Math.random() * (r - l)) + l
-}
-
 const toBase64 = async (image: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     if (image.size > 1024 * 1024) {
@@ -166,12 +162,10 @@ const onDeleteServer = async (index: number) => {
 let direction = 1
 let pingFrame = 1
 let pingTimer: NodeJS.Timeout | undefined = undefined
-let notOnlineServerIndexs: number[] = []
 
 const refresh = async () => {
   serverList.value = await GetServerList()
   serverPing.value = []
-  notOnlineServerIndexs = []
   if (pingTimer) {
     clearInterval(pingTimer)
     pingTimer = undefined
@@ -180,23 +174,40 @@ const refresh = async () => {
   }
   let hasNotOnline = false
   for (let i = 0; i < serverList.value.length; i++) {
-    if (serverList.value[i].realtime) {
-      if (!serverList.value[i].online) {
-        serverPing.value.push(`/UI/server/Server_Unreachable.png`)
-      } else {
-        serverPing.value.push(`/UI/server/Server_Ping_${randomInt(1, 5)}.png`)
-      }
+    if (!serverList.value[i].realtime) {
+      serverPing.value.push(`/UI/server/Server_Unreachable.png`)
     } else {
       hasNotOnline = true
-      notOnlineServerIndexs.push(i)
       serverPing.value.push(`/UI/server/Server_Pinging_${pingFrame}.png`)
     }
   }
   if (hasNotOnline) {
     pingTimer = setInterval(() => {
-      for (let i = 0; i < notOnlineServerIndexs.length; i++) {
-        const index = notOnlineServerIndexs[i]
-        serverPing.value[index] = `/UI/server/Server_Pinging_${pingFrame}.png`
+      for (let i = 0; i < serverList.value.length; i++) {
+        if (serverPing.value[i].startsWith('/UI/server/Server_Pinging_')) {
+          if (serverList.value[i].status !== undefined) {
+            if (serverList.value[i].status?.online) {
+              const latency = serverList.value[i].status?.latency || 25565
+              if (!serverList.value[i].status?.latency) {
+                serverPing.value[i] = `/UI/server/Server_Unreachable.png`
+              } else if (latency <= 150) {
+                serverPing.value[i] = `/UI/server/Server_Ping_5.png`
+              } else if (latency <= 300) {
+                serverPing.value[i] = `/UI/server/Server_Ping_4.png`
+              } else if (latency <= 450) {
+                serverPing.value[i] = `/UI/server/Server_Ping_3.png`
+              } else if (latency <= 600) {
+                serverPing.value[i] = `/UI/server/Server_Ping_2.png`
+              } else {
+                serverPing.value[i] = `/UI/server/Server_Ping_1.png`
+              }
+            } else {
+              serverPing.value[i] = `/UI/server/Server_Unreachable.png`
+            }
+          } else {
+            serverPing.value[i] = `/UI/server/Server_Pinging_${pingFrame}.png`
+          }
+        }
       }
       if (pingFrame > 4) {
         direction = -1
@@ -286,12 +297,12 @@ onMounted(async () => {
       <text class="server-input-label">是否需要同步服务器信息</text>
       <MinecraftSwitch v-model="server.realtime" />
     </div>
-    <div class="server-input-item" v-if="server.realtime">
+    <div class="server-input-item">
       <text class="server-input-label">服务器地址</text>
       <MinecraftInput
         class="server-input"
         v-model="server.serverUrl"
-        placeholder="请输入服务器地址"
+        placeholder="没有可留空"
       />
     </div>
     <MinecraftButtonClassic @click="commitServer">保存</MinecraftButtonClassic>

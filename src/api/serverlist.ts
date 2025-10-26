@@ -1,27 +1,43 @@
 import { api } from './api'
 
+export interface ServerStatus {
+  online?: boolean
+  latency?: number
+  version?: string
+  playerCount?: number
+  capacity?: number
+}
+
 export interface ServerEntity {
   name: string
   icon: string
   description: string
   onlineMapUrl: string
   realtime: boolean
-  serverUrl?: string
+  serverUrl: string
 
-  latency?: number
-  version?: string
-  online?: boolean
-  playerCount?: number
-  capacity?: number
+  status?: ServerStatus
 }
 
-// Static infomation list.
 export const GetServerList = async (): Promise<ServerEntity[]> => {
   let result: ServerEntity[] = []
   await api
     .get('/server')
     .then((res) => {
       result = res.data.servers as ServerEntity[]
+    })
+    .catch(() => {})
+  return result
+}
+
+export const GetServerStatus = async (url: string): Promise<ServerStatus | null> => {
+  let result: ServerStatus | null = null
+  await api
+    .post('/server/status', {
+      serverUrl: url
+    })
+    .then((res) => {
+      result = res.data as ServerStatus
     })
     .catch(() => {})
   return result

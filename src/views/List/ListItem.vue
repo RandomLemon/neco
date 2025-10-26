@@ -1,11 +1,9 @@
 <script lang="ts" setup>
 import useClipboard from 'vue-clipboard3'
 import { useToast } from 'vue-toastification'
-import { type ServerEntity } from '../../api/serverlist'
+import { GetServerStatus, type ServerEntity } from '../../api/serverlist'
 import DeleteIcon from '@/components/icons/DeleteIcon.vue'
-import mc from 'minecraftstatuspinger'
 import { onMounted } from 'vue'
-import type { ServerStatus } from 'minecraftstatuspinger/dist/types/types'
 
 const toast = useToast()
 const { toClipboard } = useClipboard()
@@ -41,14 +39,9 @@ onMounted(async () => {
   if (!server.value.realtime) {
     return
   }
-  const result: ServerStatus = await mc.lookup({
-    host: server.value.serverUrl?.split(':')[0] || '???',
-    port: parseInt(server.value.serverUrl?.split(':')[1] || '25565'),
-    ping: true,
-  })
-  console.log(result)
-  if (result.latency) {
-    server.value.latency = result.latency
+  const result = await GetServerStatus(server.value.serverUrl)
+  if (result) {
+    server.value.status = result
   }
 })
 </script>
@@ -59,17 +52,17 @@ onMounted(async () => {
       :src="server.icon"
       class="server-icon"
       alt="icon"
-      style="border: 1px solid grey"
       @click="copy(server.serverUrl || '')"
     />
     <div class="item-info">
-      <span style="color: white; font-size: 1.1rem">{{ server.name }}</span>
-      <span>{{ server.description }}</span>
+      <span style="color: white; line-height: 1.1rem; font-size: 1.1rem; margin-bottom: 5px; margin-top: 4px;">{{ server.name }}</span>
+      <span style="line-height: 1rem; margin-bottom: 3px;">{{ server.description }}</span>
+      <span style="line-height: 1rem; color: var(--minecraft-green-light);">{{ server.status?.version }}</span>
     </div>
     <div class="item-status">
       <span class="server-status">
-        <text class="status-text" v-if="server.realtime && server.online"
-          >{{ server.playerCount || 0 }}/{{ server.capacity || 0 }}</text
+        <text class="status-text" v-if="server.realtime && server.status?.online"
+          >{{ server.status?.playerCount || 0 }}/{{ server.status?.capacity || 0 }}</text
         >
         <img class="status-img" :src="props.pingIcon" alt="pingIcon" />
       </span>
@@ -111,6 +104,7 @@ onMounted(async () => {
   position: relative;
   width: 64px;
   height: 64px;
+  border: 1px solid grey;
 }
 
 .item-border:hover::after {
@@ -140,7 +134,6 @@ onMounted(async () => {
 .item-info {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: left;
   margin-left: 1rem;
 }
