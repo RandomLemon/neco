@@ -61,6 +61,7 @@ const editorToolbars = ref<ToolbarNames[]>([
   1,
   '=',
   'pageFullscreen',
+  'fullscreen',
   'catalog',
 ])
 
@@ -156,37 +157,37 @@ const toContent = () => {
 
   if (newsPdfFiles.value.length === 0) {
     if (curText.trim() !== '') {
-      result.push({ type: 'markdown', content: curText });
+      result.push({ type: 'markdown', content: curText })
     }
-    newsContent.value = result;
-    return;
+    newsContent.value = result
+    return
   }
 
   const pdfKeysEscaped = newsPdfFiles.value.map(key =>
     formatPdf(key).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  );
+  )
 
-  const regex = new RegExp(`(${pdfKeysEscaped.join('|')})`, 'g');
-  let lastIndex = 0;
-  let match;
+  const regex = new RegExp(`(${pdfKeysEscaped.join('|')})`, 'g')
+  let lastIndex = 0
+  let match
 
   while ((match = regex.exec(curText)) !== null) {
-    const textSegment = curText.substring(lastIndex, match.index);
+    const textSegment = curText.substring(lastIndex, match.index)
     if (textSegment.length > 0) {
-      result.push({ type: 'markdown', content: textSegment });
+      result.push({ type: 'markdown', content: textSegment })
     }
 
-    result.push({ type: 'pdf_file', content: match[0] });
+    result.push({ type: 'pdf_file', content: match[0].substring(8, match[0].length - 2) })
 
-    lastIndex = regex.lastIndex;
+    lastIndex = regex.lastIndex
   }
 
-  const remainingText = curText.substring(lastIndex);
+  const remainingText = curText.substring(lastIndex)
   if (remainingText.trim() !== '') {
-    result.push({ type: 'markdown', content: remainingText });
+    result.push({ type: 'markdown', content: remainingText })
   }
 
-  newsContent.value = result;
+  newsContent.value = result
 }
 
 const router = useRouter()
@@ -365,7 +366,7 @@ const saveNews = () => {
 
   const downloadLink = document.createElement('a')
   downloadLink.setAttribute('href', window.URL.createObjectURL(blob))
-  downloadLink.setAttribute('download', 'save.nmo_news')
+  downloadLink.setAttribute('download', 'save.nmo_new')
 
   downloadLink.click()
 }
@@ -373,7 +374,7 @@ const saveNews = () => {
 const loadNews = () => {
   const input = document.createElement('input')
   input.type = 'file'
-  input.accept = '.nmo_news'
+  input.accept = '.nmo_new'
   input.click()
 
   input.onchange = () => {

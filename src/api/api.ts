@@ -9,7 +9,7 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    if (!(localStorage.getItem('token') == '')) {
+    if (!((localStorage.getItem('token') || '')?.trim() === '')) {
       config.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`
     }
     return config

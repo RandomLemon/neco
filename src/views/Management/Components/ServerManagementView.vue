@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref } from 'vue'
-import { AddServer, GetServerList, UpdateServer, type ServerEntity } from '@/api/serverlist'
+import { AddServer, DeleteServer, GetServerList, UpdateServer, type ServerEntity } from '@/api/serverlist'
 import ListItem from '@/views/List/ListItem.vue'
 import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
 import MinecraftDialog from '@/components/utils/MinecraftDialog.vue'
@@ -153,6 +153,16 @@ const onEditServer = () => {
   Object.assign(server, serverList.value[focusIndex.value])
 }
 
+const onDeleteServer = async (index: number) => {
+  const result = await DeleteServer(serverList.value[index].name)
+  if (!result) {
+    toast.success('服务器删除成功！')
+    await refresh()
+  } else {
+    toast.error(`服务器删除失败：${result}！`)
+  }
+}
+
 let direction = 1
 let pingFrame = 1
 let pingTimer: NodeJS.Timeout | undefined = undefined
@@ -229,6 +239,8 @@ onMounted(async () => {
         @click="onClick(index)"
         @dblclick="focusIndex === index ? onEditServer() : null"
         :type="focusIndex === index ? 'focus' : ''"
+        :with-delete="true"
+        @delete="onDeleteServer(index)"
       />
     </div>
   </form>

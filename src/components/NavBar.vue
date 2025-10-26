@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { onBeforeRouteUpdate, useRouter } from 'vue-router'
 
 const soundOn = () => {
   const audio = new Audio('/button.click.ogg')
@@ -38,16 +38,22 @@ const sliderStyle = computed(() => {
   }
 })
 
-onMounted(async () => {
+onBeforeRouteUpdate((to) => {
+  const path = '/' + to.path.split('/')[1]
+  navItems.value.forEach((item, index) => {
+    if (item.url === path) {
+      activeIndex.value = index
+    }
+  })
+})
+
+onMounted(() => {
   const path = '/' + router.currentRoute.value.path.split('/')[1]
   navItems.value.forEach((item, index) => {
     if (item.url === path) {
       activeIndex.value = index
     }
   })
-  if (path === '/activity') {
-    activeIndex.value = 2
-  }
 })
 </script>
 

@@ -2,7 +2,7 @@
 import { CheckAuthorized, Logout } from '@/api/auth'
 import MinecraftButton from '@/components/utils/MinecraftButton.vue'
 import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 
@@ -40,6 +40,10 @@ onMounted(async () => {
     toast.warning('您尚未登录！')
     router.replace('/auth/login')
   }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', onResize)
 })
 </script>
 

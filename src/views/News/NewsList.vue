@@ -94,7 +94,7 @@ const optionFocus = ref(false)
           :stat="optionFocus ? 'active' : 'inactive'"
           @click="optionFocus = !optionFocus"
         >
-          最新{{ model === 'information' ? '资讯' : model === 'magazine' ? '社刊' : '公告' }}
+          最新{{ model === 'information' ? '资讯' : (model === 'magazine' ? '社刊' : (model === 'notice' ? '公告' : '活动')) }}
           <div class="news-title-options" v-if="optionFocus">
             <button
               :stat="model === 'information' ? 'active' : 'inactive'"

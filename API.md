@@ -767,11 +767,6 @@ with multipart/form-data file upload
             "private": "boolean",
 
             "name": "string",
-            "content": [{
-                "type": "markdown" | "pdf_file",
-                "content": "string", // markdown content or file url
-            }, ...], // invalid if isFolder is true
-            "updateTime": "string" // format: yyyy-MM-dd, invalid if isFolder is true
         }
     ]
 }

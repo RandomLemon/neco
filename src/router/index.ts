@@ -92,6 +92,12 @@ const router = createRouter({
       ],
     },
     {
+      path: '/documents_editor',
+      name: 'documents editor',
+      component: () => import('../views/Documents/DocumentsEditor.vue'),
+      meta: { title: 'NMO | 文档编辑器' },
+    },
+    {
       path: '/auth/login',
       name: 'Login',
       component: () => import('../views/Auth/LoginView.vue'),

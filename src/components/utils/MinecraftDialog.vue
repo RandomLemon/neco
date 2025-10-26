@@ -9,6 +9,14 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  cancelText: {
+    type: String,
+    default: '取消',
+  },
+  confirmText: {
+    type: String,
+    default: '确定',
+  }
 })
 const visible = ref(false)
 const opacity = ref(0)
@@ -59,13 +67,13 @@ onMounted(() => {
       <slot name="footer">
         <div class="dialog-footer">
           <MinecraftButtonClassic class="dialog-footer-btn" @click="closeDialog"
-            >取消</MinecraftButtonClassic
+            >{{ props.cancelText }}</MinecraftButtonClassic
           >
           <MinecraftButtonClassic
             class="dialog-footer-btn"
             style="margin-left: 1rem"
             @click="onConfirm"
-            >确定</MinecraftButtonClassic
+            >{{ props.confirmText }}</MinecraftButtonClassic
           >
         </div>
       </slot>
@@ -131,6 +139,6 @@ onMounted(() => {
 
 .dialog-footer-btn {
   width: 6rem;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 </style>

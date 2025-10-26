@@ -58,7 +58,7 @@ export const UpdateServer = async (server: ServerEntity): Promise<string | null>
   return result
 }
 
-export const deleteServer = async (name: string): Promise<string | null> => {
+export const DeleteServer = async (name: string): Promise<string | null> => {
   let result: string | null = null
   await api
     .delete(`/server/${name}`)

@@ -1,185 +1,145 @@
-import { api, BASE_URL } from './api'
-import type { NewsSegment } from './newslist'
+import { api, BASE_URL } from "./api";
+import type { NewsSegment } from "./newslist";
 
-export interface DocumentBrief {
-  id: string
-  title: string
-  description: string
+export interface DocumentNode {
+  parendId: string;
+  id: string;
+  isFolder: boolean;
+  private: boolean;
+
+  name: string;
+  contributors?: string[];
+  content?: NewsSegment[];
+  updateTime?: string;
 }
 
-export interface DocumentEntity {
-  id: string
-  title: string
-  description: string
-  category: string
-  tab: string
-  priority: number
-  content: NewsSegment[]
-
-  // response only
-  contributors?: string[] // usernames
-  createTime?: string // yyyy-MM-dd
-  updateTime?: string // yyyy-MM-dd
-
-  // request only
-  contributor?: string // username
-  private?: boolean // should be visible to public
-}
-
-export const NewDocumentCategory = async (category: string): Promise<string | null> => {
+export const DeleteDocument = async (targetId: string): Promise<string | null> => {
   let result: string | null = null
   await api
-    .post(`/document/category`, {
-      category: category,
+    .delete(`/documents/node/${targetId}`)
+    .then((res) => {
+      if (res.data.error) {
+        result = res.data.error
+      }
+    })
+    .catch((err) => {
+      if (err.response.data.error) {
+        result = err.response.data.error
+      }
+    })
+  return result
+}
+
+export const RebindDocument = async (targetId: string, parentId: string): Promise<string | null> => {
+  let result: string | null = null
+  await api
+    .post(`/documents/node/${targetId}`, {
+      parentId: parentId
     })
     .then((res) => {
       if (res.data.error) {
         result = res.data.error
       }
     })
-    .catch((e) => {
-      if (e.response.data.error) {
-        result = e.response.data.error
+    .catch((err) => {
+      if (err.response.data.error) {
+        result = err.response.data.error
       }
     })
   return result
 }
 
-export const DeleteDocumentCategory = async (category: string): Promise<string | null> => {
+export const RenameDocument = async (targetId: string, name: string): Promise<string | null> => {
   let result: string | null = null
   await api
-    .patch(`/document/category`, {
-      category: category,
+    .patch(`/documents/node/${targetId}`, {
+      name: name
     })
     .then((res) => {
       if (res.data.error) {
         result = res.data.error
       }
     })
-    .catch((e) => {
-      if (e.response.data.error) {
-        result = e.response.data.error
+    .catch((err) => {
+      if (err.response.data.error) {
+        result = err.response.data.error
       }
     })
   return result
 }
 
-export const GetAllCategories = async (): Promise<string[]> => {
-  let result: string[] = []
-  await api
-    .get('/document/categories')
-    .then((res) => {
-      result = (res.data.categories || []) as string[]
-    })
-    .catch(() => {})
-  return result
-}
-
-export const NewDocumentTab = async (category: string, tab: string): Promise<string | null> => {
+export const UpdateDocument = async (targetId: string, isPrivate: boolean, content: NewsSegment[]): Promise<string | null> => {
   let result: string | null = null
   await api
-    .post(`/document/tab`, {
-      category: category,
-      tab: tab,
+    .put(`/documents/node/${targetId}`, {
+      private: isPrivate,
+      content: content
     })
     .then((res) => {
       if (res.data.error) {
         result = res.data.error
       }
     })
-    .catch((e) => {
-      if (e.response.data.error) {
-        result = e.response.data.error
+    .catch((err) => {
+      if (err.response.data.error) {
+        result = err.response.data.error
       }
     })
   return result
 }
 
-export const DeleteDocumentTab = async (category: string, tab: string): Promise<string | null> => {
+export interface CreateDocumentForm {
+  parentId: string;
+  isFolder: boolean;
+  private: boolean;
+  name: string;
+}
+
+export const CreateDocument = async (form: CreateDocumentForm): Promise<string | null> => {
   let result: string | null = null
   await api
-    .patch(`/document/tab`, {
-      category: category,
-      tab: tab,
-    })
-    .then((res) => {
-      if (res.data.error) {
-        result = res.data.error
-      }
-    })
-    .catch((e) => {
-      if (e.response.data.error) {
-        result = e.response.data.error
-      }
-    })
-  return result
-}
-
-export const GetAllTabs = async (category: string): Promise<string[]> => {
-  let result: string[] = []
-  await api
-    .post(`/document/tabs`, {
-      category: category,
-    })
-    .then((res) => {
-      result = (res.data.tabs || []) as string[]
-    })
-    .catch(() => {})
-  return result
-}
-
-export const GetDocuments = async (category: string, tab: string): Promise<DocumentBrief[]> => {
-  let result: DocumentBrief[] = []
-  await api
-    .post(`/document${localStorage.getItem('token') == '' ? '' : '/private'}/list`, {
-      category: category,
-      tab: tab,
-    })
-    .then((res) => {
-      result = (res.data.documents || []) as DocumentBrief[]
-    })
-    .catch(() => {})
-  return result
-}
-
-export const GetDocument = async (id: string): Promise<DocumentEntity | null> => {
-  let result: DocumentEntity | null = null
-  await api
-    .get(`/document${localStorage.getItem('token') == '' ? '' : '/private'}/${id}`)
-    .then((res) => {
-      result = res.data as DocumentEntity
-    })
-    .catch(() => {})
-  return result
-}
-
-export const RequireDocumentId = async (): Promise<string | null> => {
-  let result: string | null = null
-  await api
-    .post('/document/id')
+    .post(`/documents/node`, form)
     .then((res) => {
       if (res.data.id) {
-        result = res.data.id as string
+        result = res.data.id
       }
     })
     .catch(() => {})
   return result
 }
 
-export const UploadDocumentFile = async (id: string, file: File): Promise<string | null> => {
+export const GetDocumentLayer = async (parentId: string): Promise<DocumentNode[]> => {
+  let result: DocumentNode[] = []
+  await api
+    .get(`/documents/layer${(localStorage.getItem('token') || '')?.trim() === '' ? '' : '/private'}/${parentId}`)
+    .then((res) => {
+      result = res.data.children as DocumentNode[]
+    })
+    .catch(() => {})
+  return result
+}
+
+export const GetDocumentDetail = async (targetId: string): Promise<DocumentNode | null> => {
+  let result: DocumentNode | null = null
+  await api
+    .get(`/documents${(localStorage.getItem('token') || '')?.trim() === '' ? '' : '/private'}/${targetId}`)
+    .then((res) => {
+      result = res.data as DocumentNode
+    })
+    .catch(() => {})
+  return result
+}
+
+export const UploadDocumentFile = async (targetId: string, file: File): Promise<string | null> => {
   let result: string | null = null
   await api
-    .post(
-      `/document/upload/${id}`,
-      {
-        file: file,
+    .post(`/documents/upload/${targetId}`, {
+      file: file
+    }, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
       },
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      },
-    )
+    })
     .then((res) => {
       if (res.data.url) {
         result = BASE_URL + res.data.url
@@ -189,10 +149,10 @@ export const UploadDocumentFile = async (id: string, file: File): Promise<string
   return result
 }
 
-export const DeleteDocumentFile = async (id: string, url: string): Promise<string | null> => {
+export const DeleteDocumentFile = async (targetId: string, url: string): Promise<string | null> => {
   let result = null
   await api
-    .post(`/document/delete/${id}`, {
+    .post(`/document/upload/${targetId}`, {
       url: url.replace(BASE_URL, ''),
     })
     .then((res) => {
@@ -205,75 +165,5 @@ export const DeleteDocumentFile = async (id: string, url: string): Promise<strin
         result = e.response.data.error
       }
     })
-  return result
-}
-
-export const DeleteDocument = async (id: string): Promise<string | null> => {
-  let result: string | null = null
-  await api
-    .delete(`/document/${id}`)
-    .then((res) => {
-      if (res.data.error) {
-        result = res.data.error
-      }
-    })
-    .catch((e) => {
-      if (e.response.data.error) {
-        result = e.response.data.error
-      }
-    })
-  return result
-}
-
-export const UpdateDocument = async (document: DocumentEntity): Promise<string | null> => {
-  let result: string | null = null
-  await api
-    .patch(`/document/${document.id}`, document)
-    .then((res) => {
-      if (res.data.error) {
-        result = res.data.error
-      }
-    })
-    .catch((e) => {
-      if (e.response.data.error) {
-        result = e.response.data.error
-      }
-    })
-  return result
-}
-
-export const GetLatestDocuments = async (
-  pageSize: number,
-  page: number,
-): Promise<DocumentBrief[]> => {
-  let result: DocumentBrief[] = []
-  await api
-    .post('/document/latest', {
-      pageSize: pageSize,
-      page: page,
-    })
-    .then((res) => {
-      result = (res.data.documents || []) as DocumentBrief[]
-    })
-    .catch(() => {})
-  return result
-}
-
-export const SearchDocuments = async (
-  keyword: string,
-  pageSize: number,
-  page: number,
-): Promise<DocumentBrief[]> => {
-  let result: DocumentBrief[] = []
-  await api
-    .post(`/document${localStorage.getItem('token') == '' ? '' : '/private'}/search`, {
-      keyword: keyword,
-      pageSize: pageSize,
-      page: page,
-    })
-    .then((res) => {
-      result = (res.data.documents || []) as DocumentBrief[]
-    })
-    .catch(() => {})
   return result
 }

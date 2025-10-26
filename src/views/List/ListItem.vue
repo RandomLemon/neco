@@ -24,7 +24,13 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  withDelete: {
+    type: Boolean,
+    default: false,
+  }
 })
+
+const emit = defineEmits(['delete'])
 </script>
 
 <template>
@@ -47,10 +53,15 @@ const props = defineProps({
         >
         <img class="status-img" :src="props.pingIcon" alt="pingIcon" />
       </span>
-      <span style="margin-top: auto">
+      <span style="margin-top: auto; display: flex; align-items: center; justify-content: center;">
         <a v-if="props.server.onlineMapUrl.trim() != ''" :href="props.server.onlineMapUrl"
           >网页地图</a
         >
+        <text
+          class="delete-icon"
+          v-if="props.withDelete"
+          @click="emit('delete')"
+        >X</text>
       </span>
     </div>
   </div>
@@ -144,5 +155,21 @@ const props = defineProps({
   width: 20px;
   height: 14px;
   image-rendering: pixelated;
+}
+
+.delete-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.5rem;
+
+  font-size: 1.5rem;
+  user-select: none;
+  cursor: pointer;
+  transition: all 0.1s ease-in-out;
+}
+
+.delete-icon:hover {
+  color: #f56c6c;
 }
 </style>

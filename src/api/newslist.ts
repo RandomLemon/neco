@@ -207,7 +207,7 @@ export const UploadFile = async (id: string, file: File): Promise<string | null>
 export const DeleteFile = async (id: string, url: string): Promise<string | null> => {
   let result = null
   await api
-    .post(`/news/delete/${id}`, {
+    .post(`/news/upload/${id}`, {
       url: url.replace(BASE_URL, ''),
     })
     .then((res) => {

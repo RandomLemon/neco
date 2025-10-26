@@ -82,7 +82,7 @@ export const GetDetailedIntroList = (): IntroEntity[] => {
       image: '',
     },
     {
-      title: `宣传美工部-文案部`,
+      title: `宣传美工部-文案组`,
       description: `分享快乐，记录生活，NMO出品，必属精品。社团大事、服务器新闻、自由创作甚至AIGC，都欢迎投稿，让你的精彩被更多人发现！前往社刊页面即可投稿！（但是这个功能还没做😭）`,
       image: import.meta.env.BASE_URL + `background/main-background.jpg`,
     },
