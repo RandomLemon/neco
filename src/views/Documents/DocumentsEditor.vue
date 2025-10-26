@@ -387,6 +387,10 @@ const onResize = () => {
 }
 
 onMounted(() => {
+  const userGroup = localStorage.getItem('userGroup')
+  if (!userGroup?.includes('admin') && !userGroup?.includes('document_admin')) {
+    router.replace('/404')
+  }
   if (window.innerWidth < 768) {
     isMobile.value = true
   }

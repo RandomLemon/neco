@@ -138,6 +138,8 @@ onMounted(async () => {
 .news-poster {
   position: relative;
   width: 100%;
+  height: min-content;
+  max-height: 75vh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -146,10 +148,9 @@ onMounted(async () => {
 .news-poster-img {
   width: 85%;
   margin-bottom: 3rem;
-  height: 100%;
+  height: auto;
   object-fit: cover;
   object-position: center;
-  vertical-align: middle;
   border-style: none;
   user-select: none;
 }

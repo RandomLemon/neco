@@ -11,13 +11,9 @@ const router = useRouter()
 const route = useRoute()
 const sidebarExpand = ref(true)
 
-const onLogout = async () => {
-  const result = await Logout()
-  if (!result) {
-    toast.success('登出成功！')
-  } else {
-    toast.warning('您并未登录！')
-  }
+const onLogout = () => {
+  Logout()
+  toast.success('登出成功！')
   router.replace('/auth/login')
 }
 

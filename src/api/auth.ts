@@ -188,21 +188,11 @@ export const UpdateUserInfo = async (
   return result
 }
 
-export const Logout = async (): Promise<string | null> => {
-  let result: string | null = null
-  await api
-    .post(`/auth/logout`)
-    .then((response) => {
-      if (response.data.error) {
-        result = response.data.error
-      }
-    })
-    .catch((e) => {
-      if (e.response.data.error) {
-        result = e.response.data.error
-      }
-    })
-  return result
+export const Logout = () => {
+  localStorage.removeItem('token')
+  localStorage.removeItem('username')
+  localStorage.removeItem('userGroup')
+  localStorage.removeItem('userTags')
 }
 
 export const GetAvatar = async (username: string): Promise<string | null> => {
