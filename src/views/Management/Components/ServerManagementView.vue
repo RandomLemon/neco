@@ -189,9 +189,7 @@ const refresh = async () => {
           if (serverList.value[i].status !== undefined) {
             if (serverList.value[i].status?.online) {
               const latency = serverList.value[i].status?.latency || 25565
-              if (!serverList.value[i].status?.latency) {
-                serverPing.value[i] = `/UI/server/Server_Unreachable.png`
-              } else if (latency <= 150) {
+              if (latency <= 150) {
                 serverPing.value[i] = `/UI/server/Server_Ping_5.png`
               } else if (latency <= 300) {
                 serverPing.value[i] = `/UI/server/Server_Ping_4.png`
