@@ -104,11 +104,7 @@ const commitServer = async () => {
     return
   }
   let result: string | null = null
-  if (editStatus.value === 'new') {
-    result = await UpdateServer(server)
-  } else if (editStatus.value === 'edit') {
-    result = await UpdateServer(serverList.value[focusIndex.value])
-  }
+  result = await UpdateServer(server)
   if (!result) {
     toast.success('服务器信息保存成功！')
     if (server.id === localStorage.getItem('serverId')) {
