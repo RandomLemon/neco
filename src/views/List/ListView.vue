@@ -31,6 +31,7 @@ let pingFrame = 1
 let pingTimer: NodeJS.Timeout | undefined = undefined
 
 const refresh = async () => {
+  serverList.value = []
   serverList.value = await GetServerList()
   serverPing.value = []
   if (pingTimer) {
