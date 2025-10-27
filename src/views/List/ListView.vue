@@ -55,7 +55,7 @@ const refresh = async () => {
         if (serverPing.value[i].startsWith('/UI/server/Server_Pinging_')) {
           if (serverList.value[i].status !== undefined) {
             if (serverList.value[i].status?.online) {
-              const latency = serverList.value[i].status?.latency || 25565
+              const latency = serverList.value[i].status?.latency || 0
               if (latency <= 150) {
                 serverPing.value[i] = `/UI/server/Server_Ping_5.png`
               } else if (latency <= 300) {
