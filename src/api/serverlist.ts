@@ -75,10 +75,10 @@ export const UpdateServer = async (server: ServerEntity): Promise<string | null>
   return result
 }
 
-export const DeleteServer = async (name: string): Promise<string | null> => {
+export const DeleteServer = async (id: string): Promise<string | null> => {
   let result: string | null = null
   await api
-    .delete(`/server/${name}`)
+    .delete(`/server/${id}`)
     .then((res) => {
       if (res.data.error) {
         result = res.data.error as string

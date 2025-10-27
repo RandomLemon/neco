@@ -164,7 +164,7 @@ const onEditServer = () => {
 }
 
 const onDeleteServer = async (index: number) => {
-  const result = await DeleteServer(serverList.value[index].name)
+  const result = await DeleteServer(serverList.value[index].id)
   if (!result) {
     toast.success('服务器删除成功！')
     await refresh()
@@ -280,7 +280,7 @@ onMounted(async () => {
       <text class="server-input-label">服务器 ID</text>
       <MinecraftInput
         class="server-input"
-        v-model="server.name"
+        v-model="server.id"
         placeholder="请输入服务器 ID"
         :disabled="true"
       />
@@ -291,7 +291,6 @@ onMounted(async () => {
         class="server-input"
         v-model="server.name"
         placeholder="请输入服务器名称"
-        :disabled="editStatus === 'edit'"
       />
     </div>
     <div class="server-input-item">
