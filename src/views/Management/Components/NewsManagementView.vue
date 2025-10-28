@@ -393,6 +393,7 @@ const loadNews = () => {
 }
 
 const commitNews = async () => {
+  console.log(newsDate.value)
   if (newsTitle.value.trim() === '') {
     toast.warning('请输入标题！')
     return
@@ -557,11 +558,11 @@ const onUploadImg = async (
     </div>
     <div class="news-input-item">
       <text class="news-input-label">{{ newsType === 'activity' ? '开始' : '' }}时间</text>
-      <Datepicker v-model="newsDate" :format="formatDate" dark :clearable="false" />
+      <Datepicker v-model="newsDate" model-type="format" format="yyyy-MM-dd" dark :clearable="false" auto-apply />
     </div>
     <div class="news-input-item" v-if="newsType === 'activity'">
       <text class="news-input-label">结束时间</text>
-      <Datepicker v-model="newsEndDate" :format="formatDate" dark :clearable="false" />
+      <Datepicker v-model="newsEndDate" model-type="format" format="yyyy-MM-dd" dark :clearable="false" auto-apply />
     </div>
     <div class="news-input-item">
       <text class="news-input-label">正文</text>
