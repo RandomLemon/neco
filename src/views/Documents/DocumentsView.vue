@@ -6,7 +6,7 @@ import CalendarIcon from '@/components/icons/CalendarIcon.vue'
 import UserIcon from '@/components/icons/UserIcon.vue'
 import PdfViewer from '@/components/PdfViewer.vue'
 import MinecraftButton from '@/components/utils/MinecraftButton.vue'
-import { MdPreview } from 'md-editor-v3'
+import { MdCatalog, MdPreview } from 'md-editor-v3'
 import { onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -130,6 +130,8 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('resize', onResize)
 })
+
+const scrollElement = document.documentElement
 </script>
 
 <template>
@@ -175,14 +177,21 @@ onUnmounted(() => {
             v-for="(item, index) in documentInstance.content"
             :key="index"
           >
-            <MdPreview
-              theme="dark"
-              language="zh-CN"
-              preview-theme="minecraft"
-              :model-value="item.content"
-              @on-remount="mountSounds"
-              v-if="item.type === 'markdown'"
-            />
+            <div class="document-preview">
+              <MdPreview
+                :id="`md-preview-${index}`"
+                theme="dark"
+                language="zh-CN"
+                preview-theme="minecraft"
+                :model-value="item.content"
+                @on-remount="mountSounds"
+                v-if="item.type === 'markdown'"
+              />
+              <MdCatalog
+                :editor-id="`md-preview-${index}`"
+                :scroll-element="scrollElement"
+              />
+            </div>
             <MinecraftButton
               v-if="item.type === 'pdf_file'"
               class="pdf-read-btn"
@@ -290,7 +299,7 @@ onUnmounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 5rem);
+  min-height: calc(100vh - 5rem);
 }
 
 .editor {
@@ -317,7 +326,6 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: fit-content;
   min-height: calc(100vh - 5rem);
 
   background:
@@ -330,7 +338,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%;
+  height: max-content;
   padding: 1rem 4rem;
   padding-bottom: 2rem;
   min-height: calc(100vh - 5rem);
@@ -355,5 +363,20 @@ onUnmounted(() => {
 .document-desc-icon {
   width: 1rem;
   height: 1rem;
+}
+
+.document-preview {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  gap: 1rem;
+}
+
+@media screen and (max-width: 768px) {
+  .document-preview {
+    flex-direction: column-reverse;
+    align-items: center;
+    justify-content: center;
+  }
 }
 </style>

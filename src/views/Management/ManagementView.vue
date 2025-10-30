@@ -177,7 +177,6 @@ onUnmounted(() => {
 }
 
 .management-shrink-btn text {
-  font-size: 1.5rem;
   transition: transform 0.3s ease-in-out;
   transform: rotate(180deg) translateX(10%);
 }

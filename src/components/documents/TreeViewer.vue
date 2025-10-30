@@ -7,13 +7,21 @@ import {
   RenameDocument,
   type DocumentNode,
 } from '@/api/documents'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import MinecraftButton from '../utils/MinecraftButton.vue'
 import MinecraftDialog from '../utils/MinecraftDialog.vue'
 import MinecraftInput from '../utils/MinecraftInput.vue'
 import MinecraftSwitch from '../utils/MinecraftSwitch.vue'
 import { useToast } from 'vue-toastification'
 import { EventBus } from '@/eventbus/EventBus'
+import { useRoute, useRouter } from 'vue-router'
+
+const route = useRoute()
+const router = useRouter()
+
+// Get query from route
+
+const activeId = route.query.id as string
 
 EventBus.on('TreeViewer::closeAllMenu', () => {
   folderMenuShow.value = false
@@ -56,6 +64,14 @@ const name = defineModel('name', {
 const selectedId = defineModel({
   type: String,
   required: true,
+})
+
+watch(selectedId, () => {
+  router.replace({
+    query: {
+      id: selectedId.value
+    }
+  })
 })
 
 const children = ref<DocumentNode[]>([])
@@ -275,6 +291,9 @@ const onDocumentMenu = (event: PointerEvent, filename: string, fileid: string) =
 }
 
 onMounted(async () => {
+  if (activeId) {
+    selectedId.value = activeId
+  }
   if (props.parentId !== 'root') {
     return
   }
