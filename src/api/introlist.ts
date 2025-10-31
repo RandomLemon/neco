@@ -7,23 +7,23 @@ export interface IntroEntity {
 export const GetIntroList = (): IntroEntity[] => {
   return [
     {
-      title: `“像素南雍”复原工程`,
-      description: `南大仙林、鼓楼、苏州校区复原工作，在方块的世界构筑云端的校园。社团常态化项目，建筑服务器创造建筑，2024暑期社会实践校重点项目。`,
-      image: import.meta.env.BASE_URL + 'resources/restore/北大楼.jpg',
+      title: `我也想来玩！`,
+      description: `您可以使用微软账号登录，或需要一个NMO皮肤站或者MUA皮肤站账号。点击顶部的“列表”即可查看我们的服务器列表及状态！`,
+      image: import.meta.env.BASE_URL + 'resources/server/空置域主城.jpg',
     },
     {
-      title: `NMO 群组服务器系列`,
-      description: `原版生存，模组生存，建筑，小游戏，RPG，空岛生存，Bingo……多种多样的玩法供你选择！我们的服务器由群组服及其子服和若干个独立服务器组成，详情请点击上面的菜单栏查看其它页面哦～`,
+      title: `What's going on?`,
+      description: `点击顶部的新闻和活动即可查看正在进行的事件！`,
       image: import.meta.env.BASE_URL + 'resources/server/模组2.jpg',
     },
     {
-      title: `部门风采`,
-      description: `NMO 下设社团办事处、宣传美工部、运维保障部、活动部、外联部，分别管理社团各项事务，维持社团运转。部门活动丰富多彩，既能学到，也能玩到。`,
+      title: `到底有多强？`,
+      description: `点击顶部的关于，即可看到更多我们的信息。`,
       image: import.meta.env.BASE_URL + 'resources/nmo十载合照.jpg',
     },
     {
-      title: `线下活动`,
-      description: `Minecraft 社团不只有线上，线下社团活动才是注入灵魂。社团文化夜、百团大战、星光集市等社管主办的活动，2-50人规模不等的约饭，春游，学术讲座……来这里一起交友，充实你的社团生活吧！`,
+      title: `这里是NMO！`,
+      description: `欢迎加入南京大学Minecraft协会！与NMO大家庭一同探索独一无二的世界，并创建您能想象的一切！`,
       image: import.meta.env.BASE_URL + 'resources/线下合照.jpg',
     },
   ]

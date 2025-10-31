@@ -12,7 +12,6 @@ onMounted(() => {
 
 <template>
   <div class="intro-area">
-    <h1 style="opacity: 0; animation: fade-in-down 1s ease-out 0.5s forwards">我们的足迹</h1>
     <IntroItem
       v-for="(intro, index) in intros"
       :key="index"
