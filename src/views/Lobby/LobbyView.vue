@@ -5,13 +5,13 @@ import Intro from './IntroView.vue'
 <template>
   <div>
     <div class="main-area">
-      <div class="right-area">
-        <div class="right-content">
+      <div class="logo-area">
+        <div class="logo-content">
           <div>
             <img src="/nmo-logo-large.png" alt="LOGO" style="height: 5rem" />
           </div>
           <p>南京大学<span class="title-font">Minecraft</span>协会</p>
-          <span
+          <span class="intro-text"
             >在 Minecraft
             基础上，发展建筑，计算机，软件，电路，建模等方面的知识水平，充分利用同学们的兴趣，形成具有南大特色的
             mc 社区文化，进一步提升学校影响力。</span
@@ -28,11 +28,13 @@ import Intro from './IntroView.vue'
   width: 100%;
   height: 40rem;
   display: flex;
-  background-image: url('/background/main-background.jpg');
+  background-image: url('/background/beidalou.webp');
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
   position: relative;
+
+  text-shadow: 2px 2px 0px black;
 }
 
 .main-area::after {
@@ -45,26 +47,26 @@ import Intro from './IntroView.vue'
   background: linear-gradient(to bottom, transparent 0%, var(--background-color) 100%);
 }
 
-.right-area {
+.logo-area {
   width: 50%;
   height: 100%;
-  margin-left: auto;
   min-width: 25rem;
   display: flex;
   align-items: center;
+
 }
 
-.right-content {
+.logo-content {
   display: flex;
   flex-direction: column;
   /* border-left: 4px solid #fff; */
   padding-left: 10%;
-  max-width: 25rem;
-  padding-right: 1rem;
+  max-width: 30rem;
+  padding-right: 10%;
   animation: fade-in-right 1s ease-out forwards;
 }
 
-.right-content p {
+.logo-content p {
   font-size: 2rem;
   font-weight: bold;
   color: #fff;
@@ -73,8 +75,13 @@ import Intro from './IntroView.vue'
   text-wrap: nowrap;
 }
 
+.intro-text {
+  font-size: 1.15rem;
+  font-weight: bold;
+}
+
 @media screen and (max-width: 623px) {
-  .right-content p {
+  .logo-content p {
     text-wrap: wrap;
   }
 }

@@ -125,10 +125,10 @@ onMounted(() => {
 
 .slider-box {
   box-sizing: border-box;
-  background-color: var(--minecraft-green);
+  background-color: #7e0c6b;
   border-radius: 0;
-  border-top: 4px solid var(--minecraft-green-light);
-  border-bottom: 4px solid var(--minecraft-green-dark);
+  border-top: 4px solid #9b428c;
+  border-bottom: 4px solid #46073b;
   height: 100%;
   width: 100%;
 
