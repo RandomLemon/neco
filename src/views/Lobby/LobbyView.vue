@@ -34,7 +34,7 @@ import Intro from './IntroView.vue'
   background-size: cover;
   position: relative;
 
-  text-shadow: 2px 2px 0px black;
+  text-shadow: 2px 2px 2px black;
 }
 
 .main-area::after {

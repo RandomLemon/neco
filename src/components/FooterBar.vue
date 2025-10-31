@@ -59,7 +59,6 @@ onMounted(async () => {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  border-top: 1px solid gray;
 }
 
 .footer-description {
