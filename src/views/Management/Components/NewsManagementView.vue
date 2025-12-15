@@ -455,7 +455,7 @@ const commitNews = async () => {
       pin: newsPin.value,
       brief: newsBrief.value,
       date: newsDate.value,
-      endDate: newsType.value === 'activity' ? undefined : newsEndDate.value,
+      endDate: newsType.value === 'activity' ? newsEndDate.value : undefined,
       image: newsImage.value,
     },
     newsContent.value,
