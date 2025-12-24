@@ -354,6 +354,7 @@ const addPdfFileConfirm = () => {
     toast.warning('请输入 PDF 链接！')
     return
   }
+  showPdfDialog.value = false
   newsPdfFiles.value.push(pdfSrc.value)
   editorRef.value?.insert(() => {
     return {

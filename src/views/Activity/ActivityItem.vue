@@ -11,7 +11,7 @@ const props = defineProps({
 })
 
 const isMobile = ref(false)
-const check = () => (isMobile.value = window.innerWidth < 524)
+const check = () => (isMobile.value = window.innerWidth < 947)
 
 const isActive = computed(() => {
   const currentDate = new Date()

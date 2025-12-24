@@ -184,6 +184,7 @@ const addPdfFileConfirm = () => {
     toast.warning('请输入 PDF 链接！')
     return
   }
+  showPdfDialog.value = false
   documentPdfFiles.value.push(pdfSrc.value)
   editorRef.value?.insert(() => {
     return {
@@ -658,6 +659,7 @@ onUnmounted(() => {
   flex-direction: column;
   width: 100%;
   height: fit-content;
+  overflow: scroll;
   min-height: calc(100vh - 2rem - 4px);
 
   background:
@@ -666,7 +668,6 @@ onUnmounted(() => {
 }
 
 .document-main-item-list {
-  background-color: rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   width: 100%;
