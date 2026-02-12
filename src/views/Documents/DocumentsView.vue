@@ -187,10 +187,7 @@ const scrollElement = document.documentElement
                 @on-remount="mountSounds"
                 v-if="item.type === 'markdown'"
               />
-              <MdCatalog
-                :editor-id="`md-preview-${index}`"
-                :scroll-element="scrollElement"
-              />
+              <MdCatalog :editor-id="`md-preview-${index}`" :scroll-element="scrollElement" />
             </div>
             <MinecraftButton
               v-if="item.type === 'pdf_file'"

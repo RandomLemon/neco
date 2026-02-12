@@ -117,6 +117,7 @@ export const CreateDocument = async (form: CreateDocumentForm): Promise<string |
 
 export const GetDocumentLayer = async (parentId: string): Promise<DocumentNode[]> => {
   let result: DocumentNode[] = []
+  let privateFailed: boolean = false
   await api
     .get(
       `/documents/layer${(localStorage.getItem('token') || '')?.trim() === '' ? '' : '/private'}/${parentId}`,
@@ -124,7 +125,19 @@ export const GetDocumentLayer = async (parentId: string): Promise<DocumentNode[]
     .then((res) => {
       result = res.data.children as DocumentNode[]
     })
-    .catch(() => {})
+    .catch(() => {
+      if ((localStorage.getItem('token') || '')?.trim() === '') {
+        privateFailed = true
+      }
+    })
+  if (privateFailed) {
+    await api
+      .get(`/documents/layer/${parentId}`)
+      .then((res) => {
+        result = res.data.children as DocumentNode[]
+      })
+      .catch(() => {})
+  }
   return result
 }
 

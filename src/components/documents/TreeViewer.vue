@@ -69,8 +69,8 @@ const selectedId = defineModel({
 watch(selectedId, () => {
   router.replace({
     query: {
-      id: selectedId.value
-    }
+      id: selectedId.value,
+    },
   })
 })
 
