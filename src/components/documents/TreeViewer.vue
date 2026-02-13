@@ -450,6 +450,12 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
         left: `${menuX}px`,
       }"
     >
+      <MinecraftButton class="document-menu-btn" @click.stop="onNewDocument"
+        >新建文档</MinecraftButton
+      >
+      <MinecraftButton class="document-menu-btn" @click.stop="onNewFolder"
+        >新建文件夹</MinecraftButton
+      >
       <MinecraftButton
         v-if="!isGlobal && props.parentId !== 'root'"
         class="document-menu-btn"
@@ -461,12 +467,6 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
         class="document-menu-btn"
         @click.stop="onDeleteFolder"
         >删除</MinecraftButton
-      >
-      <MinecraftButton class="document-menu-btn" @click.stop="onNewFolder"
-        >新建文件夹</MinecraftButton
-      >
-      <MinecraftButton class="document-menu-btn" @click.stop="onNewDocument"
-        >新建文档</MinecraftButton
       >
     </div>
     <div
