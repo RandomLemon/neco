@@ -263,22 +263,6 @@ Admin can change group and tag of others.
 }
 ```
 
-#### Logout
-
-Remove session.
-
-- request
-
-`POST /auth/logout`
-
-- response
-
-```json
-{
-    "error": "string" // if error
-}
-```
-
 ### Server
 
 #### Get Server List

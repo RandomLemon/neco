@@ -25,6 +25,7 @@ const route = useRoute()
 <style lang="css" scoped>
 .page-area {
   position: relative;
+  overflow: clip;
 }
 
 .page-container {
