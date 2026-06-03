@@ -398,6 +398,11 @@ const onResize = () => {
   }
 }
 
+const documentEditorRef = ref<HTMLDivElement | null>(null)
+
+const documentEditorOffsetX = ref<number>(0)
+const documentEditorOffsetY = ref<number>(0)
+
 onMounted(() => {
   const userGroup = localStorage.getItem('userGroup')
   if (!userGroup?.includes('admin') && !userGroup?.includes('document_admin')) {
@@ -405,6 +410,19 @@ onMounted(() => {
   }
   if (window.innerWidth < 768) {
     isMobile.value = true
+  }
+  if (documentEditorRef.value) {
+    const parentScrollX = documentEditorRef.value.parentElement?.scrollLeft || window.scrollX,
+      parentScrollY = documentEditorRef.value.parentElement?.scrollTop || window.scrollY
+    documentEditorOffsetX.value = documentEditorRef.value.getBoundingClientRect().left + parentScrollX
+    documentEditorOffsetY.value = documentEditorRef.value.getBoundingClientRect().top + parentScrollY
+    const parent = documentEditorRef.value.parentElement || window
+    parent.addEventListener('scroll', () => {
+      if (documentEditorRef.value) {
+        documentEditorOffsetX.value = documentEditorRef.value.getBoundingClientRect().left + parentScrollX
+        documentEditorOffsetY.value = documentEditorRef.value.getBoundingClientRect().top + parentScrollY
+      }
+    })
   }
   window.addEventListener('resize', onResize)
 })
@@ -416,6 +434,7 @@ onUnmounted(() => {
 
 <template>
   <div
+    ref="documentEditorRef"
     class="documents-editor"
     :style="{
       flexDirection: isMobile ? `column` : `row`,
@@ -431,7 +450,7 @@ onUnmounted(() => {
         maxWidth: `1280x`,
       }"
     >
-      <TreeViewer class="tree-viewer" v-model="selectedDocumentId" />
+      <TreeViewer class="tree-viewer" v-model="selectedDocumentId" :offset-x="documentEditorOffsetX" :offset-y="documentEditorOffsetY" />
       <div class="resizer" @mousedown.prevent="startResize" v-if="!isMobile"></div>
       <MinecraftButton :dark="true" class="back-btn" @click="router.push('/management/document')">
         ← 回到后台

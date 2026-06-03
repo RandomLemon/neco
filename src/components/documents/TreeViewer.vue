@@ -56,6 +56,14 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  offsetX: {
+    type: Number,
+    default: 0,
+  },
+  offsetY: {
+    type: Number,
+    default: 0,
+  }
 })
 const name = defineModel('name', {
   type: String,
@@ -245,8 +253,8 @@ const resetMenu = () => {
   EventBus.emit('TreeViewer::closeAllMenu')
   folderMenuShow.value = false
   documentMenuShow.value = false
-  menuX = mouseX
-  menuY = mouseY
+  menuX = mouseX - props.offsetX
+  menuY = mouseY - props.offsetY
 }
 
 const onFolderMenu = (event: PointerEvent, global: boolean) => {
@@ -385,6 +393,8 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
           :layer="props.layer + 1"
           v-model="selectedId"
           :disable-edit="props.disableEdit"
+          :offset-x="props.offsetX"
+          :offset-y="props.offsetY"
         />
         <details
           :id="`file-${child.id}`"
@@ -418,6 +428,8 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
           :layer="props.layer + 1"
           v-model="selectedId"
           :disable-edit="props.disableEdit"
+          :offset-x="props.offsetX"
+          :offset-y="props.offsetY"
         />
         <details
           :id="`file-${child.id}`"
