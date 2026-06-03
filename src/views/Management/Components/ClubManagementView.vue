@@ -5,14 +5,15 @@
     <text class="management-tab-title">社团管理</text>
     <text class="management-tab-subtitle">这么强？？</text>
   </div>
-  <div class="under-construction-container">
-    <div class="under-construction-text">🚧🔨施工中…🔨🚧</div>
-    <div class="under-construction-text">敬请期待！</div>
+  <div class="link-container">
+    <div class="link-text">目前，仅有运保部存在相关管理流程</div>
+    <div class="link-text">运保部看板已经迁移至 <a href="https://github.com/orgs/nju-mc-org/projects/4">GitHub</a></div>
+    <div class="link-text">如果你的账号有权限，你应该能看到看板</div>
   </div>
 </template>
 
 <style lang="css" scoped>
-.under-construction-container {
+.link-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -21,9 +22,8 @@
   width: 100%;
 }
 
-.under-construction-text {
+.link-text {
   font-size: 2rem;
-  color: #a0a0a0;
   user-select: none;
 }
 </style>

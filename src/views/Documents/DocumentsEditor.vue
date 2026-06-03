@@ -550,7 +550,7 @@ onUnmounted(() => {
 .documents-editor {
   display: flex;
   align-items: center;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   overflow: hidden;
 }
