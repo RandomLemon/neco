@@ -15,7 +15,7 @@ import NewsList from '@/views/News/NewsList.vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
-import Datepicker from '@vuepic/vue-datepicker'
+import { VueDatePicker } from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
 import {
@@ -588,10 +588,14 @@ const onUploadImg = async (
     </div>
     <div class="news-input-item">
       <text class="news-input-label">{{ newsType === 'activity' ? '开始' : '' }}时间</text>
-      <Datepicker
+      <VueDatePicker
         v-model="newsDate"
-        model-type="format"
-        format="yyyy-MM-dd"
+        :formats="{
+          input: formatDate
+        }"
+        :time-config="{
+          enableTimePicker: false
+        }"
         dark
         :clearable="false"
         auto-apply
@@ -599,10 +603,14 @@ const onUploadImg = async (
     </div>
     <div class="news-input-item" v-if="newsType === 'activity'">
       <text class="news-input-label">结束时间</text>
-      <Datepicker
+      <VueDatePicker
         v-model="newsEndDate"
-        model-type="format"
-        format="yyyy-MM-dd"
+        :formats="{
+          input: formatDate
+        }"
+        :time-config="{
+          enableTimePicker: false
+        }"
         dark
         :clearable="false"
         auto-apply

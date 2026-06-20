@@ -223,7 +223,7 @@ export const DeleteFile = async (id: string, url: string): Promise<string | null
   let result = null
   await api
     .post(`/news/upload/${id}`, {
-      url: url.replace(BASE_URL, ''),
+      filename: url.split('/').pop(),
     })
     .then((res) => {
       if (res.data.error) {
