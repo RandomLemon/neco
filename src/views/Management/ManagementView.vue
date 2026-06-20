@@ -33,7 +33,7 @@ onMounted(async () => {
 
   const result = await CheckAuthorized()
   if (!result) {
-    toast.warning('您尚未登录！')
+    toast.warning('您尚未登录或登录状态已过期！')
     router.replace('/auth/login')
   }
 })

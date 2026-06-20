@@ -116,12 +116,10 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _, next) => {
+router.beforeEach((to, _) => {
   if (to.meta.title) {
     document.title = String(to.meta.title)
   }
-
-  next()
 })
 
 export { router }
