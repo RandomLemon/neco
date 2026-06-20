@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { CheckAuthorized } from './auth'
-import { useToast } from 'vue-toastification'
-import { useRouter } from 'vue-router'
+import { createToastInterface } from 'vue-toastification'
+import { router } from '@/router'
 
 export const BASE_URL = '/necore'
 
@@ -10,8 +10,12 @@ export const api = axios.create({
   timeout: 10000,
 })
 
-const toast = useToast()
-const router = useRouter()
+const toast = createToastInterface({
+  transition: 'Vue-Toastification__bounce',
+  maxToasts: 20,
+  newestOnTop: true,
+  timeout: 3000,
+})
 
 api.interceptors.request.use(
   (config) => {
