@@ -14,9 +14,9 @@ const soundOn = () => {
 </script>
 
 <template>
-  <div :class="props.dark ? 'minecraft-button dark' : 'minecraft-button'" :onclick="soundOn">
+  <button type="button" :class="props.dark ? 'minecraft-button dark' : 'minecraft-button'" :onclick="soundOn">
     <slot></slot>
-  </div>
+  </button>
 </template>
 
 <style lang="css" scoped>
@@ -32,6 +32,7 @@ const soundOn = () => {
   background-color: #c6c6c6;
   border-image: url('/UI/button_normal.png') 1;
   cursor: pointer;
+  font: inherit;
 }
 
 .minecraft-button.dark {
@@ -39,6 +40,20 @@ const soundOn = () => {
   outline: 2px solid #333;
   background-color: #303030;
   border-image: url('/UI/button_normal.png') 1;
+}
+
+
+.minecraft-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.minecraft-button:focus-visible {
+  color: #fff;
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+  background-color: #43a01c;
+  border-image: url('/UI/button_hover.png') 1;
 }
 
 .minecraft-button:hover {

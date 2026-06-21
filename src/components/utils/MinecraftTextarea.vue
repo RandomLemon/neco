@@ -2,14 +2,21 @@
 const model = defineModel<string>({
   default: '',
 })
+
+const autoResize = (event: Event) => {
+  const textarea = event.target as HTMLTextAreaElement
+  textarea.style.height = ''
+  textarea.style.height = `calc(0.2rem + ${textarea.scrollHeight}px)`
+}
 </script>
 
 <template>
   <textarea
     class="minecraft-input"
+    v-bind="$attrs"
     type="text"
     v-model="model"
-    oninput="this.style.height = ''; this.style.height = `calc(0.2rem + ${this.scrollHeight}px)`"
+    @input="autoResize"
   ></textarea>
 </template>
 
@@ -24,5 +31,10 @@ const model = defineModel<string>({
   outline: 2px solid black;
   border-image: url('/UI/text-input.png') 1;
   overflow-y: hidden;
+}
+
+.minecraft-input:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
 }
 </style>

@@ -102,3 +102,44 @@
   border: 8px solid;
   border-image: url('/UI/dialog_background_hollow_4.png') 8;
 }
+
+:where(
+  button,
+  a,
+  input,
+  textarea,
+  select,
+  summary,
+  [tabindex]:not([tabindex='-1'])
+):focus-visible {
+  outline: 2px solid var(--minecraft-green-light);
+  outline-offset: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  white-space: nowrap;
+  border: 0;
+  clip: rect(0 0 0 0);
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 9999;
+  padding: 0.75rem 1rem;
+  background: #000;
+  color: #fff;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}

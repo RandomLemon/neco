@@ -45,7 +45,13 @@ onUnmounted(() => {
 
 <template>
   <div class="management-area">
-    <div class="management-menu" :type="sidebarExpand ? '' : 'shrink'">
+    <div
+      id="management-menu"
+      class="management-menu"
+      :data-state="sidebarExpand ? 'expanded' : 'collapsed'"
+      :inert="!sidebarExpand || undefined"
+      :aria-hidden="!sidebarExpand"
+    >
       <img class="management-logo" src="/nmo-logo-large.png" />
       <span class="management-title">NMO - 管理后台</span>
       <MinecraftButtonClassic
@@ -90,12 +96,15 @@ onUnmounted(() => {
     </div>
     <MinecraftButton
       class="management-shrink-btn"
-      :type="sidebarExpand ? '' : 'expand'"
+      :data-state="sidebarExpand ? 'expanded' : 'collapsed'"
+      :aria-expanded="sidebarExpand"
+      aria-controls="management-menu"
+      :aria-label="sidebarExpand ? '收起后台导航' : '展开后台导航'"
       @click="sidebarExpand = !sidebarExpand"
     >
-      <text>▶</text>
+      <span aria-hidden="true">▶</span>
     </MinecraftButton>
-    <div class="management-tab-container" :type="sidebarExpand ? '' : 'expand'">
+    <div class="management-tab-container" :data-state="sidebarExpand ? 'normal' : 'expanded'">
       <RouterView />
     </div>
   </div>
@@ -118,12 +127,6 @@ onUnmounted(() => {
   border-right: 1px solid var(--minecraft-gray-light);
   transition: all 0.3s ease-in-out;
   overflow: hidden;
-}
-
-.management-menu[type='shrink'] {
-  padding-left: 0;
-  padding-right: 0;
-  width: 0;
 }
 
 .management-logo {
@@ -158,10 +161,6 @@ onUnmounted(() => {
   gap: 1rem;
 }
 
-.management-tab-container[type='expand'] {
-  width: 100vw;
-}
-
 .management-shrink-btn {
   padding: 0 !important;
   height: 4rem;
@@ -172,16 +171,26 @@ onUnmounted(() => {
   transition: left 0.3s ease-in-out;
 }
 
-.management-shrink-btn[type='expand'] {
+.management-menu[data-state='collapsed'] {
+  padding-left: 0;
+  padding-right: 0;
+  width: 0;
+}
+
+.management-tab-container[data-state='expanded'] {
+  width: 100vw;
+}
+
+.management-shrink-btn[data-state='collapsed'] {
   left: 0;
 }
 
-.management-shrink-btn text {
+.management-shrink-btn span {
   transition: transform 0.3s ease-in-out;
   transform: rotate(180deg) translateX(10%);
 }
 
-.management-shrink-btn[type='expand'] text {
+.management-shrink-btn[data-state='collapsed'] span {
   transform: none;
 }
 </style>

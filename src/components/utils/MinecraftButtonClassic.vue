@@ -7,15 +7,16 @@ const soundOn = () => {
 </script>
 
 <template>
-  <div class="minecraft-button-classic" :onclick="soundOn">
-    <div class="title">
+  <button type="button" class="minecraft-button-classic" :onclick="soundOn">
+    <text class="title">
       <slot></slot>
-    </div>
-  </div>
+    </text>
+  </button>
 </template>
 
 <style lang="css" scoped>
 .minecraft-button-classic {
+  padding: 0;
   height: 3rem;
   width: 100%;
   cursor: pointer;
@@ -24,6 +25,21 @@ const soundOn = () => {
   background: #999 url('/background/bgbtn.jpg') center/cover;
   image-rendering: pixelated;
   border: 2px solid #000;
+  font: inherit;
+  color: inherit;
+}
+
+.minecraft-button-classic:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.minecraft-button-classic:focus-visible .title {
+  background-color: rgba(100, 100, 255, 0.45);
+  text-shadow: 2px 2px #202013cc;
+  color: #ffffa0;
+  outline: 3px solid #fff;
+  outline-offset: 3px;
 }
 
 .minecraft-button-classic[activated='true'] .title {

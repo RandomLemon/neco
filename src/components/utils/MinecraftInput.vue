@@ -5,7 +5,7 @@ const model = defineModel<string>({
 </script>
 
 <template>
-  <input class="minecraft-input" type="text" v-model="model" />
+  <input class="minecraft-input" v-bind="$attrs" v-model="model" />
 </template>
 
 <style lang="css" scoped>
@@ -23,5 +23,10 @@ const model = defineModel<string>({
 .minecraft-input:disabled {
   color: #aaa;
   background-color: #424242;
+}
+
+.minecraft-input:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
 }
 </style>
