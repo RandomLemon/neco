@@ -9,13 +9,18 @@ const route = useRoute()
 
 <template>
   <div class="page-area">
-    <router-view v-slot="{ Component }">
-      <transition name="fade" mode="out-in">
-        <div class="page-container" :key="route.path">
-          <component :is="Component" />
-        </div>
-      </transition>
-    </router-view>
+    <a href="#main-content" class="skip-link">跳到主要内容</a>
+
+    <main id="main-content" tabindex="-1">
+      <router-view v-slot="{ Component }">
+        <transition name="fade" mode="out-in">
+          <div class="page-container" :key="route.path">
+            <component :is="Component" />
+          </div>
+        </transition>
+      </router-view>
+    </main>
+
     <NavBar />
     <Footer />
     <ScrollToTop />

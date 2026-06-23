@@ -7,27 +7,32 @@ const props = defineProps({
     required: true,
   },
 })
-
-const jumpto = (url: string) => {
-  window.open(url, '_blank')
-}
 </script>
 
 <template>
-  <div
+  <a
     class="link-card"
+    :href="props.link.url"
+    target="_blank"
+    rel="noopener noreferrer"
     :style="{ backgroundImage: `url(${props.link.image})` }"
-    @click="jumpto(props.link.url)"
   >
     <div class="link-content">
       <p>{{ link.name }}</p>
       <span>{{ link.description }}</span>
     </div>
-  </div>
+  </a>
 </template>
 
 <style lang="css" scoped>
+.link-card:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
 .link-card {
+  color: inherit;
+  text-decoration: none;
   margin: 1rem;
   width: 15rem;
   height: 15rem;

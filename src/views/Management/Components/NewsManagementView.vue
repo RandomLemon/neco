@@ -69,8 +69,8 @@ const editorToolbars = ref<ToolbarNames[]>([
 
 const soundOn = () => {
   const audio = new Audio('/button.click.ogg')
-  audio.play()
   audio.volume = 0.3
+  audio.play().catch(() => {})
 }
 
 const mountSounds = () => {
@@ -495,12 +495,14 @@ const onUploadImg = async (
 
 <template>
   <div class="management-tab-title-container">
-    <text class="management-tab-title">文章管理</text>
-    <text class="management-tab-subtitle">{{
-      userGroup.includes('admin') || userGroup.includes('news_admin')
-        ? '点击文章以编辑！'
-        : '为什么我 这么弱？'
-    }}</text>
+    <h1 class="management-tab-title">文章管理</h1>
+    <span class="management-tab-subtitle">
+      {{
+        userGroup.includes('admin') || userGroup.includes('news_admin')
+          ? '点击文章以编辑！'
+          : '为什么我 这么弱？'
+      }}
+    </span>
   </div>
   <NewsList
     style="margin: 0; width: 100%"
@@ -521,10 +523,11 @@ const onUploadImg = async (
     style="margin-bottom: 100vh"
     class="management-tab-form"
     v-if="status !== 'none' && (userGroup.includes('admin') || userGroup.includes('news_admin'))"
+    @submit.prevent="commitNews"
   >
-    <text class="management-tab-form-title">{{ status === 'edit' ? '编辑' : '新增' }}文章</text>
-    <div class="news-input-item">
-      <text class="news-input-label">类型</text>
+    <h2 class="management-tab-form-title">{{ status === 'edit' ? '编辑' : '新增' }}文章</h2>
+    <div class="news-input-item" role="group" aria-labelledby="news-type-label">
+      <span id="news-type-label" class="news-input-label">类型</span>
       <div class="news-button-group">
         <MinecraftButtonClassic
           class="news-button"
@@ -553,32 +556,56 @@ const onUploadImg = async (
       </div>
     </div>
     <div class="news-input-item">
-      <text class="news-input-label">置顶</text>
-      <text style="user-select: none; font-size: 0.8rem; color: #ccc"
-        >最新的置顶文章会在首页顶部展示！</text
+      <label class="news-input-label" for="news-pin-switch"> 置顶 </label>
+
+      <span style="user-select: none; font-size: 0.8rem; color: #ccc">
+        最新的置顶文章会在首页顶部展示！
+      </span>
+
+      <MinecraftSwitch id="news-pin-switch" v-model="newsPin" />
+    </div>
+    <div class="news-input-item">
+      <span class="news-input-label">文章封面</span>
+      <button
+        v-if="newsImage.trim() === ''"
+        type="button"
+        class="upload-button"
+        aria-label="上传文章封面"
+        @click="onCoverUpload"
       >
-      <MinecraftSwitch v-model="newsPin" />
+        <PlusIcon aria-hidden="true" />
+      </button>
+
+      <button
+        v-else
+        type="button"
+        class="news-image-picture"
+        aria-label="更换文章封面"
+        @click="onCoverUpload"
+      >
+        <img class="news-image" :src="newsImage" alt="" />
+      </button>
     </div>
     <div class="news-input-item">
-      <text class="news-input-label">文章封面</text>
-      <div class="upload-button" v-if="newsImage.trim() === ''" @click="onCoverUpload">
-        <PlusIcon />
-      </div>
-      <picture class="news-image-picture" @click="onCoverUpload" v-else>
-        <img class="news-image" :src="newsImage" alt="news-image" />
-      </picture>
+      <label class="news-input-label" for="news-id-input"> ID </label>
+
+      <MinecraftInput id="news-id-input" v-model="newsId" class="news-input" disabled />
     </div>
     <div class="news-input-item">
-      <text class="news-input-label">ID</text>
-      <MinecraftInput v-model="newsId" class="news-input" disabled="true" />
+      <label class="news-input-label" for="news-title-input"> 标题 </label>
+
+      <MinecraftInput
+        id="news-title-input"
+        class="news-input"
+        v-model="newsTitle"
+        placeholder="请输入标题"
+      />
     </div>
     <div class="news-input-item">
-      <text class="news-input-label">标题</text>
-      <MinecraftInput class="news-input" v-model="newsTitle" placeholder="请输入标题" />
-    </div>
-    <div class="news-input-item">
-      <text class="news-input-label">简介</text>
+      <label class="news-input-label" for="news-brief-input"> 简介 </label>
+
       <MinecraftTextarea
+        id="news-brief-input"
         v-model="newsBrief"
         class="news-input"
         style="resize: vertical"
@@ -587,14 +614,17 @@ const onUploadImg = async (
       />
     </div>
     <div class="news-input-item">
-      <text class="news-input-label">{{ newsType === 'activity' ? '开始' : '' }}时间</text>
+      <span id="news-date-label" class="news-input-label">
+        {{ newsType === 'activity' ? '开始' : '' }}时间
+      </span>
       <VueDatePicker
+        aria-labelledby="news-date-label"
         v-model="newsDate"
         :formats="{
-          input: formatDate
+          input: formatDate,
         }"
         :time-config="{
-          enableTimePicker: false
+          enableTimePicker: false,
         }"
         dark
         :clearable="false"
@@ -602,14 +632,15 @@ const onUploadImg = async (
       />
     </div>
     <div class="news-input-item" v-if="newsType === 'activity'">
-      <text class="news-input-label">结束时间</text>
+      <span id="news-end-date-label" class="news-input-label"> 结束时间 </span>
       <VueDatePicker
+        aria-labelledby="news-end-date-label"
         v-model="newsEndDate"
         :formats="{
-          input: formatDate
+          input: formatDate,
         }"
         :time-config="{
-          enableTimePicker: false
+          enableTimePicker: false,
         }"
         dark
         :clearable="false"
@@ -617,8 +648,8 @@ const onUploadImg = async (
       />
     </div>
     <div class="news-input-item">
-      <text class="news-input-label">正文</text>
-      <div class="news-markdown-edit">
+      <span id="news-content-label" class="news-input-label"> 正文 </span>
+      <div class="news-markdown-edit" aria-labelledby="news-content-label">
         <div class="news-button-group">
           <MinecraftButtonClassic
             class="news-button"
@@ -679,6 +710,7 @@ const onUploadImg = async (
                 v-if="item.type === 'pdf_file'"
                 class="pdf-renderer mc-border"
                 :pdf-url="item.content"
+                :title="`${newsTitle || '文章'} PDF 预览`"
               />
             </div>
           </div>
@@ -686,22 +718,30 @@ const onUploadImg = async (
       </div>
     </div>
     <div class="operation-btn-group">
-      <MinecraftButtonClassic @click="deleteNews">删除</MinecraftButtonClassic>
-      <MinecraftButtonClassic @click="commitNews">保存</MinecraftButtonClassic>
+      <MinecraftButtonClassic @click="deleteNews"> 删除 </MinecraftButtonClassic>
+
+      <MinecraftButtonClassic native-type="submit"> 保存 </MinecraftButtonClassic>
     </div>
   </form>
   <MinecraftDialog title="添加 PDF 文件" v-model="showPdfDialog">
     <div class="pdf-options-container">
-      <text class="pdf-options-label">文件地址</text>
+      <label class="pdf-options-label" for="news-pdf-url"> 文件地址 </label>
+
       <div class="pdf-options-input-container">
-        <MinecraftInput class="pdf-options-input" v-model="pdfSrc" placeholder="填入 PDF 链接" />
-        <MinecraftButtonClassic class="pdf-options-button" @click="addPdfFileConfirm"
-          >保存</MinecraftButtonClassic
-        >
+        <MinecraftInput
+          id="news-pdf-url"
+          class="pdf-options-input"
+          v-model="pdfSrc"
+          placeholder="填入 PDF 链接"
+        />
+
+        <MinecraftButtonClassic class="pdf-options-button" @click="addPdfFileConfirm">
+          保存
+        </MinecraftButtonClassic>
       </div>
     </div>
     <div class="pdf-options-container">
-      <text class="pdf-options-label">直接上传</text>
+      <span class="pdf-options-label">直接上传</span>
       <MinecraftButtonClassic class="pdf-options-button" style="width: 10rem" @click="onSelectPdf">
         ↑ 点击上传
       </MinecraftButtonClassic>
@@ -712,16 +752,23 @@ const onUploadImg = async (
   </MinecraftDialog>
   <MinecraftDialog title="上传封面" v-model="coverUploadVisible">
     <div class="pdf-options-container">
-      <text class="pdf-options-label">图片地址</text>
+      <label class="pdf-options-label" for="news-cover-url"> 图片地址 </label>
+
       <div class="pdf-options-input-container">
-        <MinecraftInput class="pdf-options-input" v-model="newsImage" placeholder="填入图片链接" />
-        <MinecraftButtonClassic class="pdf-options-button" @click="coverUploadVisible = false"
-          >保存</MinecraftButtonClassic
-        >
+        <MinecraftInput
+          id="news-cover-url"
+          class="pdf-options-input"
+          v-model="newsImage"
+          placeholder="填入图片链接"
+        />
+
+        <MinecraftButtonClassic class="pdf-options-button" @click="coverUploadVisible = false">
+          保存
+        </MinecraftButtonClassic>
       </div>
     </div>
     <div class="pdf-options-container">
-      <text class="pdf-options-label">直接上传</text>
+      <span class="pdf-options-label">直接上传</span>
       <MinecraftButtonClassic
         class="pdf-options-button"
         style="width: 10rem"
@@ -737,6 +784,21 @@ const onUploadImg = async (
 </template>
 
 <style lang="css" scoped>
+.upload-button,
+.news-image-picture {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.upload-button:focus-visible,
+.news-image-picture:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
 .news-input-item {
   display: flex;
   flex-direction: column;

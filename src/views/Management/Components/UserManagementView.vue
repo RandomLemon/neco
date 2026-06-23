@@ -110,8 +110,8 @@ const editInputTagBgColor = ref('rgba(230, 162, 60, 0.1)')
 
 const soundOn = () => {
   const audio = new Audio('/button.click.ogg')
-  audio.play()
   audio.volume = 0.3
+  audio.play().catch(() => {})
 }
 
 const saveEditUser = async () => {
@@ -124,6 +124,7 @@ const saveEditUser = async () => {
   const result = await UpdateUserInfo(editUsername.value, group, editUserTags.value)
   if (!result) {
     toast.success('修改成功！')
+    refreshPage()
   } else {
     toast.error(`修改失败！`)
   }
@@ -237,6 +238,7 @@ const onSaveAvatar = async (src: string) => {
       break
     }
   }
+  refreshPage()
 }
 
 const onSelectAvatar = async () => {
@@ -284,6 +286,7 @@ const onSaveCreateUser = async () => {
   if (!result) {
     toast.success('创建用户成功！')
     createUserDialogVisible.value = false
+    refreshPage()
   } else {
     toast.error(`创建用户失败！`)
   }
@@ -306,13 +309,15 @@ const onConfirmDeleteUser = async () => {
   if (!result) {
     toast.success('删除用户成功！')
     users.value = users.value?.filter((user) => user.username !== deleteUsername) || null
+    refreshPage()
   } else {
     toast.error(`删除用户失败！`)
   }
 }
 
-onMounted(async () => {
+const refreshPage = async () => {
   if (userGroup.value.includes('admin')) {
+    avatars.value = []
     users.value = (await GetUserList()) || []
     for (let i = 0; i < users.value.length; i++) {
       avatars.value.push((await GetAvatar(users.value[i].username)) || '/nmo-logo-large.png')
@@ -325,20 +330,29 @@ onMounted(async () => {
   if (avatar.value.trim() === '') {
     avatar.value = '/nmo-logo-large.png'
   }
+}
+
+onMounted(() => {
+  refreshPage()
 })
 </script>
 
 <template>
   <div class="management-tab-title-container">
-    <text class="management-tab-title">用户管理</text>
-    <text class="management-tab-subtitle">到底有多强？</text>
+    <h1 class="management-tab-title">用户管理</h1>
+    <span class="management-tab-subtitle">到底有多强？</span>
   </div>
-  <form class="management-tab-form">
-    <text class="management-tab-form-title">当前用户信息</text>
+  <section class="management-tab-form" aria-labelledby="current-user-title">
+    <h2 id="current-user-title" class="management-tab-form-title">当前用户信息</h2>
     <div class="user-info-container">
-      <picture class="user-avatar" @click="onChangeAvatar">
-        <img class="avatar-img" :src="avatar" alt="用户头像" />
-      </picture>
+      <button
+        type="button"
+        class="user-avatar"
+        aria-label="修改当前用户头像"
+        @click="onChangeAvatar"
+      >
+        <img class="avatar-img" :src="avatar" alt="" />
+      </button>
       <div class="user-info">
         <div class="user-info-span">
           <text class="user-info-text">{{ username }}</text>
@@ -364,49 +378,63 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-  </form>
-  <form class="management-tab-form">
-    <text class="management-tab-form-title">修改密码</text>
+  </section>
+  <form class="management-tab-form" @submit.prevent="onChangePassword">
+    <h2 class="management-tab-form-title">修改密码</h2>
     <div class="user-input">
-      <text class="user-input-label">旧密码</text>
+      <label class="user-input-label" for="old-password-input"> 旧密码 </label>
+
       <MinecraftInput
+        id="old-password-input"
         class="user-input-field"
         placeholder="输入旧密码"
         type="password"
+        autocomplete="current-password"
         v-model="oldPasswordInput"
       />
     </div>
     <div class="user-input">
-      <text class="user-input-label">新密码</text>
+      <label class="user-input-label" for="new-password-input"> 新密码 </label>
+
       <MinecraftInput
+        id="new-password-input"
         class="user-input-field"
         placeholder="输入新密码"
         type="password"
+        autocomplete="new-password"
         v-model="newPasswordInput"
       />
     </div>
     <div class="user-input">
-      <text class="user-input-label">重复密码</text>
+      <label class="user-input-label" for="repeat-password-input"> 重复密码 </label>
+
       <MinecraftInput
+        id="repeat-password-input"
         class="user-input-field"
         placeholder="输入重复密码"
         type="password"
+        autocomplete="new-password"
         v-model="repeatPasswordInput"
       />
     </div>
     <div class="form-btn-group">
-      <MinecraftButtonClassic class="user-input-button" @click="resetChangePassword"
-        >重置</MinecraftButtonClassic
-      >
-      <MinecraftButtonClassic class="user-input-button" @click="onChangePassword"
-        >保存</MinecraftButtonClassic
-      >
+      <MinecraftButtonClassic class="user-input-button" @click="resetChangePassword">
+        重置
+      </MinecraftButtonClassic>
+
+      <MinecraftButtonClassic class="user-input-button" native-type="submit">
+        保存
+      </MinecraftButtonClassic>
     </div>
   </form>
-  <form class="management-tab-form" v-if="userGroup.includes('admin')">
+  <section
+    class="management-tab-form"
+    v-if="userGroup.includes('admin')"
+    aria-labelledby="account-management-title"
+  >
     <div style="display: flex">
-      <text class="management-tab-form-title">账户管理</text>
-      <text class="management-tab-form-subtitle">点击以编辑！</text>
+      <h2 id="account-management-title" class="management-tab-form-title">账户管理</h2>
+      <span class="management-tab-form-subtitle">点击以编辑！</span>
     </div>
     <div style="display: flex; width: min-content; gap: 1rem">
       <MinecraftInput
@@ -420,64 +448,70 @@ onMounted(async () => {
       >
     </div>
     <div class="user-card-container">
-      <div
-        class="user-card"
-        v-for="(user, index) in filteredUsers"
-        :key="user.username"
-        @click="(soundOn(), loadEditUser(user, index))"
-      >
-        <DeleteIcon class="delete-user" @click.stop="onDeleteUser(user.username)" />
-        <img
-          class="avatar-img"
-          style="width: 4rem; height: 4rem"
-          :src="avatars[index]"
-          alt="用户头像"
-        />
-        <div class="user-info">
-          <div class="user-info-span">
-            <text class="user-info-text">{{ user.username }}</text>
-            <div
-              class="user-info-tag"
-              v-for="tag in user.tags"
-              :key="tag.text"
-              :style="{
-                color: tag.color,
-                backgroundColor: tag.tagColor,
-              }"
-            >
-              {{ tag.text }}
+      <div class="user-card" v-for="(user, index) in filteredUsers" :key="user.username">
+        <button
+          type="button"
+          class="user-card-main"
+          :aria-label="`编辑用户 ${user.username}`"
+          @click="(soundOn(), loadEditUser(user, index))"
+        >
+          <img class="avatar-img" style="width: 4rem; height: 4rem" :src="avatars[index]" alt="" />
+
+          <div class="user-info">
+            <div class="user-info-span">
+              <span class="user-info-text">{{ user.username }}</span>
+
+              <div
+                class="user-info-tag"
+                v-for="tag in user.tags"
+                :key="tag.text"
+                :style="{
+                  color: tag.color,
+                  backgroundColor: tag.tagColor,
+                }"
+              >
+                {{ tag.text }}
+              </div>
+            </div>
+
+            <div class="user-info-span" v-if="(user.group || []).length > 0">
+              <span class="user-info-label">权限：</span>
+
+              <div class="user-info-group">
+                <span class="user-info-group-item" v-for="group in user.group" :key="group">
+                  {{ adminToText(group) }}
+                </span>
+              </div>
             </div>
           </div>
-          <div class="user-info-span" v-if="(user.group || []).length > 0">
-            <text class="user-info-label">权限：</text>
-            <div class="user-info-group">
-              <text class="user-info-group-item" v-for="group in user.group" :key="group">{{
-                adminToText(group)
-              }}</text>
-            </div>
-          </div>
-        </div>
+        </button>
+
+        <button
+          type="button"
+          class="delete-user"
+          :aria-label="`删除用户 ${user.username}`"
+          @click.stop="onDeleteUser(user.username)"
+        >
+          <DeleteIcon aria-hidden="true" />
+        </button>
       </div>
     </div>
-  </form>
+  </section>
 
   <MinecraftDialog title="修改用户信息" v-model="editUserDialogVisible" @confirm="saveEditUser">
     <div class="change-user-info-container">
       <div class="change-user-info-item">
         <text class="change-user-info-title">头像</text>
-        <picture
+        <button
+          v-if="editUsername === username"
+          type="button"
           class="user-avatar"
           style="width: 4rem; height: 4rem"
+          aria-label="修改用户头像"
           @click="onChangeAvatar"
-          v-if="editUsername === username"
         >
-          <img
-            class="avatar-img"
-            style="width: 4rem; height: 4rem"
-            :src="editAvatar"
-            alt="用户头像"
-          />
-        </picture>
+          <img class="avatar-img" style="width: 4rem; height: 4rem" :src="editAvatar" alt="" />
+        </button>
         <img
           class="avatar-img"
           v-else
@@ -487,79 +521,89 @@ onMounted(async () => {
         />
       </div>
       <div class="change-user-info-item">
-        <text class="change-user-info-title">用户名</text>
-        <div>
-          <MinecraftInput
-            class="user-input-field"
-            placeholder="输入用户名"
-            v-model="editUsername"
-          />
-        </div>
+        <label class="change-user-info-title" for="edit-username-input"> 用户名 </label>
+
+        <MinecraftInput
+          id="edit-username-input"
+          class="user-input-field"
+          placeholder="输入用户名"
+          v-model="editUsername"
+        />
       </div>
       <div class="change-user-info-item">
         <text class="change-user-info-title">权限</text>
         <div class="user-switch-item">
           <MinecraftSwitch
+            id="edit-admin-switch"
             class="user-input-switch"
             v-model="editAdminSwitch"
             @on="editNewsAdminSwitch = editServerAdminSwitch = editDocumentAdminSwitch = false"
           />
-          <text class="user-switch-label">超级管理</text>
+          <label class="user-switch-label" for="edit-admin-switch"> 超级管理 </label>
         </div>
         <div class="user-switch-item">
           <MinecraftSwitch
+            id="edit-article-admin-switch"
             class="user-input-switch"
             v-model="editNewsAdminSwitch"
             @on="editAdminSwitch = false"
           />
-          <text class="user-switch-label">文章管理</text>
+          <label class="user-switch-label" for="edit-article-admin-switch"> 文章管理 </label>
         </div>
         <div class="user-switch-item">
           <MinecraftSwitch
+            id="edit-server-admin-switch"
             class="user-input-switch"
             v-model="editServerAdminSwitch"
             @on="editAdminSwitch = false"
           />
-          <text class="user-switch-label">服务器管理</text>
+          <label class="user-switch-label" for="edit-server-admin-switch"> 服务器管理 </label>
         </div>
         <div class="user-switch-item">
           <MinecraftSwitch
+            id="edit-document-admin-switch"
             class="user-input-switch"
             v-model="editDocumentAdminSwitch"
             @on="editAdminSwitch = false"
           />
-          <text class="user-switch-label">文档管理</text>
+          <label class="user-switch-label" for="edit-document-admin-switch"> 文档管理 </label>
         </div>
       </div>
       <div class="change-user-info-item" style="grid-column: span 2">
         <text class="change-user-info-title">标签</text>
-        <text class="user-input-with-label">
-          <text class="user-input-title">标签文字</text>
+        <div class="user-input-with-label">
+          <label class="user-input-title" for="edit-tag-text-input"> 标签文字 </label>
+
           <MinecraftInput
+            id="edit-tag-text-input"
             class="user-input-box"
             placeholder="回车以添加"
             v-model="editInputTagText"
             @keyup.enter="editAppendTag"
           />
-        </text>
-        <text class="user-input-with-label">
-          <text class="user-input-title">文字颜色</text>
+        </div>
+        <div class="user-input-with-label">
+          <label class="user-input-title" for="edit-tag-text-color-input"> 文字颜色 </label>
+
           <MinecraftInput
+            id="edit-tag-text-color-input"
             class="user-input-box"
             placeholder="标签文字颜色"
             v-model="editInputTagColor"
             @keyup.enter="editAppendTag"
           />
-        </text>
-        <text class="user-input-with-label">
-          <text class="user-input-title">背景颜色</text>
+        </div>
+        <div class="user-input-with-label">
+          <label class="user-input-title" for="edit-tag-background-color-input"> 背景颜色 </label>
+
           <MinecraftInput
+            id="edit-tag-background-color-input"
             class="user-input-box"
             placeholder="标签背景颜色"
             v-model="editInputTagBgColor"
             @keyup.enter="editAppendTag"
           />
-        </text>
+        </div>
         <div class="tags-container">
           <div
             class="tag"
@@ -579,9 +623,10 @@ onMounted(async () => {
   </MinecraftDialog>
   <MinecraftDialog title="修改头像" v-model="avatarOptionsVisible">
     <div class="avatar-options-container">
-      <text class="avatar-options-label">头像地址</text>
+      <label class="avatar-options-label" for="avatar-url-input">头像地址</label>
       <div class="avatar-options-input-container">
         <MinecraftInput
+          id="avatar-url-input"
           class="avatar-options-input"
           v-model="avatarSrc"
           placeholder="填入图片链接"
@@ -592,7 +637,7 @@ onMounted(async () => {
       </div>
     </div>
     <div class="avatar-options-container">
-      <text class="avatar-options-label">直接上传</text>
+      <span class="avatar-options-label">直接上传</span>
       <MinecraftButtonClassic
         class="avatar-options-button"
         style="width: 10rem"
@@ -608,19 +653,26 @@ onMounted(async () => {
   <MinecraftDialog title="创建用户" v-model="createUserDialogVisible" @confirm="onSaveCreateUser">
     <div class="create-user-container">
       <div class="create-user-container">
-        <text class="create-user-info-title">用户名</text>
+        <label class="create-user-info-title" for="create-user-username-input"> 用户名 </label>
+
         <MinecraftInput
+          id="create-user-username-input"
           class="create-user-input"
           placeholder="输入用户名"
+          autocomplete="username"
           v-model="createUserUsername"
           @keyup.enter="onSaveCreateUser"
         />
       </div>
       <div class="create-user-container">
-        <text class="create-user-info-title">密码</text>
+        <label class="create-user-info-title" for="create-user-password-input"> 密码 </label>
+
         <MinecraftInput
+          id="create-user-password-input"
           class="create-user-input"
           placeholder="输入密码"
+          type="password"
+          autocomplete="new-password"
           v-model="createUserPassword"
           @keyup.enter="onSaveCreateUser"
         />
@@ -642,6 +694,50 @@ onMounted(async () => {
 </template>
 
 <style lang="css" scoped>
+.user-card-main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.user-card-main:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
+.delete-user {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: rgb(247, 137, 137);
+  cursor: pointer;
+}
+
+.delete-user:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.user-avatar {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.user-avatar:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
 .user-info-container {
   display: flex;
   flex-direction: row;

@@ -9,8 +9,8 @@ const userGroup = localStorage.getItem('userGroup')
 
 <template>
   <div class="management-tab-title-container">
-    <text class="management-tab-title">文档管理</text>
-    <text class="management-tab-subtitle">你根本就不强</text>
+    <h1 class="management-tab-title">文档管理</h1>
+    <span class="management-tab-subtitle">你根本就不强</span>
   </div>
   <MinecraftButtonClassic
     v-if="userGroup?.includes('admin') || userGroup?.includes('document_admin')"

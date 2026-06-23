@@ -1,16 +1,44 @@
 <script lang="ts" setup>
+import { computed, useAttrs } from 'vue'
+
+defineOptions({
+  inheritAttrs: false,
+})
+
+const props = withDefaults(
+  defineProps<{
+    nativeType?: 'button' | 'submit' | 'reset'
+  }>(),
+  {
+    nativeType: 'button',
+  },
+)
+
+const attrs = useAttrs()
+
+const passthroughAttrs = computed(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { type: _type, ...rest } = attrs
+  return rest
+})
+
 const soundOn = () => {
   const audio = new Audio('/button.click.ogg')
-  audio.play()
   audio.volume = 0.3
+  audio.play().catch(() => {})
 }
 </script>
 
 <template>
-  <button type="button" class="minecraft-button-classic" :onclick="soundOn">
-    <text class="title">
+  <button
+    v-bind="passthroughAttrs"
+    :type="props.nativeType"
+    class="minecraft-button-classic"
+    @click="soundOn"
+  >
+    <span class="title">
       <slot></slot>
-    </text>
+    </span>
   </button>
 </template>
 

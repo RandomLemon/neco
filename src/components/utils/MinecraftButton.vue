@@ -1,20 +1,43 @@
 <script lang="ts" setup>
-const props = defineProps({
-  dark: {
-    type: Boolean,
-    default: false,
+import { computed, useAttrs } from 'vue'
+
+defineOptions({
+  inheritAttrs: false,
+})
+
+const props = withDefaults(
+  defineProps<{
+    dark?: boolean
+    nativeType?: 'button' | 'submit' | 'reset'
+  }>(),
+  {
+    dark: false,
+    nativeType: 'button',
   },
+)
+
+const attrs = useAttrs()
+
+const passthroughAttrs = computed(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { type: _type, ...rest } = attrs
+  return rest
 })
 
 const soundOn = () => {
   const audio = new Audio('/button.click.ogg')
-  audio.play()
   audio.volume = 0.3
+  audio.play().catch(() => {})
 }
 </script>
 
 <template>
-  <button type="button" :class="props.dark ? 'minecraft-button dark' : 'minecraft-button'" :onclick="soundOn">
+  <button
+    v-bind="passthroughAttrs"
+    :type="props.nativeType"
+    :class="props.dark ? 'minecraft-button dark' : 'minecraft-button'"
+    @click="soundOn"
+  >
     <slot></slot>
   </button>
 </template>
@@ -41,7 +64,6 @@ const soundOn = () => {
   background-color: #303030;
   border-image: url('/UI/button_normal.png') 1;
 }
-
 
 .minecraft-button:disabled {
   cursor: not-allowed;

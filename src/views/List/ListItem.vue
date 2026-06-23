@@ -48,12 +48,14 @@ onMounted(async () => {
 
 <template>
   <div class="item-border">
-    <img
-      :src="server.status?.icon || server.icon"
-      class="server-icon"
-      alt="icon"
+    <button
+      type="button"
+      class="server-icon-button"
+      :aria-label="`复制 ${server.name} 的服务器地址`"
       @click="copy(server.serverUrl || '')"
-    />
+    >
+      <img :src="server.status?.icon || server.icon" class="server-icon" alt="" />
+    </button>
     <div class="item-info">
       <span
         style="
@@ -72,20 +74,83 @@ onMounted(async () => {
     </div>
     <div class="item-status">
       <span class="server-status">
-        <text class="status-text" v-if="server.realtime && server.status?.online"
-          >{{ server.status?.playerCount || 0 }}/{{ server.status?.capacity || 0 }}</text
-        >
+        <span class="status-text" v-if="server.realtime && server.status?.online">
+          {{ server.status?.playerCount || 0 }}/{{ server.status?.capacity || 0 }}
+        </span>
         <img class="status-img" :src="props.pingIcon" alt="pingIcon" />
       </span>
       <span style="margin-top: auto; display: flex; align-items: center; justify-content: center">
         <a v-if="server.onlineMapUrl.trim() != ''" :href="server.onlineMapUrl">网页地图</a>
-        <DeleteIcon class="delete-icon" v-if="props.withDelete" @click="emit('delete')" />
+        <button
+          v-if="props.withDelete"
+          type="button"
+          class="delete-icon-button"
+          :aria-label="`删除 ${server.name}`"
+          @click="emit('delete')"
+        >
+          <DeleteIcon class="delete-icon" aria-hidden="true" />
+        </button>
       </span>
     </div>
   </div>
 </template>
 
 <style lang="css" scoped>
+.delete-icon-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.delete-icon-button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.server-icon-button {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.server-icon-button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.item-border:focus-within::after {
+  pointer-events: none;
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  width: 64px;
+  height: 64px;
+  background: url('/UI/Arrow_Right.png') no-repeat center;
+  background-size: 22px 34px;
+  image-rendering: pixelated;
+  z-index: 256;
+}
+
+.item-border:focus-within::before {
+  pointer-events: none;
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  width: 64px;
+  height: 64px;
+  background: rgba(128, 128, 128, 0.7);
+  z-index: 128;
+}
+
 .item-border {
   position: relative;
   width: 100%;

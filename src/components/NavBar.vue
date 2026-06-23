@@ -7,14 +7,14 @@ import { useLantern } from '@/lantern/lantern'
 useLantern('lantern-wrapper', {
   position: {
     zIndex: 8,
-    offsetX: ['5%', '20%', '20%', '5%']
+    offsetX: ['5%', '20%', '20%', '5%'],
   },
 })
 
 const soundOn = () => {
   const audio = new Audio('/button.click.ogg')
-  audio.play()
   audio.volume = 0.3
+  audio.play().catch(() => {})
 }
 
 const router = useRouter()
@@ -33,11 +33,6 @@ const navItems = ref<NavItem[]>([
   { name: '文档', url: '/documents' },
 ])
 const activeIndex = ref<number>(0)
-const setIndex = (index: number) => {
-  soundOn()
-  activeIndex.value = index
-  router.push(navItems.value[index].url)
-}
 
 const sliderStyle = computed(() => {
   return {
@@ -79,14 +74,24 @@ onMounted(() => {
 </script>
 
 <template>
-  <div :style="{
-    opacity: showLantern ? 1 : 0
-  }" id="lantern-wrapper"></div>
+  <div
+    :style="{
+      opacity: showLantern ? 1 : 0,
+    }"
+    id="lantern-wrapper"
+  ></div>
   <div class="nav-container">
     <nav class="nav-bar">
-      <div v-for="(item, index) in navItems" :key="index" class="nav-item" @click="setIndex(index)">
+      <RouterLink
+        v-for="(item, index) in navItems"
+        :key="item.url"
+        class="nav-item"
+        :to="item.url"
+        :aria-current="activeIndex === index ? 'page' : undefined"
+        @click="soundOn"
+      >
         {{ item.name }}
-      </div>
+      </RouterLink>
 
       <div class="slider" :style="sliderStyle">
         <div class="slider-box"></div>
@@ -102,7 +107,7 @@ onMounted(() => {
   left: 0;
   width: 100vw;
   height: 5vh;
-  transition: opacity .3s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
 }
 
 .nav-container {
@@ -137,6 +142,8 @@ onMounted(() => {
 }
 
 .nav-item {
+  color: inherit;
+  text-decoration: none;
   position: relative;
   flex: 1;
   text-align: center;
@@ -148,6 +155,11 @@ onMounted(() => {
   z-index: 1;
   transition: color 0.3s ease;
   font-size: 1rem;
+}
+
+.nav-item:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: -3px;
 }
 
 .slider {

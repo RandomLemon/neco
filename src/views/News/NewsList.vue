@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, onBeforeUnmount, watch, computed, nextTick } from 'vue'
 import { GetNews, GetNewsTotal } from '@/api/newslist'
 import type { NewsEntity, NewsTarget } from '@/api/newslist'
 import NewsItem from './NewsItem.vue'
@@ -66,13 +66,31 @@ const movePage = (dir: 'prev' | 'next') => {
 }
 
 const setPage = () => {
-  if (!Number.isNaN(pageInput.value)) {
-    const number = Number(pageInput.value)
-    if (number > 0 && number <= maxPage.value && number !== page.value) {
-      page.value = number
-      refreshNews()
-    }
+  const inputPage = Number(pageInput.value)
+
+  if (!Number.isInteger(inputPage)) {
+    pageInput.value = `${page.value}`
+    return
   }
+
+  const originPage = page.value
+
+  if (inputPage < 1) {
+    page.value = 1
+  } else if (inputPage > maxPage.value) {
+    page.value = maxPage.value
+  } else {
+    page.value = inputPage
+  }
+
+  pageInput.value = `${page.value}`
+  if (originPage !== page.value) {
+    refreshNews()
+  }
+}
+
+const onPageInput = () => {
+  pageInput.value = pageInput.value.replace(/[^\d]/g, '')
 }
 
 watch(
@@ -86,78 +104,163 @@ watch(
   },
 )
 
+const optionFocus = ref(false)
+
+const newsTypeOptions = computed(() => {
+  const options: { label: string; value: NewsTarget }[] = [
+    { label: '最新资讯', value: 'information' },
+    { label: '最新社刊', value: 'magazine' },
+    { label: '最新公告', value: 'notice' },
+  ]
+
+  if (props.allowActivity) {
+    options.push({ label: '最新活动', value: 'activity' })
+  }
+
+  return options
+})
+
+const currentNewsTypeLabel = computed(() => {
+  return newsTypeOptions.value.find((item) => item.value === model.value)?.label ?? '最新资讯'
+})
+
+const newsTypeButtonRef = ref<HTMLButtonElement | null>(null)
+const newsTypeOptionRefs = ref<HTMLButtonElement[]>([])
+
+const toggleNewsTypeOptions = async () => {
+  optionFocus.value = !optionFocus.value
+
+  if (optionFocus.value) {
+    await nextTick()
+
+    const activeIndex = newsTypeOptions.value.findIndex((item) => item.value === model.value)
+    newsTypeOptionRefs.value[Math.max(activeIndex, 0)]?.focus()
+  }
+}
+
+const openNewsTypeOptions = async () => {
+  optionFocus.value = true
+
+  await nextTick()
+
+  const activeIndex = newsTypeOptions.value.findIndex((item) => item.value === model.value)
+  newsTypeOptionRefs.value[Math.max(activeIndex, 0)]?.focus()
+}
+
+const closeNewsTypeOptions = () => {
+  optionFocus.value = false
+  newsTypeButtonRef.value?.focus()
+}
+
+const selectNewsType = (value: NewsTarget) => {
+  model.value = value
+  optionFocus.value = false
+  newsTypeButtonRef.value?.focus()
+}
+
+const focusNewsTypeOption = (index: number) => {
+  const optionCount = newsTypeOptions.value.length
+
+  if (optionCount <= 0) {
+    return
+  }
+
+  const nextIndex = (index + optionCount) % optionCount
+  newsTypeOptionRefs.value[nextIndex]?.focus()
+}
+
+const newsTypeDropdownRef = ref<HTMLElement | null>(null)
+
+const onDocumentClick = (event: MouseEvent) => {
+  if (!newsTypeDropdownRef.value) {
+    return
+  }
+
+  if (!newsTypeDropdownRef.value.contains(event.target as Node)) {
+    optionFocus.value = false
+  }
+}
+
 onMounted(async () => {
+  document.addEventListener('click', onDocumentClick)
+
   newsTotal.value = await GetNewsTotal(model.value as NewsTarget)
   newsLoading.value = true
   news.value = await GetNews(model.value as NewsTarget, page.value, pageSize.value)
   newsLoading.value = false
 })
 
-const optionFocus = ref(false)
+onBeforeUnmount(() => {
+  document.removeEventListener('click', onDocumentClick)
+})
 </script>
 
 <template>
   <div class="news-list-panel mc-border">
     <div class="news-title-container">
       <div class="news-title-item">
-        <button
-          :value="model"
-          class="news-title"
-          :stat="optionFocus ? 'active' : 'inactive'"
-          @click="optionFocus = !optionFocus"
-        >
-          最新{{
-            model === 'information'
-              ? '资讯'
-              : model === 'magazine'
-                ? '社刊'
-                : model === 'notice'
-                  ? '公告'
-                  : '活动'
-          }}
-          <div class="news-title-options" v-if="optionFocus">
+        <div class="news-title-dropdown" ref="newsTypeDropdownRef">
+          <button
+            ref="newsTypeButtonRef"
+            type="button"
+            :value="model"
+            class="news-title"
+            :stat="optionFocus ? 'active' : 'inactive'"
+            aria-haspopup="listbox"
+            :aria-expanded="optionFocus"
+            aria-controls="news-type-options"
+            @click.stop="toggleNewsTypeOptions"
+            @keydown.down.prevent="openNewsTypeOptions"
+            @keydown.enter.prevent="toggleNewsTypeOptions"
+            @keydown.space.prevent="toggleNewsTypeOptions"
+            @keydown.esc.stop.prevent="closeNewsTypeOptions"
+          >
+            {{ currentNewsTypeLabel }}
+          </button>
+
+          <div
+            id="news-type-options"
+            class="news-title-options"
+            v-if="optionFocus"
+            role="listbox"
+            aria-label="新闻分类"
+            :aria-activedescendant="`news-type-option-${model}`"
+            @keydown.esc.stop.prevent="closeNewsTypeOptions"
+          >
             <button
-              :stat="model === 'information' ? 'active' : 'inactive'"
+              v-for="(option, index) in newsTypeOptions"
+              :id="`news-type-option-${option.value}`"
+              :key="option.value"
+              ref="newsTypeOptionRefs"
+              type="button"
+              role="option"
+              :aria-selected="model === option.value"
+              :stat="model === option.value ? 'active' : 'inactive'"
               class="news-title-option"
-              @click="model = 'information'"
+              @click="selectNewsType(option.value)"
+              @keydown.enter.prevent="selectNewsType(option.value)"
+              @keydown.space.prevent="selectNewsType(option.value)"
+              @keydown.down.prevent="focusNewsTypeOption(index + 1)"
+              @keydown.up.prevent="focusNewsTypeOption(index - 1)"
+              @keydown.home.prevent="focusNewsTypeOption(0)"
+              @keydown.end.prevent="focusNewsTypeOption(newsTypeOptions.length - 1)"
             >
-              最新资讯
-            </button>
-            <button
-              :stat="model === 'magazine' ? 'active' : 'inactive'"
-              class="news-title-option"
-              @click="model = 'magazine'"
-            >
-              最新社刊
-            </button>
-            <button
-              :stat="model === 'notice' ? 'active' : 'inactive'"
-              class="news-title-option"
-              @click="model = 'notice'"
-            >
-              最新公告
-            </button>
-            <button
-              :stat="model === 'activity' ? 'active' : 'inactive'"
-              class="news-title-option"
-              @click="model = 'activity'"
-              v-if="props.allowActivity"
-            >
-              最新活动
+              {{ option.label }}
             </button>
           </div>
-        </button>
-        <text class="news-total">
+        </div>
+        <span class="news-total">
           {{ newsTotal.toLocaleString() }}
-        </text>
+        </span>
       </div>
       <div class="news-title-item sort-by">
-        <text class="news-sort-by"> 排序方式： </text>
-        <text class="news-sort-by-option"> 最新发布 </text>
+        <span class="news-sort-by"> 排序方式： </span>
+        <span class="news-sort-by-option"> 最新发布 </span>
       </div>
     </div>
-    <div class="news-list-loading-container" v-if="newsLoading">
-      <img class="news-list-loading" src="/loading.gif" alt="loading" />
+    <div class="news-list-loading-container" v-if="newsLoading" role="status" aria-live="polite">
+      <img class="news-list-loading" src="/loading.gif" alt="" />
+      <span class="sr-only">正在加载新闻列表</span>
     </div>
     <div class="news-list-container" v-else>
       <NewsItem
@@ -173,23 +276,52 @@ const optionFocus = ref(false)
     </div>
     <div class="news-pagination" v-if="!newsLoading">
       <div class="news-pagination-item">
-        <MinecraftButton class="news-pagination-button" @click="movePage('prev')">{{
-          '<'
-        }}</MinecraftButton>
-        <text class="news-pagination-text">第</text>
-        <text class="news-pagination-text special page">{{ page }}</text>
-        <text class="news-pagination-text">/</text>
-        <text class="news-pagination-text special total">{{ maxPage }}</text>
-        <text class="news-pagination-text">页</text>
-        <MinecraftButton class="news-pagination-button" @click="movePage('next')">{{
-          '>'
-        }}</MinecraftButton>
+        <MinecraftButton
+          class="news-pagination-button"
+          aria-label="上一页"
+          :disabled="page <= 1"
+          @click="movePage('prev')"
+        >
+          ‹
+        </MinecraftButton>
+        <span class="news-pagination-text">第</span>
+        <span class="news-pagination-text special page">{{ page }}</span>
+        <span class="news-pagination-text">/</span>
+        <span class="news-pagination-text special total">{{ maxPage }}</span>
+        <span class="news-pagination-text">页</span>
+        <MinecraftButton
+          class="news-pagination-button"
+          aria-label="下一页"
+          :disabled="page >= maxPage"
+          @click="movePage('next')"
+        >
+          ›
+        </MinecraftButton>
       </div>
       <div class="news-pagination-item">
-        <text class="news-pagination-text">前往</text>
-        <MinecraftInput class="news-pagination-input" v-model="pageInput" />
-        <text class="news-pagination-text">页</text>
-        <MinecraftButton class="news-pagination-button" @click="setPage">→</MinecraftButton>
+        <label class="news-pagination-text" for="news-page-input">前往</label>
+        <MinecraftInput
+          id="news-page-input"
+          class="news-pagination-input"
+          v-model="pageInput"
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          autocomplete="off"
+          :aria-describedby="'news-page-help'"
+          @keyup.enter="setPage"
+          @input="onPageInput"
+        />
+
+        <span id="news-page-help" class="sr-only"> 请输入 1 到 {{ maxPage }} 之间的页码 </span>
+        <span class="news-pagination-text">页</span>
+        <MinecraftButton
+          class="news-pagination-button"
+          aria-label="跳转到输入的页码"
+          @click="setPage"
+        >
+          →
+        </MinecraftButton>
       </div>
     </div>
   </div>
@@ -214,6 +346,12 @@ const optionFocus = ref(false)
   align-items: center;
   width: 100%;
   flex-wrap: wrap;
+}
+
+.news-title-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .news-title {
@@ -301,7 +439,8 @@ const optionFocus = ref(false)
   flex-direction: column;
   align-items: center;
   width: 10.5rem;
-  height: 10.5rem;
+  min-height: 10.5rem;
+  height: auto;
   outline: 1px solid var(--minecraft-green-light);
 
   position: absolute;
@@ -342,6 +481,13 @@ const optionFocus = ref(false)
 
 .news-title-option:hover {
   background-color: #000;
+}
+
+.news-title:focus-visible,
+.news-title-option:focus-visible {
+  outline: 2px solid var(--minecraft-green-light);
+  outline-offset: -2px;
+  z-index: 1003;
 }
 
 .news-total {

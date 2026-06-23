@@ -6,8 +6,8 @@ const emits = defineEmits(['on', 'off'])
 
 const soundOn = () => {
   const audio = new Audio('/button.click.ogg')
-  audio.play()
   audio.volume = 0.3
+  audio.play().catch(() => {})
 }
 
 const onChange = (event: Event) => {

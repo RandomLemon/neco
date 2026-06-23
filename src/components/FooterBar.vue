@@ -16,9 +16,9 @@ onMounted(async () => {
 <template>
   <div class="footer-area">
     <div class="footer-description">
-      <img src="/nmo-logo-large.png" alt="logo" style="width: 5rem; user-select: none" />
+      <img src="/nmo-logo-large.png" alt="" style="width: 5rem; user-select: none" />
       <p style="user-select: none">南京大学 Minecraft 协会</p>
-      <text style="margin-bottom: 0.5rem">{{ slogan }}</text>
+      <span style="margin-bottom: 0.5rem">{{ slogan }}</span>
       <span id="copyright" style="user-select: none">
         © 2025 - All rights reserved |
         <a style="color: rgb(128, 128, 128)" href="https://beian.miit.gov.cn/"
@@ -49,11 +49,15 @@ onMounted(async () => {
           Github源码
         </a>
         <a class="link-item" href="https://vanillalibrary.mcfpp.top/datapack-index/">
-          <img src="https://vanillalibrary.mcfpp.top/datapack-index/icons/bg5.png" class="link-icon"/>
+          <img
+            src="https://vanillalibrary.mcfpp.top/datapack-index/icons/bg5.png"
+            class="link-icon"
+            alt=""
+          />
           香草图书馆
         </a>
         <a class="link-item" href="https://seubcl.cn">
-          <img src="/friend-logo/bcl_logo.png" class="link-icon" />
+          <img src="/friend-logo/bcl_logo.png" class="link-icon" alt="" />
           东南大学六朝松信标社
         </a>
       </div>

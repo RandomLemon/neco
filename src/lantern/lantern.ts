@@ -1,8 +1,7 @@
 import { onMounted, ref } from 'vue'
 
-
 type DateRange = {
-  from: string,
+  from: string
   to: string
 }
 
@@ -86,16 +85,16 @@ class Lantern {
       numLanterns: 4,
       date: {
         from: '1-1',
-        to: '3-12'
+        to: '3-12',
       },
       position: {
         zIndex: 1024,
         offsetX: ['0px', '150px', '150px', '0'],
         offsetY: ['0px', '0px', '0px', '0px'],
-        hook: ['left', 'left', 'right', 'right']
+        hook: ['left', 'left', 'right', 'right'],
       },
-      content: ['新', '年', '快', '乐']
-    }
+      content: ['新', '年', '快', '乐'],
+    },
   }
 
   #parseDate(date: DateRange | undefined): void {
@@ -266,8 +265,8 @@ class Lantern {
       ${lanternCSSHTML}
       </style>
     `
-    .replace(/\s+/g, ' ')
-    .trim()
+      .replace(/\s+/g, ' ')
+      .trim()
   }
 
   constructor(containerId: string, options: LanternOptions = {}) {

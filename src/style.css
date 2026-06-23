@@ -103,15 +103,7 @@
   border-image: url('/UI/dialog_background_hollow_4.png') 8;
 }
 
-:where(
-  button,
-  a,
-  input,
-  textarea,
-  select,
-  summary,
-  [tabindex]:not([tabindex='-1'])
-):focus-visible {
+:where(button, a, input, textarea, select, summary, [tabindex]:not([tabindex='-1'])):focus-visible {
   outline: 2px solid var(--minecraft-green-light);
   outline-offset: 3px;
 }
@@ -133,10 +125,14 @@
   position: fixed;
   left: 1rem;
   top: 1rem;
-  z-index: 9999;
+  z-index: 99999;
+
   padding: 0.75rem 1rem;
   background: #000;
   color: #fff;
+  border: 2px solid #fff;
+  text-decoration: none;
+
   transform: translateY(-200%);
 }
 

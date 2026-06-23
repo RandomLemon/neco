@@ -52,7 +52,7 @@ onUnmounted(() => {
       :inert="!sidebarExpand || undefined"
       :aria-hidden="!sidebarExpand"
     >
-      <img class="management-logo" src="/nmo-logo-large.png" />
+      <img class="management-logo" src="/nmo-logo-large.png" alt="" />
       <span class="management-title">NMO - 管理后台</span>
       <MinecraftButtonClassic
         class="management-nav"
@@ -196,6 +196,16 @@ onUnmounted(() => {
 </style>
 
 <style lang="css">
+.management-tab-title {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.management-tab-form-title {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 .management-tab-title-container {
   display: flex;
   align-items: flex-end;

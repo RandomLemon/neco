@@ -62,8 +62,8 @@ const editorToolbars = ref<ToolbarNames[]>([
 
 const soundOn = () => {
   const audio = new Audio('/button.click.ogg')
-  audio.play()
   audio.volume = 0.3
+  audio.play().catch(() => {})
 }
 
 const mountSounds = () => {
@@ -94,6 +94,22 @@ const router = useRouter()
 
 const resizeContainerWidth = ref(320)
 const resizeContainerRef = ref<HTMLDivElement | null>(null)
+
+const resizeByKeyboard = (delta: number) => {
+  const nextWidth = resizeContainerWidth.value + delta
+
+  if (nextWidth < 128) {
+    resizeContainerWidth.value = 128
+    return
+  }
+
+  if (nextWidth > 1280) {
+    resizeContainerWidth.value = 1280
+    return
+  }
+
+  resizeContainerWidth.value = nextWidth
+}
 
 let isResizing = false
 let startX = 0
@@ -414,13 +430,17 @@ onMounted(() => {
   if (documentEditorRef.value) {
     const parentScrollX = documentEditorRef.value.parentElement?.scrollLeft || window.scrollX,
       parentScrollY = documentEditorRef.value.parentElement?.scrollTop || window.scrollY
-    documentEditorOffsetX.value = documentEditorRef.value.getBoundingClientRect().left + parentScrollX
-    documentEditorOffsetY.value = documentEditorRef.value.getBoundingClientRect().top + parentScrollY
+    documentEditorOffsetX.value =
+      documentEditorRef.value.getBoundingClientRect().left + parentScrollX
+    documentEditorOffsetY.value =
+      documentEditorRef.value.getBoundingClientRect().top + parentScrollY
     const parent = documentEditorRef.value.parentElement || window
     parent.addEventListener('scroll', () => {
       if (documentEditorRef.value) {
-        documentEditorOffsetX.value = documentEditorRef.value.getBoundingClientRect().left + parentScrollX
-        documentEditorOffsetY.value = documentEditorRef.value.getBoundingClientRect().top + parentScrollY
+        documentEditorOffsetX.value =
+          documentEditorRef.value.getBoundingClientRect().left + parentScrollX
+        documentEditorOffsetY.value =
+          documentEditorRef.value.getBoundingClientRect().top + parentScrollY
       }
     })
   }
@@ -447,11 +467,31 @@ onUnmounted(() => {
       :style="{
         width: isMobile ? `100%` : `${resizeContainerWidth}px`,
         minWidth: `128px`,
-        maxWidth: `1280x`,
+        maxWidth: `1280px`,
       }"
     >
-      <TreeViewer class="tree-viewer" v-model="selectedDocumentId" :offset-x="documentEditorOffsetX" :offset-y="documentEditorOffsetY" />
-      <div class="resizer" @mousedown.prevent="startResize" v-if="!isMobile"></div>
+      <TreeViewer
+        class="tree-viewer"
+        v-model="selectedDocumentId"
+        :offset-x="documentEditorOffsetX"
+        :offset-y="documentEditorOffsetY"
+      />
+      <div
+        class="resizer"
+        role="separator"
+        tabindex="0"
+        aria-orientation="vertical"
+        aria-label="调整文档目录宽度"
+        :aria-valuemin="128"
+        :aria-valuemax="1280"
+        :aria-valuenow="resizeContainerWidth"
+        @mousedown.prevent="startResize"
+        @keydown.left.exact.prevent="resizeByKeyboard(-16)"
+        @keydown.right.exact.prevent="resizeByKeyboard(16)"
+        @keydown.shift.left.prevent="resizeByKeyboard(-64)"
+        @keydown.shift.right.prevent="resizeByKeyboard(64)"
+        v-if="!isMobile"
+      />
       <MinecraftButton :dark="true" class="back-btn" @click="router.push('/management/document')">
         ← 回到后台
       </MinecraftButton>
@@ -523,6 +563,7 @@ onUnmounted(() => {
               v-if="item.type === 'pdf_file'"
               class="pdf-renderer mc-border"
               :pdf-url="item.content"
+              :title="`${documentInstance.name || '文档'} PDF 预览`"
             />
           </div>
         </div>
@@ -545,12 +586,19 @@ onUnmounted(() => {
   </div>
   <MinecraftDialog title="添加 PDF 文件" v-model="showPdfDialog">
     <div class="pdf-options-container">
-      <text class="pdf-options-label">文件地址</text>
+      <label class="pdf-options-label" for="document-pdf-url"> 文件地址 </label>
+
       <div class="pdf-options-input-container">
-        <MinecraftInput class="pdf-options-input" v-model="pdfSrc" placeholder="填入 PDF 链接" />
-        <MinecraftButtonClassic class="pdf-options-button" @click="addPdfFileConfirm"
-          >保存</MinecraftButtonClassic
-        >
+        <MinecraftInput
+          id="document-pdf-url"
+          class="pdf-options-input"
+          v-model="pdfSrc"
+          placeholder="填入 PDF 链接"
+        />
+
+        <MinecraftButtonClassic class="pdf-options-button" @click="addPdfFileConfirm">
+          保存
+        </MinecraftButtonClassic>
       </div>
     </div>
     <div class="pdf-options-container">
@@ -566,6 +614,11 @@ onUnmounted(() => {
 </template>
 
 <style lang="css" scoped>
+.resizer:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
 .documents-editor {
   display: flex;
   align-items: center;

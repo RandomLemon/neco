@@ -18,8 +18,8 @@ const scrollToIndex = (index: number) => {
 
 const soundOn = () => {
   const audio = new Audio('/button.click.ogg')
-  audio.play()
   audio.volume = 0.3
+  audio.play().catch(() => {})
 }
 
 const mountSounds = () => {
@@ -40,10 +40,14 @@ onMounted(async () => {
 <template>
   <div class="news-detail-container">
     <picture class="news-poster">
-      <img class="news-poster-img" :src="newsDetail?.entity.image" alt="Detail image" />
-      <text class="news-poster-category">
+      <img
+        class="news-poster-img"
+        :src="newsDetail?.entity.image"
+        :alt="`${newsDetail?.entity.title || '新闻'} 封面`"
+      />
+      <span class="news-poster-category">
         {{ newsDetail?.category }}
-      </text>
+      </span>
     </picture>
     <article class="news-detail-content">
       <aside class="news-detail-author-container">
@@ -52,7 +56,7 @@ onMounted(async () => {
             <img
               class="news-detail-author-avatar-img"
               :src="newsDetail?.author.avatar || '/nmo-logo-large.png'"
-              alt="Author avatar"
+              :alt="`${newsDetail?.author.username || '作者'} 的头像`"
             />
           </picture>
           <div class="news-detail-author-info">

@@ -59,17 +59,21 @@ export const GetNews = async (
         return rhs.date.localeCompare(lhs.date)
       })
       if (result.length > 0 && target === 'activity') {
-        result = result.filter((news) => {
-          if (news.endDate === undefined || news.endDate === null) {
-            return true
-          }
-          return news.endDate.localeCompare(new Date().toISOString().split('T')[0]) >= 0
-        }).concat(result.filter((news) => {
-          if (news.endDate === undefined || news.endDate === null) {
-            return false
-          }
-          return news.endDate.localeCompare(new Date().toISOString().split('T')[0]) < 0
-        }))
+        result = result
+          .filter((news) => {
+            if (news.endDate === undefined || news.endDate === null) {
+              return true
+            }
+            return news.endDate.localeCompare(new Date().toISOString().split('T')[0]) >= 0
+          })
+          .concat(
+            result.filter((news) => {
+              if (news.endDate === undefined || news.endDate === null) {
+                return false
+              }
+              return news.endDate.localeCompare(new Date().toISOString().split('T')[0]) < 0
+            }),
+          )
       }
     })
     .catch(() => {})

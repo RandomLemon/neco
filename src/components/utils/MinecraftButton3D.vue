@@ -1,25 +1,30 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-const soundOn = () => {
-  const audio = new Audio('/button.click.ogg')
-  audio.play()
-  audio.volume = 0.3
-}
+const props = withDefaults(
+  defineProps<{
+    height?: string
+    nativeType?: 'button' | 'submit' | 'reset'
+  }>(),
+  {
+    height: '12rem',
+    nativeType: 'button',
+  },
+)
+
 const pressed = ref(false)
 
-const props = defineProps({
-  height: {
-    type: String,
-    default: '12rem',
-  },
-})
+const soundOn = () => {
+  const audio = new Audio('/button.click.ogg')
+  audio.volume = 0.3
+  audio.play().catch(() => {})
+}
 </script>
 
 <template>
   <button
-    type="button"
     class="minecraft-button-3d"
+    :type="props.nativeType"
     :class="{
       'is-pressed': pressed,
     }"

@@ -93,33 +93,46 @@ onMounted(() => {
 <template>
   <div id="login-bg"></div>
   <div class="login-area">
-    <div class="login-panel mc-border">
+    <form class="login-panel mc-border" @submit.prevent="onLogin">
       <img class="login-logo" src="/nmo-logo-large.png" />
-      <span class="login-title">登录 NMO Ecosystem</span>
+      <h1 class="login-title">登录 NMO Ecosystem</h1>
+      <label class="login-label" for="login-username">用户名</label>
       <MinecraftInput
+        id="login-username"
         class="login-input"
         v-model="form.username"
         placeholder="用户名"
-        @keyup.enter="onLogin"
+        autocomplete="username"
       />
+      <label class="login-label" for="login-password">密码</label>
       <MinecraftInput
+        id="login-password"
         class="login-input"
         v-model="form.password"
         type="password"
+        autocomplete="current-password"
         placeholder="密码"
-        @keyup.enter="onLogin"
       />
       <div class="button-area">
         <MinecraftButtonClassic class="login-btn" @click="backHome"
           >回到主页</MinecraftButtonClassic
         >
-        <MinecraftButtonClassic class="login-btn" @click="onLogin">登录</MinecraftButtonClassic>
+        <MinecraftButtonClassic class="login-btn" native-type="submit">
+          登录
+        </MinecraftButtonClassic>
       </div>
-    </div>
+    </form>
   </div>
 </template>
 
 <style lang="css" scoped>
+.login-label {
+  width: 80%;
+  font-size: 1rem;
+  margin-top: 0.75rem;
+  user-select: none;
+}
+
 .login-area {
   width: 100%;
   height: 100vh;

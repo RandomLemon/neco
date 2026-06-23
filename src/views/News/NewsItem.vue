@@ -15,11 +15,13 @@ const props = defineProps({
 <template>
   <MinecraftButton class="news-item-card" @click="emits('card-click')">
     <picture class="news-item-picture">
-      <img class="news-item-image" :src="props.news.image" alt="news image" />
+      <img class="news-item-image" :src="props.news.image" :alt="`${props.news.title} 封面`" />
     </picture>
-    <text class="news-item-title">{{ props.news.title }}</text>
-    <text class="news-item-description">{{ props.news.brief }}</text>
-    <text class="news-item-date">{{ props.news.date }}</text>
+    <span class="news-item-title">{{ props.news.title }}</span>
+    <span class="news-item-description">{{ props.news.brief }}</span>
+    <time class="news-item-date" :datetime="props.news.date">
+      {{ props.news.date }}
+    </time>
   </MinecraftButton>
 </template>
 

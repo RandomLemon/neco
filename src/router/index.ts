@@ -116,10 +116,16 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _) => {
+router.beforeEach((to) => {
   if (to.meta.title) {
     document.title = String(to.meta.title)
   }
+})
+
+router.afterEach(() => {
+  requestAnimationFrame(() => {
+    document.querySelector<HTMLElement>('#main-content')?.focus()
+  })
 })
 
 export { router }
