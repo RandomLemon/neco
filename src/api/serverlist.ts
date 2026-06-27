@@ -1,5 +1,10 @@
 import { api } from './api'
 
+export interface ServerPlayer {
+  name: string
+  uuid?: string
+}
+
 export interface ServerStatus {
   icon?: string
   online?: boolean
@@ -7,6 +12,7 @@ export interface ServerStatus {
   version?: string
   playerCount?: number
   capacity?: number
+  players?: ServerPlayer[]
 }
 
 export interface ServerEntity {
