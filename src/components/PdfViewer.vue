@@ -6,6 +6,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  title: {
+    type: String,
+    default: 'PDF 文档预览',
+  },
 })
 
 const viewerUrl = computed(() => {
@@ -16,8 +20,16 @@ const viewerUrl = computed(() => {
 
 <template>
   <div class="pdfjs-container">
-    <iframe v-if="viewerUrl" :src="viewerUrl" frameborder="0" width="100%" height="100%"></iframe>
-    <div v-else>正在加载 PDF ...</div>
+    <iframe
+      v-if="viewerUrl"
+      :src="viewerUrl"
+      :title="props.title"
+      frameborder="0"
+      width="100%"
+      height="100%"
+    ></iframe>
+
+    <div v-else role="status" aria-live="polite">正在加载 PDF ...</div>
   </div>
 </template>
 

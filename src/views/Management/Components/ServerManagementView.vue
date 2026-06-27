@@ -244,16 +244,16 @@ onMounted(async () => {
 
 <template>
   <div class="management-tab-title-container">
-    <text class="management-tab-title">服务器信息</text>
-    <text class="management-tab-subtitle">！？强强？！</text>
+    <h1 class="management-tab-title">服务器信息</h1>
+    <span class="management-tab-subtitle">！？强强？！</span>
   </div>
   <form
     class="management-tab-form"
     v-if="userGroup.includes('admin') || userGroup.includes('server_admin')"
+    aria-labelledby="server-list-title"
   >
     <div class="management-tab-form-item">
-      <text class="management-tab-form-title">服务器列表</text>
-      <text class="management-tab-form-subtitle">双击以编辑！</text>
+      <h2 id="server-list-title" class="management-tab-form-title">服务器列表</h2>
     </div>
     <div class="list-item-container">
       <ListItem
@@ -272,6 +272,14 @@ onMounted(async () => {
         @delete="onDeleteServer(index)"
       />
     </div>
+    <div class="server-list-actions">
+      <MinecraftButtonClassic
+        class="server-list-action"
+        @click="focusIndex !== -1 ? onEditServer() : toast.warning('请先选择服务器！')"
+      >
+        编辑选中服务器
+      </MinecraftButtonClassic>
+    </div>
   </form>
   <MinecraftButtonClassic
     style="font-size: 1.5rem"
@@ -279,66 +287,112 @@ onMounted(async () => {
     v-if="userGroup.includes('admin') || userGroup.includes('news_admin')"
     >添加服务器信息</MinecraftButtonClassic
   >
-  <form class="management-tab-form" v-if="editStatus !== 'none'">
-    <text class="management-tab-form-title">编辑服务器信息</text>
+  <form class="management-tab-form" v-if="editStatus !== 'none'" @submit.prevent="commitServer">
+    <h2 class="management-tab-form-title">编辑服务器信息</h2>
     <div class="server-input-item">
-      <text class="server-input-label">服务器 ID</text>
+      <label class="server-input-label" for="server-id-input"> 服务器 ID </label>
+
       <MinecraftInput
+        id="server-id-input"
         class="server-input"
         v-model="server.id"
         placeholder="请输入服务器 ID"
-        :disabled="true"
+        disabled
       />
     </div>
     <div class="server-input-item">
-      <text class="server-input-label">名称</text>
-      <MinecraftInput class="server-input" v-model="server.name" placeholder="请输入服务器名称" />
+      <label class="server-input-label" for="server-name-input"> 名称 </label>
+
+      <MinecraftInput
+        id="server-name-input"
+        class="server-input"
+        v-model="server.name"
+        placeholder="请输入服务器名称"
+      />
     </div>
     <div class="server-input-item">
-      <text class="server-input-label">简介</text>
+      <label class="server-input-label" for="server-description-input"> 简介 </label>
+
       <MinecraftInput
+        id="server-description-input"
         class="server-input"
         v-model="server.description"
         placeholder="请输入服务器简介"
       />
     </div>
     <div class="server-input-item">
-      <text class="server-input-label">服务器图标</text>
-      <div class="upload-button" v-if="server.icon.trim() === ''" @click="onEditIcon">
-        <PlusIcon />
-      </div>
-      <picture class="server-image-picture" @click="onEditIcon" v-else>
-        <img class="server-image" :src="server.icon" alt="news-image" />
-      </picture>
+      <span class="server-input-label">服务器图标</span>
+      <button
+        v-if="server.icon.trim() === ''"
+        type="button"
+        class="upload-button"
+        aria-label="上传服务器图标"
+        @click="onEditIcon"
+      >
+        <PlusIcon aria-hidden="true" />
+      </button>
+
+      <button
+        v-else
+        type="button"
+        class="server-image-picture"
+        aria-label="更换服务器图标"
+        @click="onEditIcon"
+      >
+        <img class="server-image" :src="server.icon" alt="" />
+      </button>
     </div>
     <div class="server-input-item">
-      <text class="server-input-label">网页地图链接</text>
-      <MinecraftInput class="server-input" v-model="server.onlineMapUrl" placeholder="没有可留空" />
+      <label class="server-input-label" for="server-map-url-input"> 网页地图链接 </label>
+
+      <MinecraftInput
+        id="server-map-url-input"
+        class="server-input"
+        v-model="server.onlineMapUrl"
+        placeholder="没有可留空"
+      />
     </div>
     <div class="server-input-item">
-      <text class="server-input-label">是否需要同步服务器信息</text>
-      <MinecraftSwitch v-model="server.realtime" />
+      <label class="server-input-label" for="server-realtime-switch">
+        是否需要同步服务器信息
+      </label>
+
+      <MinecraftSwitch id="server-realtime-switch" v-model="server.realtime" />
     </div>
     <div class="server-input-item">
-      <text class="server-input-label">服务器地址</text>
-      <MinecraftInput class="server-input" v-model="server.serverUrl" placeholder="没有可留空" />
+      <label class="server-input-label" for="server-url-input"> 服务器地址 </label>
+
+      <MinecraftInput
+        id="server-url-input"
+        class="server-input"
+        v-model="server.serverUrl"
+        placeholder="没有可留空"
+      />
     </div>
-    <MinecraftButtonClassic @click="commitServer">保存</MinecraftButtonClassic>
+    <MinecraftButtonClassic native-type="submit"> 保存 </MinecraftButtonClassic>
   </form>
   <MinecraftDialog title="编辑服务器 Logo" v-model="iconOptionsVisible">
     <div class="icon-options-container">
-      <text class="icon-options-label">图片地址</text>
+      <label class="icon-options-label" for="server-icon-url"> 图片地址 </label>
+
       <div class="icon-options-input-container">
-        <MinecraftInput class="icon-options-input" v-model="editIcon" placeholder="填入图片链接" />
+        <MinecraftInput
+          id="server-icon-url"
+          class="icon-options-input"
+          v-model="editIcon"
+          placeholder="填入图片链接"
+        />
+
         <MinecraftButtonClassic
           class="icon-options-button"
           @click="((server.icon = editIcon), (iconOptionsVisible = false))"
-          >保存</MinecraftButtonClassic
         >
+          保存
+        </MinecraftButtonClassic>
       </div>
     </div>
     <div class="icon-options-container">
-      <text class="icon-options-label">直接上传</text>
+      <span class="icon-options-label">直接上传</span>
       <MinecraftButtonClassic
         class="icon-options-button"
         style="width: 10rem"
@@ -354,6 +408,31 @@ onMounted(async () => {
 </template>
 
 <style lang="css" scoped>
+.server-list-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.server-list-action {
+  width: 10rem;
+}
+
+.upload-button,
+.server-image-picture {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+}
+
+.upload-button:focus-visible,
+.server-image-picture:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
+}
+
 .server-input-item {
   display: flex;
   flex-direction: column;

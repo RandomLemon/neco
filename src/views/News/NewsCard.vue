@@ -38,21 +38,29 @@ const props = defineProps({
 
 <template>
   <div class="overview-card">
-    <picture style="overflow: hidden">
-      <img
-        alt="news img"
-        class="overview-img"
-        :src="props.newsBrief.image"
-        @click="newTab(`/news/detail/${props.newsBrief.id}`)"
-      />
-    </picture>
-    <div class="overview-content">
-      <text class="overview title" @click="newTab(`/news/detail/${props.newsBrief.id}`)">
+    <a
+      class="overview-link"
+      :href="`/news/detail/${props.newsBrief.id}`"
+      target="_blank"
+      rel="noopener noreferrer"
+      @click.prevent="newTab(`/news/detail/${props.newsBrief.id}`)"
+    >
+      <picture style="overflow: hidden">
+        <img
+          class="overview-img"
+          :src="props.newsBrief.image"
+          :alt="`${props.newsBrief.title} 封面`"
+        />
+      </picture>
+
+      <span class="overview title">
         {{ props.newsBrief.title }}
-      </text>
-      <text class="overview">
+      </span>
+    </a>
+    <div class="overview-content">
+      <span class="overview">
         {{ props.newsBrief.brief }}
-      </text>
+      </span>
       <MinecraftButton class="overview button" @click="emit('jump')">
         {{ props.buttonText }}
         <div style="width: 1.2rem"></div>
@@ -63,6 +71,18 @@ const props = defineProps({
 </template>
 
 <style lang="css" scoped>
+.overview-link {
+  color: inherit;
+  text-decoration: none;
+  display: contents;
+}
+
+.overview-link:focus-visible .overview-img,
+.overview-link:focus-visible .overview.title {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
 .overview-card {
   opacity: 0;
   flex: 1;

@@ -89,6 +89,12 @@ const router = createRouter({
           component: () => import('../views/Management/Components/DocumentManagementView.vue'),
           meta: { title: 'NMO | 文档管理' },
         },
+        {
+          path: '/management/bot',
+          name: 'bot management',
+          component: () => import('../views/Management/Components/BotManagementView.vue'),
+          meta: { title: 'NMO | 机器人连接' },
+        },
       ],
     },
     {
@@ -116,12 +122,16 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to, _, next) => {
+router.beforeEach((to) => {
   if (to.meta.title) {
     document.title = String(to.meta.title)
   }
+})
 
-  next()
+router.afterEach(() => {
+  requestAnimationFrame(() => {
+    document.querySelector<HTMLElement>('#main-content')?.focus()
+  })
 })
 
 export { router }

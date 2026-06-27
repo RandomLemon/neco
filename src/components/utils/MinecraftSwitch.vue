@@ -6,31 +6,47 @@ const emits = defineEmits(['on', 'off'])
 
 const soundOn = () => {
   const audio = new Audio('/button.click.ogg')
-  audio.play()
   audio.volume = 0.3
+  audio.play().catch(() => {})
 }
 
-const flick = () => {
-  if (model.value) {
-    emits('off')
-  } else {
+const onChange = (event: Event) => {
+  const checked = (event.target as HTMLInputElement).checked
+  model.value = checked
+
+  if (checked) {
     emits('on')
+  } else {
+    emits('off')
   }
-  model.value = !model.value
+
+  soundOn()
 }
 </script>
 
 <template>
-  <input class="minecraft-switch" type="checkbox" :checked="model" @click="(flick(), soundOn())" />
+  <input
+    class="minecraft-switch"
+    v-bind="$attrs"
+    type="checkbox"
+    :checked="model"
+    @change="onChange"
+  />
 </template>
 
 <style lang="css" scoped>
 .minecraft-switch {
+  cursor: pointer;
   appearance: none;
   color: transparent;
   width: 60px;
   height: 32px;
   background-image: url('/UI/toggle_off.png');
+}
+
+.minecraft-switch:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
 }
 
 .minecraft-switch:hover {

@@ -17,8 +17,16 @@ window.addEventListener('scroll', () => {
 </script>
 
 <template>
-  <MinecraftButton class="scroll-to-top" @click="scrollToTop" :type="shouldShow ? 'show' : 'hide'">
-    ↑
+  <MinecraftButton
+    class="scroll-to-top"
+    :class="{ 'is-show': shouldShow }"
+    :aria-hidden="!shouldShow"
+    :tabindex="shouldShow ? 0 : -1"
+    :disabled="!shouldShow"
+    aria-label="返回页面顶部"
+    @click="scrollToTop"
+  >
+    <span aria-hidden="true">↑</span>
   </MinecraftButton>
 </template>
 
@@ -28,16 +36,22 @@ window.addEventListener('scroll', () => {
   position: fixed;
   height: 3rem;
   width: 3rem;
-  bottom: 0;
   right: 0;
-  z-index: 1000;
+  bottom: 0;
+  z-index: 1024;
+
+  transform: translateY(120%);
+  opacity: 0;
+  pointer-events: none;
+
   transition:
-    transform 0.3s ease-in-out,
-    opacity 0.3s ease-in-out;
+    transform 0.3s ease,
+    opacity 0.3s ease;
 }
 
-.scroll-to-top[type='hide'] {
-  transform: translateY(100%);
-  opacity: 0;
+.scroll-to-top.is-show {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 </style>

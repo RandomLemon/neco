@@ -13,30 +13,33 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@vuepic/vue-datepicker": "^11.0.2",
-    "axios": "^1.11.0",
-    "md-editor-v3": "^5.8.3",
+    "@vuepic/vue-datepicker": "^14.0.0",
+    "axios": "^1.18.0",
+    "md-editor-v3": "^6.5.1",
     "mitt": "^3.0.1",
-    "vue": "^3.5.18",
+    "vue": "^3.5.38",
     "vue-clipboard3": "^2.0.0",
-    "vue-router": "^4.5.1",
+    "vue-router": "^5.1.0",
     "vue-toastification": "^2.0.0-rc.5"
   },
   "devDependencies": {
-    "@tsconfig/node22": "^22.0.2",
-    "@types/node": "^24.1.0",
-    "@types/sanitize-html": "^2.16.0",
-    "@vitejs/plugin-vue": "^6.0.0",
+    "@tsconfig/node22": "^22.0.5",
+    "@types/node": "^26.0.0",
+    "@types/sanitize-html": "^2.16.1",
+    "@vitejs/plugin-vue": "^6.0.7",
     "@vue/eslint-config-prettier": "^10.2.0",
-    "@vue/eslint-config-typescript": "^14.6.0",
-    "@vue/tsconfig": "^0.7.0",
-    "eslint": "^9.31.0",
-    "eslint-plugin-vue": "~10.3.0",
-    "jiti": "^2.5.0",
-    "npm-run-all2": "^8.0.4",
-    "prettier": "3.6.2",
-    "typescript": "~5.8.3",
-    "vite": "^7.0.6",
-    "vue-tsc": "^3.0.3"
+    "@vue/eslint-config-typescript": "^14.8.0",
+    "@vue/tsconfig": "^0.9.1",
+    "eslint": "^10.5.0",
+    "eslint-plugin-vue": "~10.9.2",
+    "jiti": "^2.7.0",
+    "npm-run-all2": "^9.0.2",
+    "prettier": "3.8.4",
+    "typescript": "~6.0.3",
+    "vite": "^8.0.16",
+    "vue-tsc": "^3.3.5"
+  },
+  "allowScripts": {
+    "vue-demi@0.14.10": true
   }
 }

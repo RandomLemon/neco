@@ -1,24 +1,30 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 
-const soundOn = () => {
-  const audio = new Audio('/button.click.ogg')
-  audio.play()
-  audio.volume = 0.3
-}
+const props = withDefaults(
+  defineProps<{
+    height?: string
+    nativeType?: 'button' | 'submit' | 'reset'
+  }>(),
+  {
+    height: '12rem',
+    nativeType: 'button',
+  },
+)
+
 const pressed = ref(false)
 
-const props = defineProps({
-  height: {
-    type: String,
-    default: '12rem',
-  },
-})
+const soundOn = () => {
+  const audio = new Audio('/button.click.ogg')
+  audio.volume = 0.3
+  audio.play().catch(() => {})
+}
 </script>
 
 <template>
-  <div
+  <button
     class="minecraft-button-3d"
+    :type="props.nativeType"
     :class="{
       'is-pressed': pressed,
     }"
@@ -29,13 +35,18 @@ const props = defineProps({
     @mousedown="pressed = true"
     @mouseup="pressed = false"
     @mouseleave="pressed = false"
+    @keydown.space.prevent="pressed = true"
+    @keyup.space="pressed = false"
+    @blur="pressed = false"
   >
     <slot></slot>
-  </div>
+  </button>
 </template>
 
 <style lang="css" scoped>
 .minecraft-button-3d {
+  font: inherit;
+  color: inherit;
   padding: 1rem 2rem;
   position: relative;
   cursor: pointer;
@@ -45,6 +56,11 @@ const props = defineProps({
   transition: all 0.1s ease-in-out;
 
   box-shadow: 4px 4px rgba(0, 0, 0, 0.7);
+}
+
+.minecraft-button-3d:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 4px;
 }
 
 .minecraft-button-3d:hover::after {

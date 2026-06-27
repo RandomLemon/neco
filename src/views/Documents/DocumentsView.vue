@@ -12,8 +12,8 @@ import { useToast } from 'vue-toastification'
 
 const soundOn = () => {
   const audio = new Audio('/button.click.ogg')
-  audio.play()
   audio.volume = 0.3
+  audio.play().catch(() => {})
 }
 
 const mountSounds = () => {
@@ -39,6 +39,22 @@ const toast = useToast()
 
 const resizeContainerWidth = ref(320)
 const resizeContainerRef = ref<HTMLDivElement | null>(null)
+
+const resizeByKeyboard = (delta: number) => {
+  const nextWidth = resizeContainerWidth.value + delta
+
+  if (nextWidth < 128) {
+    resizeContainerWidth.value = 128
+    return
+  }
+
+  if (nextWidth > 1280) {
+    resizeContainerWidth.value = 1280
+    return
+  }
+
+  resizeContainerWidth.value = nextWidth
+}
 
 let isResizing = false
 let startX = 0
@@ -208,11 +224,26 @@ const scrollElement = document.documentElement
         :style="{
           width: isMobile ? `100%` : `${resizeContainerWidth}px`,
           minWidth: `128px`,
-          maxWidth: `1280x`,
+          maxWidth: `1280px`,
         }"
       >
         <TreeViewer class="tree-viewer" v-model="selectedDocumentId" :disable-edit="true" />
-        <div class="resizer" @mousedown.prevent="startResize" v-if="!isMobile"></div>
+        <div
+          class="resizer"
+          role="separator"
+          tabindex="0"
+          aria-orientation="vertical"
+          aria-label="调整文档目录宽度"
+          :aria-valuemin="128"
+          :aria-valuemax="1280"
+          :aria-valuenow="resizeContainerWidth"
+          @mousedown.prevent="startResize"
+          @keydown.left.exact.prevent="resizeByKeyboard(-16)"
+          @keydown.right.exact.prevent="resizeByKeyboard(16)"
+          @keydown.shift.left.prevent="resizeByKeyboard(-64)"
+          @keydown.shift.right.prevent="resizeByKeyboard(64)"
+          v-if="!isMobile"
+        />
       </div>
       <div
         class="editor-container"
@@ -265,6 +296,7 @@ const scrollElement = document.documentElement
                 v-if="item.type === 'pdf_file'"
                 class="pdf-renderer mc-border"
                 :pdf-url="item.content"
+                :title="`${documentInstance.name || '文档'} PDF 预览`"
               />
             </div>
           </div>
@@ -275,6 +307,11 @@ const scrollElement = document.documentElement
 </template>
 
 <style lang="css" scoped>
+.resizer:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
 #documents-bg {
   position: fixed;
   top: 0;

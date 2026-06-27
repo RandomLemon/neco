@@ -7,7 +7,7 @@ import {
   RenameDocument,
   type DocumentNode,
 } from '@/api/documents'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import MinecraftButton from '../utils/MinecraftButton.vue'
 import MinecraftDialog from '../utils/MinecraftDialog.vue'
 import MinecraftInput from '../utils/MinecraftInput.vue'
@@ -22,20 +22,6 @@ const router = useRouter()
 // Get query from route
 
 const activeId = route.query.id as string
-
-EventBus.on('TreeViewer::closeAllMenu', () => {
-  folderMenuShow.value = false
-  documentMenuShow.value = false
-  menuX = mouseX
-  menuY = mouseY
-})
-
-EventBus.on('TreeViewer::dragDrop', async (parentId: unknown) => {
-  if (props.id !== (parentId as string)) {
-    return
-  }
-  await onExpand(true)
-})
 
 const toast = useToast()
 
@@ -56,6 +42,21 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  offsetX: {
+    type: Number,
+    default: 0,
+  },
+  offsetY: {
+    type: Number,
+    default: 0,
+  },
+  parentFolderId: {
+    type: String,
+    default: 'root',
+  },
+})
+const currentFolderId = computed(() => {
+  return props.id || props.parentId || 'root'
 })
 const name = defineModel('name', {
   type: String,
@@ -241,12 +242,52 @@ const folderMenuShow = ref(false)
 const documentMenuRef = ref<HTMLDivElement | null>(null)
 const documentMenuShow = ref(false)
 
-const resetMenu = () => {
-  EventBus.emit('TreeViewer::closeAllMenu')
+const closeOwnMenu = () => {
   folderMenuShow.value = false
   documentMenuShow.value = false
-  menuX = mouseX
-  menuY = mouseY
+}
+
+const onCloseAllMenu = () => {
+  closeOwnMenu()
+}
+
+type DragDropRefreshPayload = {
+  parentIds: string[]
+}
+
+const getRefreshParentIds = (payload: unknown): string[] => {
+  if (typeof payload === 'string') {
+    return [payload || 'root']
+  }
+
+  if (
+    payload &&
+    typeof payload === 'object' &&
+    'parentIds' in payload &&
+    Array.isArray((payload as DragDropRefreshPayload).parentIds)
+  ) {
+    return (payload as DragDropRefreshPayload).parentIds.map((id) => id || 'root')
+  }
+
+  return []
+}
+
+const onDragDropRefresh = async (payload: unknown) => {
+  const parentIds = getRefreshParentIds(payload)
+
+  if (!parentIds.includes(currentFolderId.value)) {
+    return
+  }
+
+  await onExpand(true)
+}
+
+const resetMenu = () => {
+  EventBus.emit('TreeViewer::closeAllMenu')
+  closeOwnMenu()
+
+  menuX = mouseX - props.offsetX
+  menuY = mouseY - props.offsetY
 }
 
 const onFolderMenu = (event: PointerEvent, global: boolean) => {
@@ -291,32 +332,43 @@ const onDocumentMenu = (event: PointerEvent, filename: string, fileid: string) =
 }
 
 onMounted(async () => {
+  EventBus.on('TreeViewer::closeAllMenu', onCloseAllMenu)
+  EventBus.on('TreeViewer::dragDrop', onDragDropRefresh)
+
   if (activeId) {
     selectedId.value = activeId
   }
+
   if (props.parentId !== 'root') {
     return
   }
+
   await onExpand()
 })
 
 onUnmounted(() => {
-  EventBus.off('TreeViewer::closeAllMenu')
-  EventBus.off('TreeViewer::dragDrop')
+  EventBus.off('TreeViewer::closeAllMenu', onCloseAllMenu)
+  EventBus.off('TreeViewer::dragDrop', onDragDropRefresh)
 })
 
 const onFolderOver = (event: DragEvent) => {
-  if (props.id === event.dataTransfer?.getData('TreeViewer:drag-parent-id')) {
+  const dragParentId = event.dataTransfer?.getData('TreeViewer:drag-parent-id') || 'root'
+
+  if (currentFolderId.value === dragParentId) {
     return
   }
+
   const elem = document.getElementById(`root-${props.id}`)
   elem?.classList.add('drag-hover')
 }
 
 const onFolderLeave = (event: DragEvent) => {
-  if (props.id === event.dataTransfer?.getData('TreeViewer:drag-parent-id')) {
+  const dragParentId = event.dataTransfer?.getData('TreeViewer:drag-parent-id') || 'root'
+
+  if (currentFolderId.value === dragParentId) {
     return
   }
+
   const elem = document.getElementById(`root-${props.id}`)
   elem?.classList.remove('drag-hover')
 }
@@ -324,29 +376,77 @@ const onFolderLeave = (event: DragEvent) => {
 const onDragDrop = async (event: DragEvent) => {
   const elem = document.getElementById(`root-${props.id}`)
   elem?.classList.remove('drag-hover')
+
   const dragType = event.dataTransfer?.getData('TreeViewer:drag-type') || ''
   const dragId = event.dataTransfer?.getData('TreeViewer:drag-id') || ''
-  const dragParentId = event.dataTransfer?.getData('TreeViewer:drag-parent-id') || ''
-  const result = await RebindDocument(dragId, props.id)
+  const dragParentId = event.dataTransfer?.getData('TreeViewer:drag-parent-id') || 'root'
+  const targetParentId = currentFolderId.value
+
+  if (!dragId) {
+    return
+  }
+
+  if (dragId === targetParentId) {
+    toast.warning('不能将文件夹移动到它自己里面！')
+    return
+  }
+
+  if (dragParentId === targetParentId) {
+    return
+  }
+
+  const result = await RebindDocument(dragId, targetParentId)
+
   if (!result) {
     toast.success(`移动${dragType}成功！`)
+
+    EventBus.emit('TreeViewer::dragDrop', {
+      parentIds: Array.from(new Set([dragParentId, targetParentId])),
+    })
   } else {
     toast.error(`移动${dragType}失败！`)
   }
-  EventBus.emit('TreeViewer::dragDrop', dragParentId)
+}
+
+const onFolderMenuFromButton = (event: MouseEvent, global: boolean) => {
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+
+  resetMenu()
+  isGlobal.value = global
+
+  menuX = rect.left - props.offsetX
+  menuY = rect.bottom - props.offsetY
+
+  folderMenuShow.value = true
+}
+
+const onDocumentMenuFromButton = (event: MouseEvent, filename: string, fileid: string) => {
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+
+  curName = filename
+  selectedId.value = fileid
+  resetMenu()
+
+  menuX = rect.left - props.offsetX
+  menuY = rect.bottom - props.offsetY
+
+  documentMenuShow.value = true
 }
 
 const onFolderDrag = async (event: DragEvent) => {
   event.dataTransfer?.setData('TreeViewer:drag-type', '文件夹')
-  event.dataTransfer?.setData('TreeViewer:drag-id', props.id)
-  event.dataTransfer?.setData('TreeViewer:drag-parent-id', props.parentId)
+  event.dataTransfer?.setData('TreeViewer:drag-id', currentFolderId.value)
+  event.dataTransfer?.setData('TreeViewer:drag-parent-id', props.parentFolderId || 'root')
 }
 
 const onDocumentDrag = async (event: DragEvent, id: string) => {
   selectedId.value = id
+
   event.dataTransfer?.setData('TreeViewer:drag-type', '文档')
   event.dataTransfer?.setData('TreeViewer:drag-id', selectedId.value)
-  event.dataTransfer?.setData('TreeViewer:drag-parent-id', props.parentId)
+  event.dataTransfer?.setData('TreeViewer:drag-parent-id', currentFolderId.value)
 }
 </script>
 
@@ -375,16 +475,30 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
         @click="toggleExpand"
       >
         <span style="z-index: 4">{{ name }}</span>
+
+        <MinecraftButton
+          v-if="!props.disableEdit"
+          class="document-more-btn"
+          :aria-label="`${name} 的更多操作`"
+          aria-haspopup="menu"
+          :aria-expanded="folderMenuShow"
+          @click.stop.prevent="onFolderMenuFromButton($event, false)"
+        >
+          ⋯
+        </MinecraftButton>
       </summary>
       <div v-for="child in children" :key="child.id">
         <TreeViewer
           v-if="child.isFolder"
           :parent-id="child.id"
+          :parent-folder-id="currentFolderId"
           v-model:name="child.name"
           :id="child.id"
           :layer="props.layer + 1"
           v-model="selectedId"
           :disable-edit="props.disableEdit"
+          :offset-x="props.offsetX"
+          :offset-y="props.offsetY"
         />
         <details
           :id="`file-${child.id}`"
@@ -404,6 +518,17 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
             }"
           >
             <span style="z-index: 4">{{ child.name }}</span>
+
+            <MinecraftButton
+              v-if="!props.disableEdit"
+              class="document-more-btn"
+              :aria-label="`${child.name} 的更多操作`"
+              aria-haspopup="menu"
+              :aria-expanded="documentMenuShow"
+              @click.stop.prevent="onDocumentMenuFromButton($event, child.name, child.id)"
+            >
+              ⋯
+            </MinecraftButton>
           </summary>
         </details>
       </div>
@@ -413,11 +538,14 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
         <TreeViewer
           v-if="child.isFolder"
           :parent-id="child.id"
+          :parent-folder-id="currentFolderId"
           v-model:name="child.name"
           :id="child.id"
           :layer="props.layer + 1"
           v-model="selectedId"
           :disable-edit="props.disableEdit"
+          :offset-x="props.offsetX"
+          :offset-y="props.offsetY"
         />
         <details
           :id="`file-${child.id}`"
@@ -437,6 +565,17 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
             }"
           >
             <span style="z-index: 4">{{ child.name }}</span>
+
+            <MinecraftButton
+              v-if="!props.disableEdit"
+              class="document-more-btn"
+              :aria-label="`${child.name} 的更多操作`"
+              aria-haspopup="menu"
+              :aria-expanded="documentMenuShow"
+              @click.stop.prevent="onDocumentMenuFromButton($event, child.name, child.id)"
+            >
+              ⋯
+            </MinecraftButton>
           </summary>
         </details>
       </div>
@@ -445,54 +584,93 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
       ref="folderMenuRef"
       class="document-menu mc-border"
       v-if="folderMenuShow"
+      role="menu"
+      aria-label="文件夹操作菜单"
+      @keydown.esc.stop.prevent="resetMenu"
       :style="{
         top: `${menuY}px`,
         left: `${menuX}px`,
       }"
     >
-      <MinecraftButton :dark="true" class="document-menu-btn" @click.stop="onNewDocument"
-        >新建文档</MinecraftButton
+      <MinecraftButton
+        :dark="true"
+        class="document-menu-btn"
+        role="menuitem"
+        @click.stop="onNewDocument"
       >
-      <MinecraftButton :dark="true" class="document-menu-btn" @click.stop="onNewFolder"
-        >新建文件夹</MinecraftButton
+        新建文档
+      </MinecraftButton>
+
+      <MinecraftButton
+        :dark="true"
+        class="document-menu-btn"
+        role="menuitem"
+        @click.stop="onNewFolder"
       >
+        新建文件夹
+      </MinecraftButton>
+
       <MinecraftButton
         :dark="true"
         v-if="!isGlobal && props.parentId !== 'root'"
         class="document-menu-btn"
+        role="menuitem"
         @click.stop="onRenameFolder"
-        >重命名</MinecraftButton
       >
+        重命名
+      </MinecraftButton>
+
       <MinecraftButton
         :dark="true"
         v-if="!isGlobal && props.parentId !== 'root'"
         class="document-menu-btn"
+        role="menuitem"
         @click.stop="onDeleteFolder"
-        >删除</MinecraftButton
       >
+        删除
+      </MinecraftButton>
     </div>
     <div
-      ref="folderMenuRef"
+      ref="documentMenuRef"
       class="document-menu mc-border"
       v-if="documentMenuShow"
+      role="menu"
+      aria-label="文档操作菜单"
+      @keydown.esc.stop.prevent="resetMenu"
       :style="{
         top: `${menuY}px`,
         left: `${menuX}px`,
       }"
     >
-      <MinecraftButton :dark="true" class="document-menu-btn" @click.stop="onRenameDocument"
-        >重命名</MinecraftButton
+      <MinecraftButton
+        :dark="true"
+        class="document-menu-btn"
+        role="menuitem"
+        @click.stop="onRenameDocument"
       >
-      <MinecraftButton :dark="true" class="document-menu-btn" @click.stop="onDeleteDocument"
-        >删除</MinecraftButton
+        重命名
+      </MinecraftButton>
+
+      <MinecraftButton
+        :dark="true"
+        class="document-menu-btn"
+        role="menuitem"
+        @click.stop="onDeleteDocument"
       >
+        删除
+      </MinecraftButton>
     </div>
     <MinecraftDialog v-model="inputDialogShow" :title="inputTitle" @confirm="onInputDialogConfirm">
       <div class="dialog-input-item">
-        <span class="dialog-input-label">仅内部可见</span>
-        <MinecraftSwitch v-model="isPrivate" />
+        <label class="dialog-input-label" for="document-private-switch"> 仅内部可见 </label>
+
+        <MinecraftSwitch id="document-private-switch" v-model="isPrivate" />
       </div>
+
+      <label class="dialog-input-label" for="document-name-input"> 名称 </label>
+
       <MinecraftInput
+        id="document-name-input"
         class="dialog-input"
         v-model="input"
         placeholder="请输入名称"
@@ -515,6 +693,33 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
 </template>
 
 <style lang="css" scoped>
+.document-more-btn {
+  z-index: 5;
+  margin-left: auto;
+  width: 2rem;
+  min-width: 2rem;
+  height: 1.5rem;
+  font-size: 1rem;
+  opacity: 0;
+}
+
+.document-name:hover .document-more-btn,
+.document-name:focus-within .document-more-btn {
+  opacity: 1;
+}
+
+.document-more-btn:focus-visible {
+  opacity: 1;
+  outline: 3px solid #fff;
+  outline-offset: 2px;
+}
+
+.document-menu-btn:focus-visible {
+  z-index: 8;
+  outline: 3px solid #fff;
+  outline-offset: -3px;
+}
+
 .document {
   padding-left: 0.8rem;
 }
@@ -644,6 +849,7 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
   font-size: 1.2rem;
   width: 8rem;
   user-select: none;
+  display: inline-block;
 }
 
 .delete-title {

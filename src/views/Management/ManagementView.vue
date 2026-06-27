@@ -33,7 +33,7 @@ onMounted(async () => {
 
   const result = await CheckAuthorized()
   if (!result) {
-    toast.warning('您尚未登录！')
+    toast.warning('您尚未登录或登录状态已过期！')
     router.replace('/auth/login')
   }
 })
@@ -45,8 +45,14 @@ onUnmounted(() => {
 
 <template>
   <div class="management-area">
-    <div class="management-menu" :type="sidebarExpand ? '' : 'shrink'">
-      <img class="management-logo" src="/nmo-logo-large.png" />
+    <div
+      id="management-menu"
+      class="management-menu"
+      :data-state="sidebarExpand ? 'expanded' : 'collapsed'"
+      :inert="!sidebarExpand || undefined"
+      :aria-hidden="!sidebarExpand"
+    >
+      <img class="management-logo" src="/nmo-logo-large.png" alt="" />
       <span class="management-title">NMO - 管理后台</span>
       <MinecraftButtonClassic
         class="management-nav"
@@ -79,6 +85,13 @@ onUnmounted(() => {
         >文档管理</MinecraftButtonClassic
       >
 
+      <MinecraftButtonClassic
+        class="management-nav"
+        :activated="route.path.endsWith('/management/bot')"
+        @click="router.replace('/management/bot')"
+        >机器人连接</MinecraftButtonClassic
+      >
+
       <div style="display: flex; flex-direction: column; margin-top: auto">
         <MinecraftButtonClassic class="management-nav" @click="router.push('/')"
           >回到主页</MinecraftButtonClassic
@@ -90,12 +103,15 @@ onUnmounted(() => {
     </div>
     <MinecraftButton
       class="management-shrink-btn"
-      :type="sidebarExpand ? '' : 'expand'"
+      :data-state="sidebarExpand ? 'expanded' : 'collapsed'"
+      :aria-expanded="sidebarExpand"
+      aria-controls="management-menu"
+      :aria-label="sidebarExpand ? '收起后台导航' : '展开后台导航'"
       @click="sidebarExpand = !sidebarExpand"
     >
-      <text>▶</text>
+      <span aria-hidden="true">▶</span>
     </MinecraftButton>
-    <div class="management-tab-container" :type="sidebarExpand ? '' : 'expand'">
+    <div class="management-tab-container" :data-state="sidebarExpand ? 'normal' : 'expanded'">
       <RouterView />
     </div>
   </div>
@@ -118,12 +134,6 @@ onUnmounted(() => {
   border-right: 1px solid var(--minecraft-gray-light);
   transition: all 0.3s ease-in-out;
   overflow: hidden;
-}
-
-.management-menu[type='shrink'] {
-  padding-left: 0;
-  padding-right: 0;
-  width: 0;
 }
 
 .management-logo {
@@ -158,10 +168,6 @@ onUnmounted(() => {
   gap: 1rem;
 }
 
-.management-tab-container[type='expand'] {
-  width: 100vw;
-}
-
 .management-shrink-btn {
   padding: 0 !important;
   height: 4rem;
@@ -172,21 +178,41 @@ onUnmounted(() => {
   transition: left 0.3s ease-in-out;
 }
 
-.management-shrink-btn[type='expand'] {
+.management-menu[data-state='collapsed'] {
+  padding-left: 0;
+  padding-right: 0;
+  width: 0;
+}
+
+.management-tab-container[data-state='expanded'] {
+  width: 100vw;
+}
+
+.management-shrink-btn[data-state='collapsed'] {
   left: 0;
 }
 
-.management-shrink-btn text {
+.management-shrink-btn span {
   transition: transform 0.3s ease-in-out;
   transform: rotate(180deg) translateX(10%);
 }
 
-.management-shrink-btn[type='expand'] text {
+.management-shrink-btn[data-state='collapsed'] span {
   transform: none;
 }
 </style>
 
 <style lang="css">
+.management-tab-title {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.management-tab-form-title {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
 .management-tab-title-container {
   display: flex;
   align-items: flex-end;

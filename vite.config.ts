@@ -20,6 +20,7 @@ export default defineConfig({
       "/necore": {
         target: "http://localhost:3000",
         changeOrigin: true,
+        ws: true,
         // rewrite: (path) => path.replace(/^\/necore/, '')
       }
     },

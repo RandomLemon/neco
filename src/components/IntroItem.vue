@@ -22,7 +22,11 @@ const props = defineProps({
       </div>
     </div>
     <div v-else :class="!right ? 'intro-right' : 'intro-left'">
-      <img :src="props.intro.image" alt="image" class="intro-image mc-border" />
+      <img
+        :src="props.intro.image"
+        :alt="`${props.intro.title} 配图`"
+        class="intro-image mc-border"
+      />
       <div class="intro-text">
         <p>{{ props.intro.title }}</p>
         <span>{{ props.intro.description }}</span>

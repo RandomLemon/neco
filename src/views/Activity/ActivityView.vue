@@ -72,8 +72,14 @@ onMounted(async () => {
 <template>
   <div class="activity-area">
     <p id="activity-title">活动</p>
-    <div class="activity-list-loading-container" v-if="activityLoading">
-      <img class="activity-list-loading" src="/loading.gif" alt="loading" />
+    <div
+      class="activity-list-loading-container"
+      v-if="activityLoading"
+      role="status"
+      aria-live="polite"
+    >
+      <img class="activity-list-loading" src="/loading.gif" alt="" />
+      <span class="sr-only">正在加载活动列表</span>
     </div>
     <div class="activity-list" v-else>
       <ActivityItem
@@ -91,19 +97,19 @@ onMounted(async () => {
         <MinecraftButton class="activity-pagination-button" @click="movePage('prev')">{{
           '<'
         }}</MinecraftButton>
-        <text class="activity-pagination-text">第</text>
-        <text class="activity-pagination-text special page">{{ page }}</text>
-        <text class="activity-pagination-text">/</text>
-        <text class="activity-pagination-text special total">{{ maxPage }}</text>
-        <text class="activity-pagination-text">页</text>
+        <span class="activity-pagination-text">第</span>
+        <span class="activity-pagination-text special page">{{ page }}</span>
+        <span class="activity-pagination-text">/</span>
+        <span class="activity-pagination-text special total">{{ maxPage }}</span>
+        <span class="activity-pagination-text">页</span>
         <MinecraftButton class="activity-pagination-button" @click="movePage('next')">{{
           '>'
         }}</MinecraftButton>
       </div>
       <div class="activity-pagination-item">
-        <text class="activity-pagination-text">前往</text>
+        <span class="activity-pagination-text">前往</span>
         <MinecraftInput class="activity-pagination-input" v-model="pageInput" />
-        <text class="activity-pagination-text">页</text>
+        <span class="activity-pagination-text">页</span>
         <MinecraftButton class="activity-pagination-button" @click="setPage">→</MinecraftButton>
       </div>
     </div>
