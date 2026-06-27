@@ -534,7 +534,10 @@ onMounted(() => {
 
   <MinecraftDialog title="修改用户信息" v-model="editUserDialogVisible" @confirm="saveEditUser">
     <div class="edit-user-dialog">
-      <section class="edit-user-card edit-user-profile-card" aria-labelledby="edit-user-basic-title">
+      <section
+        class="edit-user-card edit-user-profile-card"
+        aria-labelledby="edit-user-basic-title"
+      >
         <div class="edit-user-section-header">
           <h3 id="edit-user-basic-title" class="edit-user-section-title">基础信息</h3>
           <span class="edit-user-section-desc">修改用户头像与用户名</span>
