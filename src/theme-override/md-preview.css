@@ -425,3 +425,69 @@
 [class*='minecraft-theme md-editor-scrn'] span[rn-wrapper] {
   top: 26px;
 }
+
+.minecraft-theme {
+  font-size: 1.06rem;
+  line-height: 1.85;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.minecraft-theme p {
+  margin: 0.75rem 0 1rem;
+  line-height: 1.85;
+}
+
+.minecraft-theme h1,
+.minecraft-theme h2,
+.minecraft-theme h3 {
+  scroll-margin-top: 6rem;
+}
+
+.minecraft-theme h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.4rem;
+}
+
+.minecraft-theme h2 {
+  font-size: clamp(1.55rem, 3vw, 2.15rem);
+  margin-top: 1.75rem;
+  padding-left: 0.75rem;
+  border-left: 4px solid var(--minecraft-green-light);
+}
+
+.minecraft-theme h3 {
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+}
+
+.minecraft-theme table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  background-color: rgba(0, 0, 0, 0.24);
+}
+
+.minecraft-theme th,
+.minecraft-theme td {
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.minecraft-theme blockquote {
+  margin: 1rem 0;
+  padding: 0.8rem 1rem;
+  color: rgba(255, 255, 255, 0.78);
+  background-color: rgba(0, 0, 0, 0.26);
+  border-left: 4px solid var(--minecraft-green-light);
+}
+
+.minecraft-theme .md-editor-code pre code {
+  font-size: 0.96rem;
+  line-height: 1.85 !important;
+}
+
+.minecraft-theme img {
+  max-width: 100%;
+  height: auto;
+}

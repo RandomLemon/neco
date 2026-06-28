@@ -256,6 +256,7 @@ const newsDate = ref(formatDate(new Date()))
 const newsEndDate = ref<string | undefined>(nextYear(new Date()))
 
 const preview = ref(false)
+const deleteNewsDialogVisible = ref(false)
 
 const notifyDialogVisible = ref(false)
 const notifyConnections = ref<BotConnection[]>([])
@@ -402,6 +403,30 @@ const loadNews = () => {
   }
 }
 
+const cancelEditNews = () => {
+  status.value = 'none'
+  newsTitle.value = ''
+  newsBrief.value = ''
+  newsContent.value = []
+  newsImage.value = ''
+  newsText.value = ''
+  newsPdfFiles.value = []
+  newsImgFiles.value = []
+  newsPin.value = false
+  newsType.value = 'information'
+  newsDate.value = formatDate(new Date())
+  newsEndDate.value = nextYear(new Date())
+}
+
+const openDeleteNewsDialog = () => {
+  if (newsId.value.trim() === '') {
+    toast.warning('请选择文章！')
+    return
+  }
+
+  deleteNewsDialogVisible.value = true
+}
+
 const deleteNews = async () => {
   if (newsId.value.trim() === '') {
     toast.warning('请选择文章！')
@@ -412,19 +437,8 @@ const deleteNews = async () => {
     toast.error('删除文章失败！')
   } else {
     toast.success('删除文章成功！')
-    status.value = 'none'
-    newsTitle.value = ''
-    newsBrief.value = ''
-    newsContent.value = []
-    newsImage.value = ''
-    newsText.value = ''
-    newsPdfFiles.value = []
-    newsImgFiles.value = []
-    newsPin.value = false
-    newsType.value = 'information'
-    newsDate.value = formatDate(new Date())
-    newsEndDate.value = nextYear(new Date())
-
+    deleteNewsDialogVisible.value = false
+    cancelEditNews()
     EventBus.emit('NewsManagement::refresh')
   }
 }
@@ -605,228 +619,265 @@ const onUploadImg = async (
     <span class="management-tab-subtitle">
       {{
         userGroup.includes('admin') || userGroup.includes('news_admin')
-          ? '点击文章以编辑！'
+          ? '今天 NMO 💊 了吗？'
           : '为什么我 这么弱？'
       }}
     </span>
   </div>
-  <NewsList
-    style="margin: 0; width: 100%"
-    v-model="viewType"
-    id="news-list-manage"
-    @need-scroll="scrollToNews"
-    @card-click="onNewsClick"
-    :allow-activity="true"
-  />
-  <MinecraftButtonClassic
-    class="new-button"
-    @click="onAddNews"
-    v-if="userGroup.includes('admin') || userGroup.includes('news_admin')"
-    >新建文章</MinecraftButtonClassic
-  >
+  <section class="management-section" aria-labelledby="news-list-title">
+    <div class="management-section-header">
+      <div class="management-section-title-block">
+        <h2 id="news-list-title" class="management-section-title">文章列表</h2>
+        <p class="management-section-desc">
+          点击文章进行编辑；没有权限的用户会在新窗口打开文章详情。
+        </p>
+      </div>
+
+      <div
+        class="management-toolbar"
+        v-if="userGroup.includes('admin') || userGroup.includes('news_admin')"
+      >
+        <MinecraftButtonClassic class="news-toolbar-button" @click="onAddNews">
+          新建文章
+        </MinecraftButtonClassic>
+      </div>
+    </div>
+
+    <NewsList
+      style="margin: 0; width: 100%"
+      v-model="viewType"
+      id="news-list-manage"
+      @need-scroll="scrollToNews"
+      @card-click="onNewsClick"
+      :allow-activity="true"
+    />
+  </section>
   <form
     id="edit-news"
-    style="margin-bottom: 100vh"
-    class="management-tab-form"
+    class="management-section news-edit-section"
     v-if="status !== 'none' && (userGroup.includes('admin') || userGroup.includes('news_admin'))"
     @submit.prevent="openNotifyDialog"
   >
-    <h2 class="management-tab-form-title">{{ status === 'edit' ? '编辑' : '新增' }}文章</h2>
-    <div class="news-input-item" role="group" aria-labelledby="news-type-label">
-      <span id="news-type-label" class="news-input-label">类型</span>
-      <div class="news-button-group">
-        <MinecraftButtonClassic
-          class="news-button"
-          :activated="newsType === 'information'"
-          @click="newsType = 'information'"
-          >资讯</MinecraftButtonClassic
-        >
-        <MinecraftButtonClassic
-          class="news-button"
-          :activated="newsType === 'activity'"
-          @click="newsType = 'activity'"
-          >活动</MinecraftButtonClassic
-        >
-        <MinecraftButtonClassic
-          class="news-button"
-          :activated="newsType === 'notice'"
-          @click="newsType = 'notice'"
-          >公告</MinecraftButtonClassic
-        >
-        <MinecraftButtonClassic
-          class="news-button"
-          :activated="newsType === 'magazine'"
-          @click="newsType = 'magazine'"
-          >社刊</MinecraftButtonClassic
-        >
+    <div class="management-section-header">
+      <div class="management-section-title-block">
+        <h2 class="management-section-title">{{ status === 'edit' ? '编辑' : '新增' }}文章</h2>
+        <p class="management-section-desc">
+          先编辑基础信息和正文，点击保存后再选择是否推送到机器人连接。
+        </p>
       </div>
     </div>
-    <div class="news-input-item">
-      <label class="news-input-label" for="news-pin-switch"> 置顶 </label>
+    <section class="management-card" aria-labelledby="news-basic-title">
+      <h3 id="news-basic-title" class="management-card-title">基础信息</h3>
 
-      <span style="user-select: none; font-size: 0.8rem; color: #ccc">
-        最新的置顶文章会在首页顶部展示！
-      </span>
-
-      <MinecraftSwitch id="news-pin-switch" v-model="newsPin" />
-    </div>
-    <div class="news-input-item">
-      <span class="news-input-label">文章封面</span>
-      <button
-        v-if="newsImage.trim() === ''"
-        type="button"
-        class="upload-button"
-        aria-label="上传文章封面"
-        @click="onCoverUpload"
-      >
-        <PlusIcon aria-hidden="true" />
-      </button>
-
-      <button
-        v-else
-        type="button"
-        class="news-image-picture"
-        aria-label="更换文章封面"
-        @click="onCoverUpload"
-      >
-        <img class="news-image" :src="newsImage" alt="" />
-      </button>
-    </div>
-    <div class="news-input-item">
-      <label class="news-input-label" for="news-id-input"> ID </label>
-
-      <MinecraftInput id="news-id-input" v-model="newsId" class="news-input" disabled />
-    </div>
-    <div class="news-input-item">
-      <label class="news-input-label" for="news-title-input"> 标题 </label>
-
-      <MinecraftInput
-        id="news-title-input"
-        class="news-input"
-        v-model="newsTitle"
-        placeholder="请输入标题"
-      />
-    </div>
-    <div class="news-input-item">
-      <label class="news-input-label" for="news-brief-input"> 简介 </label>
-
-      <MinecraftTextarea
-        id="news-brief-input"
-        v-model="newsBrief"
-        class="news-input"
-        style="resize: vertical"
-        wrap="soft"
-        placeholder="简介不宜过长！"
-      />
-    </div>
-    <div class="news-input-item">
-      <span id="news-date-label" class="news-input-label">
-        {{ newsType === 'activity' ? '开始' : '' }}时间
-      </span>
-      <VueDatePicker
-        aria-labelledby="news-date-label"
-        v-model="newsDate"
-        :formats="{
-          input: formatDate,
-        }"
-        :time-config="{
-          enableTimePicker: false,
-        }"
-        dark
-        :clearable="false"
-        auto-apply
-      />
-    </div>
-    <div class="news-input-item" v-if="newsType === 'activity'">
-      <span id="news-end-date-label" class="news-input-label"> 结束时间 </span>
-      <VueDatePicker
-        aria-labelledby="news-end-date-label"
-        v-model="newsEndDate"
-        :formats="{
-          input: formatDate,
-        }"
-        :time-config="{
-          enableTimePicker: false,
-        }"
-        dark
-        :clearable="false"
-        auto-apply
-      />
-    </div>
-    <div class="news-input-item">
-      <span id="news-content-label" class="news-input-label"> 正文 </span>
-      <div class="news-markdown-edit" aria-labelledby="news-content-label">
-        <div class="news-button-group">
-          <MinecraftButtonClassic
-            class="news-button"
-            :activated="!preview"
-            @click="((preview = false), scrollTo('md-editor'))"
-            >编辑</MinecraftButtonClassic
-          >
-          <MinecraftButtonClassic
-            class="news-button"
-            :activated="preview"
-            @click="((preview = true), toContent(), checkContent())"
-            >预览</MinecraftButtonClassic
-          >
+      <div class="news-basic-grid">
+        <div class="news-input-item" role="group" aria-labelledby="news-type-label">
+          <span id="news-type-label" class="news-input-label">类型</span>
+          <div class="news-button-group">
+            <MinecraftButtonClassic
+              class="news-button"
+              :activated="newsType === 'information'"
+              @click="newsType = 'information'"
+              >资讯</MinecraftButtonClassic
+            >
+            <MinecraftButtonClassic
+              class="news-button"
+              :activated="newsType === 'activity'"
+              @click="newsType = 'activity'"
+              >活动</MinecraftButtonClassic
+            >
+            <MinecraftButtonClassic
+              class="news-button"
+              :activated="newsType === 'notice'"
+              @click="newsType = 'notice'"
+              >公告</MinecraftButtonClassic
+            >
+            <MinecraftButtonClassic
+              class="news-button"
+              :activated="newsType === 'magazine'"
+              @click="newsType = 'magazine'"
+              >社刊</MinecraftButtonClassic
+            >
+          </div>
         </div>
-        <MdEditor
-          ref="editorRef"
-          id="md-editor"
-          style="height: 100vh"
-          v-show="!preview"
-          theme="dark"
-          language="zh-CN"
-          preview-theme="minecraft"
-          :toolbars="editorToolbars"
-          v-model="newsText"
-          @on-remount="mountSounds"
-          @on-save="saveNews"
-          :preview="false"
-          @on-upload-img="onUploadImg"
-        >
-          <template #defToolbars>
-            <NormalToolbar title="添加 PDF 文件" @on-click="addPdfFile">
-              <UploadPdf class="md-editor-icon" />
-            </NormalToolbar>
-            <NormalToolbar title="加载本地存档" @on-click="loadNews">
-              <LoadNews class="md-editor-icon" />
-            </NormalToolbar>
-          </template>
-        </MdEditor>
-        <div class="news-main-content" v-show="preview">
-          <div class="news-main-item-list">
-            <div class="news-main-item" v-for="(item, index) in newsContent" :key="index">
-              <MdPreview
-                theme="dark"
-                language="zh-CN"
-                preview-theme="minecraft"
-                :model-value="item.content"
-                @on-remount="mountSounds"
-                v-if="item.type === 'markdown'"
-              />
-              <MinecraftButton
-                v-if="item.type === 'pdf_file'"
-                class="pdf-read-btn"
-                @click="scrollTo(`pdf-renderer-${index}`)"
-                >↓ 最佳阅读位置</MinecraftButton
-              >
-              <PdfViewer
-                :id="`pdf-renderer-${index}`"
-                v-if="item.type === 'pdf_file'"
-                class="pdf-renderer mc-border"
-                :pdf-url="item.content"
-                :title="`${newsTitle || '文章'} PDF 预览`"
-              />
+        <div class="news-input-item">
+          <label class="news-input-label" for="news-pin-switch"> 置顶 </label>
+
+          <span style="user-select: none; font-size: 0.8rem; color: #ccc">
+            最新的置顶文章会在首页顶部展示！
+          </span>
+
+          <MinecraftSwitch id="news-pin-switch" v-model="newsPin" />
+        </div>
+        <div class="news-input-item">
+          <span class="news-input-label">文章封面</span>
+          <button
+            v-if="newsImage.trim() === ''"
+            type="button"
+            class="upload-button"
+            aria-label="上传文章封面"
+            @click="onCoverUpload"
+          >
+            <PlusIcon aria-hidden="true" />
+          </button>
+
+          <button
+            v-else
+            type="button"
+            class="news-image-picture"
+            aria-label="更换文章封面"
+            @click="onCoverUpload"
+          >
+            <img class="news-image" :src="newsImage" alt="" />
+          </button>
+        </div>
+        <div class="news-input-item">
+          <label class="news-input-label" for="news-id-input"> ID </label>
+
+          <MinecraftInput id="news-id-input" v-model="newsId" class="news-input" disabled />
+        </div>
+        <div class="news-input-item">
+          <label class="news-input-label" for="news-title-input"> 标题 </label>
+
+          <MinecraftInput
+            id="news-title-input"
+            class="news-input"
+            v-model="newsTitle"
+            placeholder="请输入标题"
+          />
+        </div>
+        <div class="news-input-item">
+          <label class="news-input-label" for="news-brief-input"> 简介 </label>
+
+          <MinecraftTextarea
+            id="news-brief-input"
+            v-model="newsBrief"
+            class="news-input"
+            style="resize: vertical"
+            wrap="soft"
+            placeholder="简介不宜过长！"
+          />
+        </div>
+        <div class="news-input-item">
+          <span id="news-date-label" class="news-input-label">
+            {{ newsType === 'activity' ? '开始' : '' }}时间
+          </span>
+          <VueDatePicker
+            aria-labelledby="news-date-label"
+            v-model="newsDate"
+            :formats="{
+              input: formatDate,
+            }"
+            :time-config="{
+              enableTimePicker: false,
+            }"
+            dark
+            :clearable="false"
+            auto-apply
+          />
+        </div>
+        <div class="news-input-item" v-if="newsType === 'activity'">
+          <span id="news-end-date-label" class="news-input-label"> 结束时间 </span>
+          <VueDatePicker
+            aria-labelledby="news-end-date-label"
+            v-model="newsEndDate"
+            :formats="{
+              input: formatDate,
+            }"
+            :time-config="{
+              enableTimePicker: false,
+            }"
+            dark
+            :clearable="false"
+            auto-apply
+          />
+        </div>
+      </div>
+    </section>
+    <section class="management-card" aria-labelledby="news-content-card-title">
+      <h3 id="news-content-card-title" class="management-card-title">正文内容</h3>
+
+      <div class="news-input-item">
+        <div class="news-markdown-edit" aria-labelledby="news-content-label">
+          <div class="news-button-group">
+            <MinecraftButtonClassic
+              class="news-button"
+              :activated="!preview"
+              @click="((preview = false), scrollTo('md-editor'))"
+              >编辑</MinecraftButtonClassic
+            >
+            <MinecraftButtonClassic
+              class="news-button"
+              :activated="preview"
+              @click="((preview = true), toContent(), checkContent())"
+              >预览</MinecraftButtonClassic
+            >
+          </div>
+          <MdEditor
+            ref="editorRef"
+            id="md-editor"
+            style="height: 100vh"
+            v-show="!preview"
+            theme="dark"
+            language="zh-CN"
+            preview-theme="minecraft"
+            :toolbars="editorToolbars"
+            v-model="newsText"
+            @on-remount="mountSounds"
+            @on-save="saveNews"
+            :preview="false"
+            @on-upload-img="onUploadImg"
+          >
+            <template #defToolbars>
+              <NormalToolbar title="添加 PDF 文件" @on-click="addPdfFile">
+                <UploadPdf class="md-editor-icon" />
+              </NormalToolbar>
+              <NormalToolbar title="加载本地存档" @on-click="loadNews">
+                <LoadNews class="md-editor-icon" />
+              </NormalToolbar>
+            </template>
+          </MdEditor>
+          <div class="news-main-content" v-show="preview">
+            <div class="news-main-item-list">
+              <div class="news-main-item" v-for="(item, index) in newsContent" :key="index">
+                <MdPreview
+                  theme="dark"
+                  language="zh-CN"
+                  preview-theme="minecraft"
+                  :model-value="item.content"
+                  @on-remount="mountSounds"
+                  v-if="item.type === 'markdown'"
+                />
+                <MinecraftButton
+                  v-if="item.type === 'pdf_file'"
+                  class="pdf-read-btn"
+                  @click="scrollTo(`pdf-renderer-${index}`)"
+                  >↓ 最佳阅读位置</MinecraftButton
+                >
+                <PdfViewer
+                  :id="`pdf-renderer-${index}`"
+                  v-if="item.type === 'pdf_file'"
+                  class="pdf-renderer mc-border"
+                  :pdf-url="item.content"
+                  :title="`${newsTitle || '文章'} PDF 预览`"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="operation-btn-group">
-      <MinecraftButtonClassic @click="deleteNews"> 删除 </MinecraftButtonClassic>
+    </section>
+    <div class="management-action-row">
+      <MinecraftButtonClassic class="news-action-button" @click="cancelEditNews">
+        取消编辑
+      </MinecraftButtonClassic>
 
-      <MinecraftButtonClassic native-type="submit"> 保存 </MinecraftButtonClassic>
+      <MinecraftButtonClassic class="news-action-button" @click="openDeleteNewsDialog">
+        删除文章
+      </MinecraftButtonClassic>
+
+      <MinecraftButtonClassic class="news-action-button" native-type="submit">
+        保存文章
+      </MinecraftButtonClassic>
     </div>
   </form>
   <MinecraftDialog title="添加 PDF 文件" v-model="showPdfDialog">
@@ -886,6 +937,14 @@ const onUploadImg = async (
     <template v-slot:footer>
       <span></span>
     </template>
+  </MinecraftDialog>
+  <MinecraftDialog title="删除文章" v-model="deleteNewsDialogVisible" @confirm="deleteNews">
+    <p>
+      确定要删除
+      <strong>{{ newsTitle || newsId || '这篇文章' }}</strong>
+      吗？
+    </p>
+    <p class="management-danger-text">删除后文章列将会永远消失！（真的很久！）</p>
   </MinecraftDialog>
   <MinecraftDialog
     title="保存文章"
@@ -1114,30 +1173,10 @@ const onUploadImg = async (
   outline-offset: 4px;
 }
 
-.news-input-item {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.news-input-label {
-  user-select: none;
-  font-size: 1.2rem;
-  color: #fff;
-  text-wrap: nowrap;
-}
-
 .news-input {
   font-size: 1rem;
   width: 100%;
   min-width: 5rem;
-}
-
-.news-button-group {
-  display: flex;
-  align-items: center;
-  user-select: none;
-  width: 100%;
 }
 
 .new-button {
@@ -1149,11 +1188,6 @@ const onUploadImg = async (
   flex-direction: column;
   gap: 1rem;
   width: 100%;
-}
-
-.news-button-group {
-  display: flex;
-  align-items: center;
 }
 
 .news-button {
@@ -1168,8 +1202,10 @@ const onUploadImg = async (
   height: fit-content;
 
   background:
-    linear-gradient(to right, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.4)),
-    radial-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('/blockbg/dirt.png');
+    linear-gradient(to right, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.72)),
+    radial-gradient(circle at 50% 18%, rgba(108, 195, 73, 0.16), transparent 28rem),
+    url('/background/bg.jpg');
+  background-size: auto, auto, 468px;
 }
 
 .news-main-item-list {
@@ -1265,6 +1301,68 @@ const onUploadImg = async (
 .operation-btn-group {
   display: flex;
   gap: 1rem;
+}
+
+.news-toolbar-button {
+  width: 8rem;
+}
+
+.news-edit-section {
+  margin-bottom: 100vh;
+}
+
+.news-basic-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.news-basic-grid .news-input-item {
+  min-width: 0;
+}
+
+.news-input-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.news-input-label {
+  user-select: none;
+  font-size: 1rem;
+  color: #fff;
+  text-wrap: nowrap;
+}
+
+.news-input {
+  font-size: 1rem;
+  width: 100%;
+  min-width: 5rem;
+}
+
+.news-button-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  user-select: none;
+  width: 100%;
+}
+
+.news-button {
+  font-size: 1.1rem;
+  width: 6rem;
+}
+
+.news-action-button {
+  width: 8rem;
+}
+
+@media screen and (max-width: 768px) {
+  .news-toolbar-button,
+  .news-action-button {
+    width: 100%;
+  }
 }
 </style>
 

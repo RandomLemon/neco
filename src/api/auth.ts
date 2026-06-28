@@ -91,6 +91,7 @@ export const CreateUser = async (username: string, password: string): Promise<st
 
 export const GetUserInfo = async (username: string): Promise<UserEntity | null> => {
   let result: UserEntity | null = null
+  username = encodeURIComponent(username)
   await api
     .get(`/auth/user/${username}`)
     .then((response) => {
@@ -113,6 +114,7 @@ export const GetUserList = async (): Promise<Array<UserEntity> | null> => {
 
 export const DeleteUser = async (username: string): Promise<string | null> => {
   let result: string | null = null
+  username = encodeURIComponent(username)
   await api
     .delete(`/auth/user/${username}`)
     .then((response) => {
@@ -197,6 +199,7 @@ export const Logout = () => {
 
 export const GetAvatar = async (username: string): Promise<string | null> => {
   let result: string | null = null
+  username = encodeURIComponent(username)
   await api
     .get(`/auth/avatar/${username}`)
     .then((response) => {
