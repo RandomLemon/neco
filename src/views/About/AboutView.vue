@@ -67,19 +67,20 @@ onMounted(() => {
 }
 
 .intro-area {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  margin-top: 2rem;
-
-  box-sizing: content-box;
+  width: min(100%, 88rem);
+  margin: 2rem auto 0;
+  padding: 0 clamp(1rem, 4vw, 3rem);
+  box-sizing: border-box;
 }
 
-.intro-item {
-  opacity: 0;
-  animation: fade-in-down 0.5s ease-in-out forwards;
-  animation-delay: var(--delay);
+.intro-area > h1 {
+  align-self: center;
+  margin: 0 0 1.5rem;
+  color: #fff;
+  text-align: center;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
 }
 </style>

@@ -139,3 +139,80 @@
 .skip-link:focus {
   transform: translateY(0);
 }
+
+.nmo-page-shell {
+  width: 100%;
+  min-height: calc(100vh - 5rem);
+  padding: 5rem clamp(1rem, 4vw, 4rem) 3rem;
+  box-sizing: border-box;
+}
+
+.nmo-hero-panel {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  background:
+    linear-gradient(135deg, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.45)),
+    url('/blockbg/deepslate-tiles.png');
+  background-size:
+    auto,
+    32px 32px;
+  border: 8px solid;
+  border-image: url('/UI/dialog_background_hollow_4.png') 8;
+  box-shadow:
+    inset -4px -4px 0 0 rgba(0, 0, 0, 0.45),
+    inset 4px 4px 0 0 rgba(255, 255, 255, 0.1),
+    0 0.75rem 2rem rgba(0, 0, 0, 0.35);
+}
+
+.nmo-section-title {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  line-height: 1.2;
+}
+
+.nmo-section-desc {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.76);
+  line-height: 1.7;
+}
+
+.nmo-card {
+  color: #fff;
+  background-color: rgba(31, 31, 31, 0.92);
+  border: 4px solid #222;
+  box-shadow:
+    inset -3px -3px 0 0 #191919,
+    inset 3px 3px 0 0 #484848,
+    0 0.5rem 1rem rgba(0, 0, 0, 0.22);
+}
+
+.nmo-card-soft {
+  color: #fff;
+  background-color: rgba(20, 20, 20, 0.68);
+  border: 2px solid rgba(255, 255, 255, 0.14);
+  box-shadow:
+    inset -2px -2px 0 0 rgba(0, 0, 0, 0.4),
+    inset 2px 2px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.nmo-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #777 #222;
+}
+
+.nmo-scrollbar::-webkit-scrollbar {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.nmo-scrollbar::-webkit-scrollbar-track {
+  background: #222;
+  border: 1px solid #111;
+}
+
+.nmo-scrollbar::-webkit-scrollbar-thumb {
+  background: #777;
+  border: 1px solid #aaa;
+}

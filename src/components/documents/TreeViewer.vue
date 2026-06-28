@@ -7,11 +7,10 @@ import {
   RenameDocument,
   type DocumentNode,
 } from '@/api/documents'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import MinecraftButton from '../utils/MinecraftButton.vue'
 import MinecraftDialog from '../utils/MinecraftDialog.vue'
 import MinecraftInput from '../utils/MinecraftInput.vue'
-import MinecraftSwitch from '../utils/MinecraftSwitch.vue'
 import { useToast } from 'vue-toastification'
 import { EventBus } from '@/eventbus/EventBus'
 import { useRoute, useRouter } from 'vue-router'
@@ -41,14 +40,6 @@ const props = defineProps({
   disableEdit: {
     type: Boolean,
     default: false,
-  },
-  offsetX: {
-    type: Number,
-    default: 0,
-  },
-  offsetY: {
-    type: Number,
-    default: 0,
   },
   parentFolderId: {
     type: String,
@@ -92,21 +83,15 @@ const toggleExpand = async () => {
   }
 }
 
-let mouseX = 0,
-  mouseY = 0
-let menuX = 0,
-  menuY = 0
+const menuX = ref(0)
+const menuY = ref(0)
+const menuMargin = 8
 const isGlobal = ref(false)
 
-document.addEventListener('mousemove', (event: MouseEvent) => {
-  mouseX = event.clientX
-  mouseY = event.clientY
-})
-
-document.addEventListener('click', () => {
+const onDocumentClick = () => {
   folderMenuShow.value = false
   documentMenuShow.value = false
-})
+}
 
 type InputTitle = 'none' | '新建文件夹' | '重命名文件夹' | '新建文档' | '重命名文档'
 const inputTitle = ref<InputTitle>('none')
@@ -285,53 +270,80 @@ const onDragDropRefresh = async (payload: unknown) => {
 const resetMenu = () => {
   EventBus.emit('TreeViewer::closeAllMenu')
   closeOwnMenu()
-
-  menuX = mouseX - props.offsetX
-  menuY = mouseY - props.offsetY
 }
 
-const onFolderMenu = (event: PointerEvent, global: boolean) => {
+const clampMenuToViewport = async (menuRef: typeof folderMenuRef | typeof documentMenuRef) => {
+  await nextTick()
+
+  const menu = menuRef.value
+  if (!menu) {
+    return
+  }
+
+  const maxX = Math.max(menuMargin, window.innerWidth - menu.offsetWidth - menuMargin)
+  const maxY = Math.max(menuMargin, window.innerHeight - menu.offsetHeight - menuMargin)
+
+  menuX.value = Math.min(Math.max(menuX.value, menuMargin), maxX)
+  menuY.value = Math.min(Math.max(menuY.value, menuMargin), maxY)
+}
+
+const onFolderMenu = async (event: PointerEvent, global: boolean) => {
   if (props.disableEdit) {
     return
   }
+
   event.preventDefault()
   resetMenu()
   isGlobal.value = global
+  menuX.value = event.clientX
+  menuY.value = event.clientY
   folderMenuShow.value = true
-  if (folderMenuRef.value) {
-    const menuWidth = folderMenuRef.value.offsetWidth
-    const menuHeight = folderMenuRef.value.offsetHeight
-    if (menuX + menuWidth > window.innerWidth) {
-      menuX = window.innerWidth - menuWidth
-    }
-    if (menuY + menuHeight > window.innerHeight) {
-      menuY = window.innerHeight - menuHeight
-    }
-  }
+  await clampMenuToViewport(folderMenuRef)
 }
 
-const onDocumentMenu = (event: PointerEvent, filename: string, fileid: string) => {
+const onDocumentMenu = async (event: PointerEvent, filename: string, fileid: string) => {
   if (props.disableEdit) {
     return
   }
+
   event.preventDefault()
   curName = filename
   selectedId.value = fileid
   resetMenu()
+  menuX.value = event.clientX
+  menuY.value = event.clientY
   documentMenuShow.value = true
-  if (documentMenuRef.value) {
-    const menuWidth = documentMenuRef.value.offsetWidth
-    const menuHeight = documentMenuRef.value.offsetHeight
-    if (menuX + menuWidth > window.innerWidth) {
-      menuX = window.innerWidth - menuWidth
-    }
-    if (menuY + menuHeight > window.innerHeight) {
-      menuY = window.innerHeight - menuHeight
-    }
-  }
+  await clampMenuToViewport(documentMenuRef)
+}
+
+const onFolderMenuFromButton = async (event: MouseEvent, global: boolean) => {
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+
+  resetMenu()
+  isGlobal.value = global
+  menuX.value = rect.left
+  menuY.value = rect.bottom + 4
+  folderMenuShow.value = true
+  await clampMenuToViewport(folderMenuRef)
+}
+
+const onDocumentMenuFromButton = async (event: MouseEvent, filename: string, fileid: string) => {
+  const target = event.currentTarget as HTMLElement
+  const rect = target.getBoundingClientRect()
+
+  curName = filename
+  selectedId.value = fileid
+  resetMenu()
+  menuX.value = rect.left
+  menuY.value = rect.bottom + 4
+  documentMenuShow.value = true
+  await clampMenuToViewport(documentMenuRef)
 }
 
 onMounted(async () => {
+  document.addEventListener('click', onDocumentClick)
+
   EventBus.on('TreeViewer::closeAllMenu', onCloseAllMenu)
   EventBus.on('TreeViewer::dragDrop', onDragDropRefresh)
 
@@ -349,6 +361,8 @@ onMounted(async () => {
 onUnmounted(() => {
   EventBus.off('TreeViewer::closeAllMenu', onCloseAllMenu)
   EventBus.off('TreeViewer::dragDrop', onDragDropRefresh)
+
+  document.removeEventListener('click', onDocumentClick)
 })
 
 const onFolderOver = (event: DragEvent) => {
@@ -406,33 +420,6 @@ const onDragDrop = async (event: DragEvent) => {
   } else {
     toast.error(`移动${dragType}失败！`)
   }
-}
-
-const onFolderMenuFromButton = (event: MouseEvent, global: boolean) => {
-  const target = event.currentTarget as HTMLElement
-  const rect = target.getBoundingClientRect()
-
-  resetMenu()
-  isGlobal.value = global
-
-  menuX = rect.left - props.offsetX
-  menuY = rect.bottom - props.offsetY
-
-  folderMenuShow.value = true
-}
-
-const onDocumentMenuFromButton = (event: MouseEvent, filename: string, fileid: string) => {
-  const target = event.currentTarget as HTMLElement
-  const rect = target.getBoundingClientRect()
-
-  curName = filename
-  selectedId.value = fileid
-  resetMenu()
-
-  menuX = rect.left - props.offsetX
-  menuY = rect.bottom - props.offsetY
-
-  documentMenuShow.value = true
 }
 
 const onFolderDrag = async (event: DragEvent) => {
@@ -497,8 +484,6 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
           :layer="props.layer + 1"
           v-model="selectedId"
           :disable-edit="props.disableEdit"
-          :offset-x="props.offsetX"
-          :offset-y="props.offsetY"
         />
         <details
           :id="`file-${child.id}`"
@@ -544,8 +529,6 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
           :layer="props.layer + 1"
           v-model="selectedId"
           :disable-edit="props.disableEdit"
-          :offset-x="props.offsetX"
-          :offset-y="props.offsetY"
         />
         <details
           :id="`file-${child.id}`"
@@ -580,91 +563,118 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
         </details>
       </div>
     </div>
-    <div
-      ref="folderMenuRef"
-      class="document-menu mc-border"
-      v-if="folderMenuShow"
-      role="menu"
-      aria-label="文件夹操作菜单"
-      @keydown.esc.stop.prevent="resetMenu"
-      :style="{
-        top: `${menuY}px`,
-        left: `${menuX}px`,
-      }"
-    >
-      <MinecraftButton
-        :dark="true"
-        class="document-menu-btn"
-        role="menuitem"
-        @click.stop="onNewDocument"
+    <Teleport to="body">
+      <div
+        ref="folderMenuRef"
+        class="document-menu mc-border"
+        v-if="folderMenuShow"
+        role="menu"
+        aria-label="文件夹操作菜单"
+        @keydown.esc.stop.prevent="resetMenu"
+        :style="{
+          top: `${menuY}px`,
+          left: `${menuX}px`,
+        }"
       >
-        新建文档
-      </MinecraftButton>
+        <MinecraftButton
+          :dark="true"
+          class="document-menu-btn"
+          role="menuitem"
+          @click.stop="onNewDocument"
+        >
+          新建文档
+        </MinecraftButton>
 
-      <MinecraftButton
-        :dark="true"
-        class="document-menu-btn"
-        role="menuitem"
-        @click.stop="onNewFolder"
-      >
-        新建文件夹
-      </MinecraftButton>
+        <MinecraftButton
+          :dark="true"
+          class="document-menu-btn"
+          role="menuitem"
+          @click.stop="onNewFolder"
+        >
+          新建文件夹
+        </MinecraftButton>
 
-      <MinecraftButton
-        :dark="true"
-        v-if="!isGlobal && props.parentId !== 'root'"
-        class="document-menu-btn"
-        role="menuitem"
-        @click.stop="onRenameFolder"
-      >
-        重命名
-      </MinecraftButton>
+        <MinecraftButton
+          :dark="true"
+          v-if="!isGlobal && props.parentId !== 'root'"
+          class="document-menu-btn"
+          role="menuitem"
+          @click.stop="onRenameFolder"
+        >
+          重命名
+        </MinecraftButton>
 
-      <MinecraftButton
-        :dark="true"
-        v-if="!isGlobal && props.parentId !== 'root'"
-        class="document-menu-btn"
-        role="menuitem"
-        @click.stop="onDeleteFolder"
+        <MinecraftButton
+          :dark="true"
+          v-if="!isGlobal && props.parentId !== 'root'"
+          class="document-menu-btn"
+          role="menuitem"
+          @click.stop="onDeleteFolder"
+        >
+          删除
+        </MinecraftButton>
+      </div>
+      <div
+        ref="documentMenuRef"
+        class="document-menu mc-border"
+        v-if="documentMenuShow"
+        role="menu"
+        aria-label="文档操作菜单"
+        @keydown.esc.stop.prevent="resetMenu"
+        :style="{
+          top: `${menuY}px`,
+          left: `${menuX}px`,
+        }"
       >
-        删除
-      </MinecraftButton>
-    </div>
-    <div
-      ref="documentMenuRef"
-      class="document-menu mc-border"
-      v-if="documentMenuShow"
-      role="menu"
-      aria-label="文档操作菜单"
-      @keydown.esc.stop.prevent="resetMenu"
-      :style="{
-        top: `${menuY}px`,
-        left: `${menuX}px`,
-      }"
-    >
-      <MinecraftButton
-        :dark="true"
-        class="document-menu-btn"
-        role="menuitem"
-        @click.stop="onRenameDocument"
-      >
-        重命名
-      </MinecraftButton>
+        <MinecraftButton
+          :dark="true"
+          class="document-menu-btn"
+          role="menuitem"
+          @click.stop="onRenameDocument"
+        >
+          重命名
+        </MinecraftButton>
 
-      <MinecraftButton
-        :dark="true"
-        class="document-menu-btn"
-        role="menuitem"
-        @click.stop="onDeleteDocument"
-      >
-        删除
-      </MinecraftButton>
-    </div>
+        <MinecraftButton
+          :dark="true"
+          class="document-menu-btn"
+          role="menuitem"
+          @click.stop="onDeleteDocument"
+        >
+          删除
+        </MinecraftButton>
+      </div>
+    </Teleport>
     <MinecraftDialog v-model="inputDialogShow" :title="inputTitle" @confirm="onInputDialogConfirm">
-      <div class="dialog-input-item">
-        <label class="dialog-input-label" for="document-private-switch"> 仅内部可见 </label>
+      <div
+        v-if="inputTitle === '新建文件夹' || inputTitle === '新建文档'"
+        class="document-visibility-picker"
+        role="radiogroup"
+        aria-label="文档可见性"
+      >
+        <button
+          type="button"
+          class="visibility-option"
+          :class="{ active: !isPrivate }"
+          role="radio"
+          :aria-checked="!isPrivate"
+          @click="isPrivate = false"
+        >
+          <strong>公开</strong>
+          <span>所有访问者可见</span>
+        </button>
 
-        <MinecraftSwitch id="document-private-switch" v-model="isPrivate" />
+        <button
+          type="button"
+          class="visibility-option"
+          :class="{ active: isPrivate }"
+          role="radio"
+          :aria-checked="isPrivate"
+          @click="isPrivate = true"
+        >
+          <strong>私有</strong>
+          <span>仅内部成员可见</span>
+        </button>
       </div>
 
       <label class="dialog-input-label" for="document-name-input"> 名称 </label>
@@ -813,7 +823,7 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
 }
 
 .document-menu {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 16rem;
@@ -821,7 +831,7 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 8;
+  z-index: 100000;
 }
 
 .document-menu-btn {
@@ -875,5 +885,54 @@ const onDocumentDrag = async (event: DragEvent, id: string) => {
   right: 0;
   bottom: 0;
   background-color: rgba(152, 203, 132, 0.15);
+}
+
+.document-visibility-picker {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.visibility-option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-height: 4rem;
+  padding: 0.75rem;
+  color: rgba(255, 255, 255, 0.72);
+  text-align: left;
+  background-color: #2e2e2e;
+  border: 2px solid #1a1a1a;
+  box-shadow:
+    inset -2px -2px 0 0 #1f1f1f,
+    inset 2px 2px 0 0 #454545;
+  cursor: pointer;
+}
+
+.visibility-option strong {
+  color: #fff;
+  font-size: 1rem;
+}
+
+.visibility-option span {
+  font-size: 0.85rem;
+}
+
+.visibility-option.active {
+  color: #fff;
+  border-color: var(--minecraft-green-light);
+  background-color: rgba(60, 133, 39, 0.34);
+}
+
+.visibility-option:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+@media screen and (max-width: 560px) {
+  .document-visibility-picker {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

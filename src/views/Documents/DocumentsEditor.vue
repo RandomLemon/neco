@@ -16,6 +16,7 @@ import MinecraftButton from '@/components/utils/MinecraftButton.vue'
 import MinecraftButtonClassic from '@/components/utils/MinecraftButtonClassic.vue'
 import MinecraftDialog from '@/components/utils/MinecraftDialog.vue'
 import MinecraftInput from '@/components/utils/MinecraftInput.vue'
+import MinecraftSwitch from '@/components/utils/MinecraftSwitch.vue'
 import {
   MdEditor,
   MdPreview,
@@ -414,11 +415,6 @@ const onResize = () => {
   }
 }
 
-const documentEditorRef = ref<HTMLDivElement | null>(null)
-
-const documentEditorOffsetX = ref<number>(0)
-const documentEditorOffsetY = ref<number>(0)
-
 onMounted(() => {
   const userGroup = localStorage.getItem('userGroup')
   if (!userGroup?.includes('admin') && !userGroup?.includes('document_admin')) {
@@ -426,23 +422,6 @@ onMounted(() => {
   }
   if (window.innerWidth < 768) {
     isMobile.value = true
-  }
-  if (documentEditorRef.value) {
-    const parentScrollX = documentEditorRef.value.parentElement?.scrollLeft || window.scrollX,
-      parentScrollY = documentEditorRef.value.parentElement?.scrollTop || window.scrollY
-    documentEditorOffsetX.value =
-      documentEditorRef.value.getBoundingClientRect().left + parentScrollX
-    documentEditorOffsetY.value =
-      documentEditorRef.value.getBoundingClientRect().top + parentScrollY
-    const parent = documentEditorRef.value.parentElement || window
-    parent.addEventListener('scroll', () => {
-      if (documentEditorRef.value) {
-        documentEditorOffsetX.value =
-          documentEditorRef.value.getBoundingClientRect().left + parentScrollX
-        documentEditorOffsetY.value =
-          documentEditorRef.value.getBoundingClientRect().top + parentScrollY
-      }
-    })
   }
   window.addEventListener('resize', onResize)
 })
@@ -454,7 +433,6 @@ onUnmounted(() => {
 
 <template>
   <div
-    ref="documentEditorRef"
     class="documents-editor"
     :style="{
       flexDirection: isMobile ? `column` : `row`,
@@ -470,12 +448,7 @@ onUnmounted(() => {
         maxWidth: `1280px`,
       }"
     >
-      <TreeViewer
-        class="tree-viewer"
-        v-model="selectedDocumentId"
-        :offset-x="documentEditorOffsetX"
-        :offset-y="documentEditorOffsetY"
-      />
+      <TreeViewer class="tree-viewer" v-model="selectedDocumentId" />
       <div
         class="resizer"
         role="separator"
@@ -505,7 +478,7 @@ onUnmounted(() => {
       <MdEditor
         ref="editorRef"
         id="md-editor"
-        class="editor"
+        class="editor minecraft-md-editor"
         theme="dark"
         language="zh-CN"
         preview-theme="minecraft"
@@ -568,19 +541,56 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-      <div class="editor-btn-group">
-        <MinecraftButton
-          :dark="true"
-          class="editor-btn"
-          @click="documentInstance.private = !documentInstance.private"
-          >可见性：{{ documentInstance.private ? '私有' : '公开' }}
+      <div class="editor-command-bar">
+        <section class="editor-status-card" aria-labelledby="editor-visibility-title">
+          <div>
+            <h2 id="editor-visibility-title">文档可见性</h2>
+            <p>
+              {{
+                documentInstance.private
+                  ? '当前为私有，仅内部可见。'
+                  : '当前为公开，所有访问者可见。'
+              }}
+            </p>
+          </div>
+
+          <div class="editor-visibility-control" role="group" aria-label="切换文档可见性">
+            <button
+              type="button"
+              class="editor-visibility-button"
+              :class="{ active: !documentInstance.private }"
+              @click="documentInstance.private = false"
+            >
+              公开
+            </button>
+
+            <button
+              type="button"
+              class="editor-visibility-button"
+              :class="{ active: documentInstance.private }"
+              @click="documentInstance.private = true"
+            >
+              私有
+            </button>
+          </div>
+        </section>
+
+        <section class="editor-status-card compact" aria-labelledby="editor-preview-title">
+          <div>
+            <h2 id="editor-preview-title">预览模式</h2>
+            <p>{{ documentInstance.preview ? '正在预览最终效果。' : '正在编辑 Markdown。' }}</p>
+          </div>
+
+          <MinecraftSwitch
+            id="editor-preview-switch"
+            v-model="documentInstance.preview"
+            @change="onPreviewClick"
+          />
+        </section>
+
+        <MinecraftButton class="editor-save-button" :dark="true" @click="commitDocument">
+          保存文档
         </MinecraftButton>
-        <MinecraftButton :dark="true" class="editor-btn" @click="onPreviewClick"
-          >预览：{{ documentInstance.preview ? '开启' : '关闭' }}
-        </MinecraftButton>
-        <MinecraftButton :dark="true" class="editor-btn last" @click="commitDocument"
-          >保存</MinecraftButton
-        >
       </div>
     </div>
   </div>
@@ -710,52 +720,195 @@ onUnmounted(() => {
 
 .editor-container {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
   height: 100vh;
+  min-width: 0;
+  overflow: auto;
+  background:
+    linear-gradient(to right, rgba(0, 0, 0, 0.68), rgba(0, 0, 0, 0.34), rgba(0, 0, 0, 0.68)),
+    radial-gradient(circle at 50% 18%, rgba(108, 195, 73, 0.16), transparent 28rem),
+    url('/background/bg.jpg');
+  background-size: auto, auto, 468px;
 }
 
 .editor {
-  height: calc(100vh - 2rem - 4px);
+  height: 100%;
+  min-height: 0;
 }
 
-.editor-btn-group {
-  width: 100%;
+.minecraft-md-editor {
+  --md-bk-color: rgba(20, 20, 20, 0.96);
+  --md-border-color: #555;
+  --md-color: rgba(255, 255, 255, 0.88);
+  border: 4px solid #222;
+  box-shadow:
+    inset -4px -4px 0 0 #1f1f1f,
+    inset 4px 4px 0 0 #454545;
+}
+
+.minecraft-md-editor :deep(.md-editor-toolbar-wrapper) {
+  min-height: 2rem;
+  background-color: #2e2e2e;
+  border-bottom: 2px solid #111;
+}
+
+.minecraft-md-editor :deep(.cm-editor) {
+  font-size: 1.08rem;
+  line-height: 1.75;
+  background-color: #161616;
+}
+
+.minecraft-md-editor :deep(.cm-content) {
+  padding: 1.25rem;
+  font-family: 'Cubic 11', 'Ark Latin', system-ui, Avenir, Helvetica, Arial, sans-serif !important;
+}
+
+.minecraft-md-editor :deep(.md-editor-input-wrapper) {
+  background:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.22)),
+    url('/blockbg/blackstone.png');
+  background-size:
+    auto,
+    32px 32px;
+}
+
+.minecraft-md-editor :deep(.md-editor-preview-wrapper) {
+  padding: 1.25rem;
+  font-size: 1.05rem;
+}
+
+.editor-command-bar {
+  display: grid;
+  grid-template-columns: minmax(18rem, 1fr) minmax(14rem, 0.75fr) 10rem;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: #202020;
+  border-top: 4px solid #111;
+}
+
+.editor-status-card {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.75rem;
+  background-color: #303030;
+  border: 2px solid #1a1a1a;
+  box-shadow:
+    inset -2px -2px 0 0 #1f1f1f,
+    inset 2px 2px 0 0 #454545;
 }
 
-.editor-btn {
-  width: fit-content;
-  height: 2rem;
+.editor-status-card h2 {
+  margin: 0 0 0.25rem 0;
+  color: #fff;
+  font-size: 1rem;
 }
 
-.editor-btn.last {
-  width: 6rem;
-  margin-left: auto;
+.editor-status-card p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 0.82rem;
+  line-height: 1.25rem;
+}
+
+.editor-visibility-control {
+  display: inline-flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.editor-visibility-button {
+  min-width: 4rem;
+  padding: 0.45rem 0.6rem;
+  color: #ddd;
+  background-color: #222;
+  border: 2px solid #111;
+  box-shadow:
+    inset -1px -1px 0 0 #111,
+    inset 1px 1px 0 0 #666;
+  cursor: pointer;
+}
+
+.editor-visibility-button.active {
+  color: #fff;
+  background-color: rgba(60, 133, 39, 0.7);
+  border-color: var(--minecraft-green-light);
+}
+
+.editor-visibility-button:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+
+.editor-save-button {
+  width: 100%;
+  height: 100%;
+  min-height: 4.4rem;
+  font-size: 1.1rem;
 }
 
 .document-main-content {
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: fit-content;
-  overflow: scroll;
-  min-height: calc(100vh - 2rem - 4px);
-
+  height: 100%;
+  overflow: auto;
+  min-height: 0;
   background:
-    linear-gradient(to right, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.4)),
-    radial-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.5)), url('/blockbg/dirt.png');
+    linear-gradient(to right, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.72)),
+    radial-gradient(circle at 50% 18%, rgba(108, 195, 73, 0.16), transparent 28rem),
+    url('/background/bg.jpg');
+  background-size: auto, auto, 468px;
 }
 
 .document-main-item-list {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  height: 100%;
-  padding: 1rem 4rem;
-  padding-bottom: 2rem;
-  min-height: calc(100vh - 2rem - 4px);
+  width: min(100%, 68rem);
+  min-height: 100%;
+  padding: 2rem clamp(1rem, 4vw, 4rem);
+  color: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  background-color: rgba(12, 12, 12, 0.72);
+  border: 4px solid #222;
+  box-shadow:
+    inset -4px -4px 0 0 #1f1f1f,
+    inset 4px 4px 0 0 #454545,
+    0 0.75rem 2rem rgba(0, 0, 0, 0.35);
+  overflow: auto;
+}
+
+@media screen and (max-width: 1080px) {
+  .editor-command-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-save-button {
+    min-height: 3.2rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .editor-container {
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .editor-status-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .editor-visibility-control {
+    width: 100%;
+  }
+
+  .editor-visibility-button {
+    flex: 1;
+  }
 }
 
 .document-main-item {

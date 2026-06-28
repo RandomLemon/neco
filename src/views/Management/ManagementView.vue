@@ -263,4 +263,151 @@ onUnmounted(() => {
   user-select: none;
   align-self: flex-end;
 }
+
+.management-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #4a4a4a;
+  border: 4px solid #222222;
+  box-shadow:
+    inset -4px -4px 0px 0px #3a3a3a,
+    inset 4px 4px 0px 0px #6b6b6b;
+  box-sizing: border-box;
+}
+
+.management-section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--minecraft-gray-light);
+}
+
+.management-section-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.management-section-title {
+  margin: 0;
+  color: #fff;
+  font-size: 1.35rem;
+  line-height: 1.45rem;
+  user-select: none;
+}
+
+.management-section-desc {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.9rem;
+  line-height: 1.25rem;
+  user-select: none;
+}
+
+.management-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.management-card {
+  padding: 1rem;
+  background-color: #303030;
+  border: 2px solid #1a1a1a;
+  box-shadow:
+    inset -2px -2px 0 0 #1f1f1f,
+    inset 2px 2px 0 0 #454545;
+}
+
+.management-card-title {
+  margin: 0 0 0.75rem 0;
+  color: #fff;
+  font-size: 1.15rem;
+  line-height: 1.25rem;
+  user-select: none;
+}
+
+.management-grid-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1rem;
+}
+
+.management-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.management-field.full {
+  grid-column: 1 / -1;
+}
+
+.management-field-label {
+  color: #fff;
+  font-size: 1rem;
+  user-select: none;
+}
+
+.management-field-help {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.85rem;
+  line-height: 1.25rem;
+}
+
+.management-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2rem 1rem;
+  color: rgba(255, 255, 255, 0.72);
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.18);
+  border: 2px dashed #666;
+}
+
+.management-empty-state strong {
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.management-action-row {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #555;
+}
+
+.management-danger-text {
+  margin: 0;
+  color: #f0c36a;
+  line-height: 1.35rem;
+}
+
+@media screen and (max-width: 768px) {
+  .management-section-header,
+  .management-toolbar,
+  .management-action-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .management-toolbar > *,
+  .management-action-row > * {
+    width: 100%;
+  }
+}
 </style>

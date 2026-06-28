@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useRouter } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { GetNewsBrief, type NewsEntity } from '@/api/newslist'
 import NewsCard from './NewsCard.vue'
 import NewsList from './NewsList.vue'
@@ -8,8 +8,8 @@ import NewsList from './NewsList.vue'
 const router = useRouter()
 
 const newsId = ref('information')
-
 const newsBrief = ref<NewsEntity[]>([])
+const newsReady = ref(false)
 
 const scrollToNews = () => {
   const newsList = document.getElementById('news-list')
@@ -30,52 +30,81 @@ const newTab = (id: string) => {
 }
 
 onMounted(async () => {
+  newsReady.value = false
   newsBrief.value = await GetNewsBrief()
+  newsReady.value = true
 })
 </script>
 
 <template>
   <div class="news-area">
-    <div class="news-overview">
-      <div class="overview-divide divide-1" style="height: 100%; width: 100%">
-        <NewsCard
-          class="vertical"
-          style="animation: fade-in-down 0.5s ease-in-out 0.2s forwards"
-          :news-brief="newsBrief[0] ?? {}"
-          button-text="更多活动"
-          @jump="router.push(`/activity`)"
-        />
-        <div class="overview-divide vertical">
+    <section class="news-hero nmo-hero-panel" aria-labelledby="news-hero-title">
+      <div class="news-hero-header">
+        <div>
+          <h1 id="news-hero-title" class="nmo-section-title">新闻与活动</h1>
+          <p class="nmo-section-desc">NMO 最近发生了什么事？</p>
+        </div>
+      </div>
+
+      <div class="news-overview-shell">
+        <div
+          v-if="!newsReady"
+          class="news-overview-loading nmo-card-soft"
+          role="status"
+          aria-live="polite"
+        >
+          <img src="/loading.gif" alt="" />
+          <span>正在加载新闻内容...</span>
+        </div>
+
+        <div v-else class="news-overview-grid assets-ready">
           <NewsCard
-            class="dynamic-vertical"
-            style="animation: fade-in-down 0.5s ease-in-out 0.4s forwards"
+            class="news-overview-card card-activity"
+            variant="featured"
+            image-mode="cover"
+            :news-brief="newsBrief[0] ?? {}"
+            label="活动"
+            button-text="更多活动"
+            @jump="router.push(`/activity`)"
+          />
+
+          <NewsCard
+            class="news-overview-card card-information"
+            variant="compact"
+            image-mode="cover"
             :news-brief="newsBrief[1] ?? {}"
+            label="资讯"
             button-text="更多资讯"
             @jump="((newsId = 'information'), scrollToNews())"
           />
-          <div class="overview-divide divide-2">
-            <NewsCard
-              class="vertical"
-              style="animation: fade-in-down 0.5s ease-in-out 0.6s forwards"
-              :news-brief="newsBrief[2] ?? {}"
-              button-text="往期社刊"
-              @jump="((newsId = 'magazine'), scrollToNews())"
-            />
-            <NewsCard
-              class="vertical"
-              style="animation: fade-in-down 0.5s ease-in-out 0.8s forwards"
-              :news-brief="newsBrief[3] ?? {}"
-              button-text="更多公告"
-              @jump="((newsId = 'notice'), scrollToNews())"
-            />
-          </div>
+
+          <NewsCard
+            class="news-overview-card card-magazine"
+            variant="compact"
+            image-mode="portrait"
+            :news-brief="newsBrief[2] ?? {}"
+            label="社刊"
+            button-text="往期社刊"
+            @jump="((newsId = 'magazine'), scrollToNews())"
+          />
+
+          <NewsCard
+            class="news-overview-card card-notice"
+            variant="compact"
+            image-mode="cover"
+            :news-brief="newsBrief[3] ?? {}"
+            label="公告"
+            button-text="更多公告"
+            @jump="((newsId = 'notice'), scrollToNews())"
+          />
         </div>
       </div>
-    </div>
+    </section>
+
     <NewsList
       v-model="newsId"
       id="news-list"
-      style="opacity: 0; animation: fade-in-down 0.5s ease-in-out 1s forwards"
+      class="news-list-entry"
       @need-scroll="scrollToNews"
       @card-click="newTab"
     />
@@ -85,142 +114,148 @@ onMounted(async () => {
 <style lang="css" scoped>
 .news-area {
   width: 100%;
+  min-height: calc(100vh - 4rem);
+  min-height: calc(100svh - 4rem);
+  padding: 4.15rem clamp(1rem, 3.4vw, 3.5rem) 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  box-sizing: border-box;
+}
+
+.news-hero {
+  width: min(100%, 98rem);
+  height: min(43rem, calc(100vh - 5.75rem));
   min-height: calc(100vh - 5rem);
-  padding-top: 5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.vertical {
-  flex-direction: column;
-}
-
-.news-overview {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 4rem;
-  margin-bottom: 2rem;
-}
-
-.overview-divide {
-  flex: 1;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-}
-
-.news-list-panel {
-  opacity: 0;
-  width: calc(100% - 4rem);
-  margin: 2rem;
-  background:
-    linear-gradient(to right, rgba(24, 24, 24, 0.4), rgba(24, 24, 24, 0.2), rgba(24, 24, 24, 0.4)),
-    radial-gradient(rgba(24, 24, 24, 0.2), rgba(24, 24, 24, 0.8)), url('/blockbg/cobblestone.png');
-  background-size:
-    auto,
-    auto,
-    32px 32px;
-  padding: 1.5rem;
-}
-
-.news-title-container {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.news-title {
-  user-select: none;
-  font-size: 1.5rem;
-}
-
-.news-total {
-  font-size: 1.2rem;
-  user-select: none;
-  margin-left: 1rem;
-  color: #aba09c;
-}
-
-.news-sort-by {
-  font-size: 1.5rem;
-  user-select: none;
-  margin-left: auto;
-}
-
-.news-sort-by-option {
-  font-size: 1.5rem;
-  margin-left: 1rem;
-  color: var(--minecraft-green-light);
-}
-
-.news-list-loading-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 40rem;
-}
-
-.news-list-loading {
-  width: 16rem;
-  height: 16rem;
-}
-
-.news-list-container {
-  width: 100%;
+  padding: clamp(0.8rem, 1.45vw, 1.25rem);
   display: grid;
-  gap: 1.5rem;
-  padding: 2rem 0;
+  grid-template-rows: auto minmax(0, 1fr);
+  box-sizing: border-box;
+}
+
+.news-hero-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: clamp(0.65rem, 1.2vh, 1rem);
+}
+
+.news-hero-header .nmo-section-title {
+  margin-bottom: 0.35rem;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  line-height: 1;
+}
+
+.news-hero-header .nmo-section-desc {
+  max-width: 62rem;
+  font-size: clamp(0.92rem, 1.15vw, 1.08rem);
+  line-height: 1.45;
+  margin: 1rem 0;
+}
+
+.news-overview-shell {
+  position: relative;
+  height: 100%;
+  min-height: 0;
+}
+
+.news-overview-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.16fr) minmax(16rem, 0.58fr) minmax(13rem, 0.42fr);
+  grid-template-rows: minmax(0, 1fr) minmax(12rem, 0.72fr);
+  grid-template-areas:
+    'activity information information'
+    'activity magazine notice';
+  gap: clamp(0.65rem, 1.1vw, 1rem);
+  height: 100%;
+  min-height: 0;
+}
+
+.news-overview-grid.assets-ready {
+  animation: fade-in-down 0.36s ease-in-out both;
+}
+
+.news-overview-card {
+  min-width: 0;
+  min-height: 0;
+}
+
+.card-activity {
+  grid-area: activity;
+}
+
+.card-information {
+  grid-area: information;
+}
+
+.card-magazine {
+  grid-area: magazine;
+}
+
+.card-notice {
+  grid-area: notice;
+}
+
+.news-overview-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.76);
+  font-size: 1.2rem;
 }
 
-.news-list-item {
-  opacity: 0;
-  animation: fade-in-down 0.5s ease-in-out forwards;
-  animation-delay: var(--delay);
+.news-overview-loading img {
+  width: 7rem;
+  height: 7rem;
+  image-rendering: pixelated;
+  user-select: none;
 }
 
-@media screen and (max-width: 1920px) {
-  .divide-1 {
-    flex-direction: row;
+@media screen and (max-width: 1180px) {
+  .news-area {
+    padding-top: 4.5rem;
   }
 
-  .news-list-container {
-    grid-template-columns: repeat(4, minmax(17.5rem, 21.75rem));
-  }
-}
-
-@media screen and (max-width: 1312px) {
-  .divide-1 {
-    flex-direction: column;
+  .news-hero {
+    height: auto;
+    min-height: 0;
   }
 
-  .news-list-container {
-    grid-template-columns: repeat(3, minmax(17.5rem, 21.75rem));
-  }
-}
-
-@media screen and (max-width: 1008px) {
-  .news-list-container {
-    grid-template-columns: repeat(2, minmax(17.5rem, 21.75rem));
-  }
-}
-
-@media screen and (max-width: 800px) {
-  .news-list-container {
-    grid-template-columns: repeat(1, minmax(17.5rem, 21.75rem));
+  .news-overview-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: minmax(18rem, auto) minmax(14rem, auto) minmax(14rem, auto);
+    grid-template-areas:
+      'activity information'
+      'activity magazine'
+      'notice notice';
+    height: auto;
   }
 }
 
-@media screen and (max-width: 623px) {
-  .dynamic-vertical {
-    flex-direction: column;
+@media screen and (max-width: 760px) {
+  .news-area {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 
-  .divide-2 {
-    flex-direction: column;
+  .news-hero {
+    padding: 0.8rem;
+  }
+
+  .news-overview-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    grid-template-areas:
+      'activity'
+      'information'
+      'magazine'
+      'notice';
   }
 }
 </style>
